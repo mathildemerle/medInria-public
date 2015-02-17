@@ -65,7 +65,7 @@ public:
         m_paintState(PaintState::None),
         m_lastPaintState(PaintState::None),
 		timer(){}
-   
+
     virtual bool mousePressEvent(medAbstractView *view, QMouseEvent *mouseEvent )
     {
         m_paintState = m_cb->paintState();
@@ -230,7 +230,7 @@ public:
         }
         return false;
     }
-	
+
     const std::vector<QVector3D> & points() const { return m_points; }
 
 private :
@@ -300,7 +300,7 @@ AlgorithmPaintToolbox::AlgorithmPaintToolbox(QWidget *parent ) :
     brushSizeLayout->addWidget( m_brushSizeSpinBox );
     layout->addLayout( brushSizeLayout );
 
-       // magic wand 's  widgets //
+    // magic wand 's  widgets //
     m_wandUpperThresholdLabel = new QLabel("Upper Threshold");
     m_wandUpperThresholdLabel->hide();
     m_wandLowerThresholdLabel = new QLabel("Lower Threshold");
@@ -436,7 +436,7 @@ AlgorithmPaintToolbox::AlgorithmPaintToolbox(QWidget *parent ) :
     connect(this->segmentationToolBox(), SIGNAL(inputChanged()), this, SLOT(updateMouseInteraction()));
 
     connect (m_interpolateButton, SIGNAL(clicked()),
-        this,SLOT(interpolate()));
+             this,SLOT(interpolate()));
     showButtons(false);
 
     //
@@ -524,7 +524,7 @@ void AlgorithmPaintToolbox::synchronizeWandSpinBoxesAndSliders()
         m_wandLowerThresholdSlider->blockSignals(false);
     }
 
-   updateFromGuiItems();
+    updateFromGuiItems();
 
     //if (currentView && currentView->receiverWidget()) TODO : see if needed
     //    currentView->receiverWidget()->setFocus(); // bring the focus back to the view.
@@ -757,7 +757,7 @@ void AlgorithmPaintToolbox::setData( medAbstractData *medData )
         } else {
 
             m_maskData =
-                medAbstractDataFactory::instance()->createSmartPointer( "itkDataImageUChar3" );
+                    medAbstractDataFactory::instance()->createSmartPointer( "itkDataImageUChar3" );
 
             if ( !m_maskData ) {
                 dtkDebug() << DTK_PRETTY_FUNCTION << "Failed to create itkDataImageUChar3";
@@ -957,7 +957,10 @@ AlgorithmPaintToolbox::RunConnectedFilter (MaskType::IndexType &index, unsigned 
 
     double value = tmpPtr->GetPixel(index);
 
-    if (!seedPlanted) setSeedPlanted(true,index,planeIndex,value);
+    if (!seedPlanted)
+    {
+        setSeedPlanted(true,index,planeIndex,value);
+    }
 
     ctiFilter->SetUpper( m_wandUpperThreshold );
     ctiFilter->SetLower( m_wandLowerThreshold );
@@ -1192,7 +1195,6 @@ void AlgorithmPaintToolbox::updateStroke(ClickAndMoveEventFilter * filter, medAb
             }
 
             bool isInside = m_itkMask->TransformPhysicalPointToIndex( testPt, index );
-
             if ( isInside )
             {
                 m_itkMask->SetPixel( index, pxValue );
@@ -1236,7 +1238,7 @@ void AlgorithmPaintToolbox::showButtons( bool value )
 void AlgorithmPaintToolbox::updateButtons()
 {
 
-   if ( m_paintState == PaintState::None ) {
+    if ( m_paintState == PaintState::None ) {
         m_wandLowerThresholdLabel->hide();
         m_wandUpperThresholdLabel->hide();
         m_wandLowerThresholdSlider->hide();
@@ -1501,7 +1503,7 @@ void AlgorithmPaintToolbox::addSliceToStack(medAbstractView * view,const unsigne
     m_undoStacks->value(view)->append(PairListSlicePlaneId(list,planeIndex));
 
     if (m_redoStacks->contains(view))
-            m_redoStacks->value(view)->clear();
+        m_redoStacks->value(view)->clear();
 }
 
 void AlgorithmPaintToolbox::onViewClosed()
@@ -1654,7 +1656,7 @@ void AlgorithmPaintToolbox::copySliceMask()
 
 void AlgorithmPaintToolbox::pasteSliceMask()
 {
-   if (!viewCopied || !currentView || currentView!=viewCopied || !m_copy.first || m_copy.second==-1)  // TODO add message No copy in buffer // TODO ADD MESSAGE NO CURRENT VIEW DEFINED FOR THE SEGEMENTAION TOOLBOX
+    if (!viewCopied || !currentView || currentView!=viewCopied || !m_copy.first || m_copy.second==-1)  // TODO add message No copy in buffer // TODO ADD MESSAGE NO CURRENT VIEW DEFINED FOR THE SEGEMENTAION TOOLBOX
         return;
 
     MaskType::IndexType index3D;
@@ -1924,11 +1926,11 @@ bool AlgorithmPaintToolbox::isData(Mask2dType::Pointer input,unsigned char label
 }
 
 Mask2dType::Pointer AlgorithmPaintToolbox::extract2DImageSlice(MaskType::Pointer input,
-                                                                        int plane,
-                                                                        int slice,
-                                                                        MaskType::SizeType size,
-                                                                        MaskType::IndexType start
-                                                                        )
+                                                               int plane,
+                                                               int slice,
+                                                               MaskType::SizeType size,
+                                                               MaskType::IndexType start
+                                                               )
 {
     size[plane] = 0;
     const unsigned int sliceNumber = slice;
@@ -2042,19 +2044,19 @@ Mask2dType::Pointer AlgorithmPaintToolbox::translateImageByVec(Mask2dType::Point
             it2.SetIndex(ind);
             it2.Set(this->m_strokeLabel);
         }
-     ++it1;
+        ++it1;
     }
     return imgOut;
 }
 
 // Compute the interpolated slice between two distance maps
 void AlgorithmPaintToolbox::computeIntermediateSlice(Mask2dFloatType::Pointer distanceMapImg0,
-                                                              Mask2dFloatType::Pointer distanceMapImg1,
-                                                              int slice0,
-                                                              int slice1,
-                                                              int j,
-                                                              MaskFloatIterator ito,
-                                                              MaskIterator itmask,double *vec)
+                                                     Mask2dFloatType::Pointer distanceMapImg1,
+                                                     int slice0,
+                                                     int slice1,
+                                                     int j,
+                                                     MaskFloatIterator ito,
+                                                     MaskIterator itmask,double *vec)
 {
     // iterators
     Mask2dFloatIterator iti0(distanceMapImg0, distanceMapImg0->GetBufferedRegion()); // volume in 0
