@@ -900,7 +900,9 @@ void AlgorithmPaintToolbox::updateWandRegion(medAbstractImageView * view, QVecto
     {
         this->setData(view->layerData(0));
     }
-    if (!m_imageData) {
+
+    if (!m_imageData)
+    {
         dtkWarn() << "Could not set data";
         return;
     }
@@ -932,15 +934,7 @@ void AlgorithmPaintToolbox::updateWandRegion(medAbstractImageView * view, QVecto
         RunConnectedFilter < itk::Image <double,3> > (index,planeIndex);
     }
 
-    if(!view->contains(m_maskAnnotationData))
-    {
-        view->addLayer(m_maskAnnotationData);
-        m_maskData->copyMetaDataFrom(m_imageData);
-        QString newSeriesDescription = m_imageData->metadata ( medMetaDataKeys::SeriesDescription.key() ) + " painted";
-        m_maskData->setMetaData ( medMetaDataKeys::SeriesDescription.key(), newSeriesDescription );
-        medDataManager::instance()->importData(m_maskData);
-    }
-
+    if(!view->contains(m_maskAnnotationData)) view->addLayer(m_maskAnnotationData);
 }
 
 template <typename IMAGE>
@@ -1204,14 +1198,7 @@ void AlgorithmPaintToolbox::updateStroke(ClickAndMoveEventFilter * filter, medAb
     m_itkMask->GetPixelContainer()->Modified();
     m_itkMask->SetPipelineMTime(m_itkMask->GetMTime());
 
-    if(!view->contains(m_maskAnnotationData))
-    {
-        view->addLayer(m_maskAnnotationData);
-        m_maskData->copyMetaDataFrom(m_imageData);
-        QString newSeriesDescription = m_imageData->metadata ( medMetaDataKeys::SeriesDescription.key() ) + " painted";
-        m_maskData->setMetaData ( medMetaDataKeys::SeriesDescription.key(), newSeriesDescription );
-        medDataManager::instance()->importData(m_maskData);
-    }
+    if(!view->contains(m_maskAnnotationData)) view->addLayer(m_maskAnnotationData);
 
     m_maskAnnotationData->invokeModified();
 }
