@@ -1203,7 +1203,10 @@ void AlgorithmPaintToolbox::updateStroke(ClickAndMoveEventFilter * filter, medAb
     m_itkMask->GetPixelContainer()->Modified();
     m_itkMask->SetPipelineMTime(m_itkMask->GetMTime());
 
-    if(!view->contains(m_maskAnnotationData)) view->addLayer(m_maskAnnotationData);
+    if(!view->contains(m_maskAnnotationData))
+    {
+        view->addLayer(m_maskAnnotationData);
+    }
 
     m_maskAnnotationData->invokeModified();
 }
