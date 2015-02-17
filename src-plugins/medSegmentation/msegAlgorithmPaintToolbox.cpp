@@ -673,7 +673,7 @@ void AlgorithmPaintToolbox::updateMagicWandComputationSpeed()
 }
 
 void AlgorithmPaintToolbox::import()
-{
+{  
     m_maskData->copyMetaDataFrom(m_imageData);
     QString newSeriesDescription = m_imageData->metadata ( medMetaDataKeys::SeriesDescription.key() ) + " painted";
     m_maskData->setMetaData ( medMetaDataKeys::SeriesDescription.key(), newSeriesDescription );
@@ -1641,6 +1641,8 @@ void AlgorithmPaintToolbox::onViewClosed()
 
     if(m_strokeButton ->isChecked())
         m_strokeButton->setChecked(false);
+
+    showButtons(false);
 
     if (viewClosed==currentView)
     {
