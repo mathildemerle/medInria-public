@@ -915,6 +915,7 @@ void AlgorithmPaintToolbox::updateWandRegion(medAbstractImageView * view, QVecto
         medMessageController::instance()->showError(tr("Magic wand option is only available for 3D images"),3000);
         return;
     }
+
     MaskType::IndexType index;
 
     bool isInside;
@@ -951,6 +952,7 @@ AlgorithmPaintToolbox::RunConnectedFilter (MaskType::IndexType &index, unsigned 
     typename ConnectedThresholdImageFilterType::Pointer ctiFilter = ConnectedThresholdImageFilterType::New();
 
     double value = tmpPtr->GetPixel(index);
+
     if (!seedPlanted) setSeedPlanted(true,index,planeIndex,value);
 
     ctiFilter->SetUpper( m_wandUpperThreshold );
