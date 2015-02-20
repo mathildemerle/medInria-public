@@ -379,8 +379,8 @@ AlgorithmPaintToolbox::AlgorithmPaintToolbox(QWidget *parent ) :
     magicWandLayout = new QFormLayout(this);
     magicWandLayout->addRow(m_wandInfo);
     magicWandLayout->addRow(magicWandCheckboxes);
-    magicWandLayout->addRow(magicWandLayout1);
     magicWandLayout->addRow(magicWandLayout2);
+    magicWandLayout->addRow(magicWandLayout1);
     magicWandLayout->addRow(magicWandLayout3);
 
     layout->addLayout(magicWandLayout);
