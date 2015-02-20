@@ -52,6 +52,7 @@ bool Plugin::initialize()
     {
         qDebug() << "Unable to register v3dViewAnnotationInteractor";
     }
+
     if(!AlgorithmPaintToolbox::registered())
     {
         qDebug() << "Unable to register msegAlgorithmPaintToolbox";
