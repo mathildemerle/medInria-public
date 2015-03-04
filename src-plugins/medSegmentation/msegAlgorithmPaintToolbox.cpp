@@ -68,6 +68,10 @@ public:
 
     virtual bool mousePressEvent(medAbstractView *view, QMouseEvent *mouseEvent )
     {
+        bool shouldWeRetrieveData = true;
+        if(m_paintState == m_cb->paintState())
+            shouldWeRetrieveData = false;
+
         m_paintState = m_cb->paintState();
 
         if ( this->m_paintState == PaintState::DeleteStroke )
@@ -135,7 +139,6 @@ public:
     virtual bool mouseMoveEvent( medAbstractView *view, QMouseEvent *mouseEvent )
     {
         medAbstractImageView * imageView = dynamic_cast<medAbstractImageView *>(view);
-
         if(!imageView) return false;
 
         if (m_paintState == PaintState::None 
@@ -170,7 +173,7 @@ public:
                 m_cb->updateStroke( this,imageView );
                 timer.start();
             }
-           return mouseEvent->isAccepted();
+            return mouseEvent->isAccepted();
         }
 
         if ( this->m_paintState == PaintState::None )
@@ -204,6 +207,7 @@ public:
         {
             m_paintState = PaintState::None; //Painting is done
             m_cb->updateStroke(this, imageView);
+
             this->m_points.clear();
             timer.start();
             return true;
@@ -226,7 +230,7 @@ public:
             else
                 m_cb->addBrushSize(numSteps);
 
-            return true;
+            return true;   
         }
         return false;
     }
