@@ -69,6 +69,10 @@ public:
    
     virtual bool mousePressEvent(medAbstractView *view, QMouseEvent *mouseEvent )
     {
+        bool shouldWeRetrieveData = true;
+        if(m_paintState == m_cb->paintState())
+            shouldWeRetrieveData = false;
+
         m_paintState = m_cb->paintState();
 
         if ( this->m_paintState == PaintState::DeleteStroke )
@@ -136,6 +140,7 @@ public:
     virtual bool mouseMoveEvent( medAbstractView *view, QMouseEvent *mouseEvent )
     {
         medAbstractImageView * imageView = dynamic_cast<medAbstractImageView *>(view);
+
         if(!imageView) return false;
 
         if (m_paintState == PaintState::None 
@@ -174,7 +179,9 @@ public:
         }
 
         if ( this->m_paintState == PaintState::None )
+        {
             return false;
+        }
 
         mouseEvent->accept();
 
@@ -191,11 +198,12 @@ public:
     virtual bool mouseReleaseEvent( medAbstractView *view, QMouseEvent *mouseEvent )
     {
         medAbstractImageView * imageView = dynamic_cast<medAbstractImageView *>(view);
-        if(!imageView)
-            return false;
+        if(!imageView) return false;
 
         if ( this->m_paintState == PaintState::None )
+        {
             return false;
+        }
 
         if (imageView->is2D())
         {
@@ -222,7 +230,8 @@ public:
                 m_cb->addBrushSize(-numSteps);
             else
                 m_cb->addBrushSize(numSteps);
-            return true;   
+
+            return true;
         }
         return false;
     }
