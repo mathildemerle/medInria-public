@@ -64,15 +64,10 @@ public:
         m_cb(cb),
         m_paintState(PaintState::None),
         m_lastPaintState(PaintState::None),
-
 		timer(){}
    
     virtual bool mousePressEvent(medAbstractView *view, QMouseEvent *mouseEvent )
     {
-        bool shouldWeRetrieveData = true;
-        if(m_paintState == m_cb->paintState())
-            shouldWeRetrieveData = false;
-
         m_paintState = m_cb->paintState();
 
         if ( this->m_paintState == PaintState::DeleteStroke )
@@ -1197,6 +1192,7 @@ void AlgorithmPaintToolbox::updateStroke(ClickAndMoveEventFilter * filter, medAb
             }
 
             bool isInside = m_itkMask->TransformPhysicalPointToIndex( testPt, index );
+
             if ( isInside )
             {
                 m_itkMask->SetPixel( index, pxValue );
