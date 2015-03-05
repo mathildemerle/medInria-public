@@ -65,13 +65,9 @@ public:
         m_paintState(PaintState::None),
         m_lastPaintState(PaintState::None),
 		timer(){}
-
+   
     virtual bool mousePressEvent(medAbstractView *view, QMouseEvent *mouseEvent )
     {
-        bool shouldWeRetrieveData = true;
-        if(m_paintState == m_cb->paintState())
-            shouldWeRetrieveData = false;
-
         m_paintState = m_cb->paintState();
 
         if ( this->m_paintState == PaintState::DeleteStroke )
@@ -207,7 +203,6 @@ public:
         {
             m_paintState = PaintState::None; //Painting is done
             m_cb->updateStroke(this, imageView);
-
             this->m_points.clear();
             timer.start();
             return true;
