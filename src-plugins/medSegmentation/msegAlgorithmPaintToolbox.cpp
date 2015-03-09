@@ -382,8 +382,8 @@ AlgorithmPaintToolbox::AlgorithmPaintToolbox(QWidget *parent ) :
     magicWandLayout = new QFormLayout(this);
     magicWandLayout->addRow(m_wandInfo);
     magicWandLayout->addRow(magicWandCheckboxes);
-    magicWandLayout->addRow(magicWandLayout2);
     magicWandLayout->addRow(magicWandLayout1);
+    magicWandLayout->addRow(magicWandLayout2);
     magicWandLayout->addRow(magicWandLayout3);
 
     layout->addLayout(magicWandLayout);
@@ -937,7 +937,10 @@ void AlgorithmPaintToolbox::updateWandRegion(medAbstractImageView * view, QVecto
         RunConnectedFilter < itk::Image <double,3> > (index,planeIndex);
     }
 
-    if(!view->contains(m_maskAnnotationData)) view->addLayer(m_maskAnnotationData);
+    if(!view->contains(m_maskAnnotationData))
+    {
+        view->addLayer(m_maskAnnotationData);
+    }
 }
 
 template <typename IMAGE>
