@@ -122,7 +122,7 @@ medWorkspaceArea::~medWorkspaceArea(void)
 
 QPixmap medWorkspaceArea::grabScreenshot()
 {
-    return QPixmap::grabWindow(this->currentWorkspace()->stackedViewContainers()->currentWidget()->winId());
+    return QPixmap::grabWindow(currentWorkspace()->stackedViewContainers()->getFirstSelectedContainerView()->viewWidget()->winId());
 }
 
 void medWorkspaceArea::addToolBox(medToolBox *toolbox)
