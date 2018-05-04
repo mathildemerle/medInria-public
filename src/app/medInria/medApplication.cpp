@@ -11,6 +11,8 @@
 
 =========================================================================*/
 
+#include "medReformatWorkspace.h"
+
 #include <medApplication.h>
 
 #include <locale.h>
@@ -175,6 +177,7 @@ void medApplication::initialize()
     viewerWSpaceFactory->registerWorkspace<medDiffusionWorkspace>();
     viewerWSpaceFactory->registerWorkspace<medFilteringWorkspace>();
     viewerWSpaceFactory->registerWorkspace<medSegmentationWorkspace>();
+    viewerWSpaceFactory->registerWorkspace<medReformatWorkspace>();
 
     bool genericWorkpace = medSettingsManager::instance()->value("startup", "genericWorkspace", false).toBool();
 

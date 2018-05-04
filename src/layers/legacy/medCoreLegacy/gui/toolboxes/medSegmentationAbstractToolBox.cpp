@@ -33,7 +33,7 @@ medSegmentationAbstractToolBox::~medSegmentationAbstractToolBox(void)
 }
 
 //! Get the segmentationToolbox (usually one instance)
-medSegmentationSelectorToolBox *medSegmentationAbstractToolBox::segmentationToolBox(void)
+medSegmentationSelectorToolBox *medSegmentationAbstractToolBox::parentToolBox(void)
 {
     return d->segmentationToolBox;
 }

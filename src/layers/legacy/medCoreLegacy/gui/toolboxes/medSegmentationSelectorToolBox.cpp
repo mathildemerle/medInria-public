@@ -11,11 +11,11 @@
 
 =========================================================================*/
 
+#include <medSegmentationAbstractToolBox.h>
 #include <medSegmentationSelectorToolBox.h>
-
+#include <medTabbedViewContainers.h>
 #include <medToolBoxFactory.h>
 #include <medToolBoxTab.h>
-#include <medSegmentationAbstractToolBox.h>
 #include <medToolBoxHeader.h>
 #include <medViewEventFilter.h>
 
@@ -26,6 +26,7 @@ class medSegmentationSelectorToolBoxPrivate
 {
 public:
     QComboBox *chooseSegmentationComboBox;
+    medAbstractData *inputData;
     medSegmentationAbstractToolBox * currentSegmentationToolBox;
     QHash<QString, medSegmentationAbstractToolBox*> segmentationToolBoxes;
     QVBoxLayout *mainLayout;
@@ -47,6 +48,8 @@ medSegmentationSelectorToolBox::medSegmentationSelectorToolBox(QWidget *parent) 
     int i = 1; //account for the choose Filter item
     foreach(QString toolboxName, tbFactory->toolBoxesFromCategory("segmentation"))
     {
+        qDebug()<<"### medSegmentationSelectorToolBox name "<<toolboxName;
+
         medToolBoxDetails* details = tbFactory->toolBoxDetailsFromId(toolboxName);
         d->chooseSegmentationComboBox->addItem(details->name, toolboxName);
         d->chooseSegmentationComboBox->setItemData(i,
@@ -65,6 +68,8 @@ medSegmentationSelectorToolBox::medSegmentationSelectorToolBox(QWidget *parent) 
     mainWidget->setLayout(d->mainLayout);
     this->addWidget(mainWidget);
     this->setTitle("Segmentation");
+
+    d->inputData = NULL;
 }
 
 medSegmentationSelectorToolBox::~medSegmentationSelectorToolBox(void)
@@ -78,6 +83,14 @@ medSegmentationAbstractToolBox* medSegmentationSelectorToolBox::currentToolBox()
     return d->currentSegmentationToolBox;
 }
 
+///**
+// * @brief returns input data
+// */
+//medAbstractData*  medSegmentationSelectorToolBox::data()
+//{
+//    medAbstractView* view = this->getWorkspace()->tabbedViewContainers()->viewsInTab(0).at(0);
+//    //return d->inputData;
+//}
 
 void medSegmentationSelectorToolBox::changeCurrentToolBox(int index)
 {

@@ -31,3 +31,4 @@ add_subdirectory(legacy/medImageIO)
 add_subdirectory(legacy/medRegistration)
 
 add_subdirectory(legacy/medVtkInria)
+add_subdirectory(legacy/medUtilities)

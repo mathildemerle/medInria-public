@@ -35,7 +35,7 @@ public:
     virtual medAbstractData *processOutput() = 0;
 
 protected:
-    medSegmentationSelectorToolBox *segmentationToolBox();
+    medSegmentationSelectorToolBox *parentToolBox();
 
 private:
     medSegmentationAbstractToolBoxPrivate *d;

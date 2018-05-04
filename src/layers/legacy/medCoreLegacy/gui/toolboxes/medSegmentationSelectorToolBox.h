@@ -29,6 +29,8 @@ public:
      medSegmentationSelectorToolBox(QWidget *parent = 0);
     ~medSegmentationSelectorToolBox();
 
+     medAbstractData* data();
+
      medSegmentationAbstractToolBox* currentToolBox();
 
 signals:

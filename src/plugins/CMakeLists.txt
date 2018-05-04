@@ -56,6 +56,7 @@ set(PLUGIN_LIST
   process/morphomath_operation                                           ON
   process/mask_image                                                     ON
   process/single_filter                                                  ON
+  legacy/mscN4BiasCorrection                                             ON
   )
 
   if(USE_DTKIMAGING)

@@ -85,6 +85,8 @@ medGenericWorkspace::medGenericWorkspace(QWidget *parent): medAbstractWorkspaceL
     d->workspaceToolBox->addWidget(processTypeWidget);
     d->workspaceToolBox->addWidget(processWidget);
     this->addToolBox(d->workspaceToolBox);
+
+    qDebug()<<"medGenericWorkspace::medGenericWorkspace";
 }
 
 medGenericWorkspace::~medGenericWorkspace()

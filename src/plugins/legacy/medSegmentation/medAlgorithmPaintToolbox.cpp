@@ -161,7 +161,7 @@ medAlgorithmPaintToolbox::medAlgorithmPaintToolbox(QWidget *parent ) :
     connect (m_strokeButton, SIGNAL(pressed()), this, SLOT(activateStroke ()));
     connect (m_magicWandButton, SIGNAL(pressed()),this,SLOT(activateMagicWand()));
     connect (m_clearMaskButton, SIGNAL(pressed()), this, SLOT(clearMask()));
-    connect(this->segmentationToolBox(), SIGNAL(inputChanged()), this, SLOT(updateMouseInteraction()));
+    connect(this->parentToolBox(), SIGNAL(inputChanged()), this, SLOT(updateMouseInteraction()));
 
     showButtons(false);
 }

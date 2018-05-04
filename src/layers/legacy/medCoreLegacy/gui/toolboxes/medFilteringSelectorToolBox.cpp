@@ -41,6 +41,7 @@ medFilteringSelectorToolBox::medFilteringSelectorToolBox ( QWidget *parent ) :
     medToolBox ( parent ),
     d ( new medFilteringSelectorToolBoxPrivate )
 {
+    qDebug()<<"### medFilteringSelectorToolBox";
 
     d->chooseFilter = new QComboBox;
     d->chooseFilter->addItem ( tr ( "Choose filter" ) );
@@ -50,6 +51,7 @@ medFilteringSelectorToolBox::medFilteringSelectorToolBox ( QWidget *parent ) :
     int i = 1; //account for the choose Filter item
     foreach ( QString toolbox, tbFactory->toolBoxesFromCategory("filtering") )
     {
+        qDebug()<<"### medFilteringSelectorToolBox name "<<toolbox;
         medToolBoxDetails* details = tbFactory->toolBoxDetailsFromId(toolbox);
 
         d->chooseFilter->addItem( details->name, toolbox );

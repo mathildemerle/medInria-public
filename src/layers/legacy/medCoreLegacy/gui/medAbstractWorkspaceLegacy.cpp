@@ -59,6 +59,7 @@ public:
 
     QList<medToolBox*> toolBoxes;
     medToolBox *selectionToolBox;
+    medToolBox *layersToolBox;
     medToolBox *layerListToolBox;
     medToolBox *interactorToolBox;
     medToolBox *navigatorToolBox;
@@ -72,13 +73,15 @@ public:
 
     medLinkMenu *viewLinkMenu;
     medLinkMenu *layerLinkMenu;
+
+    medProgressionStack * progressionStack;
 };
 
 medAbstractWorkspaceLegacy::medAbstractWorkspaceLegacy(QWidget *parent) : QObject(parent), d(new medAbstractWorkspaceLegacyPrivate)
 {
     d->parent = parent;
 
-    d->selectionToolBox = new medToolBox(parent);
+    d->selectionToolBox = new medToolBox;
     d->selectionToolBox->setTitle("Selection");
     d->selectionToolBox->header()->hide();
     d->selectionToolBox->hide();
@@ -100,16 +103,23 @@ medAbstractWorkspaceLegacy::medAbstractWorkspaceLegacy(QWidget *parent) : QObjec
     d->navigatorToolBox->hide();
     d->selectionToolBox->addWidget(d->navigatorToolBox);
 
+    d->layersToolBox = new medToolBox;
+    d->layersToolBox->setTitle("Layer settings");
+    d->layersToolBox->hide();
+
     d->layerListToolBox = new medToolBox;
-    d->layerListToolBox->setTitle("Layer settings");
-    d->layerListToolBox->hide();
-    d->selectionToolBox->addWidget(d->layerListToolBox);
+    d->layerListToolBox->header()->hide();
+    d->layersToolBox->addWidget(d->layerListToolBox);
 
     d->interactorToolBox = new medToolBox;
-    d->interactorToolBox->setTitle("Interactors");
     d->interactorToolBox->header()->hide();
-    d->interactorToolBox->hide();
-    d->selectionToolBox->addWidget(d->interactorToolBox);
+    d->layersToolBox->addWidget(d->interactorToolBox);
+
+    qDebug()<<"### !!! medAbstractWorkspaceLegacy::medAbstractWorkspaceLegacy";
+    d->progressionStack = new medProgressionStack();
+
+    d->selectionToolBox->addWidget(d->layersToolBox);
+    d->selectionToolBox->addWidget(d->progressionStack);
 
     d->layerListToolBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
@@ -392,7 +402,7 @@ void medAbstractWorkspaceLegacy::updateLayersToolBox()
         }
     }
     // add the layer widgets
-    d->layerListToolBox->show();
+    d->layersToolBox->show();
     d->layerListToolBox->addWidget(d->layerListWidget);
 
     d->layerListWidget->show();
@@ -900,3 +910,10 @@ void medAbstractWorkspaceLegacy::changeLayerGroupColor(QString group, QColor col
     medLayerParameterGroupL *paramGroup = medParameterGroupManagerL::instance()->layerGroup(group, this->identifier());
     paramGroup->setColor(color);
 }
+
+medProgressionStack* medAbstractWorkspaceLegacy::getProgressionStack()
+{
+    qDebug()<<"### medAbstractWorkspaceLegacy::getProgressionStack";
+    return d->progressionStack;
+}
+

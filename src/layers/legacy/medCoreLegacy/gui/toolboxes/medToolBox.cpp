@@ -12,14 +12,16 @@
 =========================================================================*/
 
 #include <medAbstractData.h>
-
 #include <medAbstractView.h>
-
+#include <medButton.h>
+#include <medDataManager.h>
+#include <medJobManagerL.h>
+#include <medMessageController.h>
+#include <medProgressionStack.h>
 #include <medToolBox.h>
 #include <medToolBoxHeader.h>
 #include <medToolBoxBody.h>
 #include <medToolBoxTab.h>
-#include <medButton.h>
 
 #include <dtkCoreSupport/dtkGlobal.h>
 #include <dtkCoreSupport/dtkPlugin>
@@ -36,6 +38,8 @@ public:
     bool isContextVisible;
     bool aboutPluginVisibility;
     dtkPlugin* plugin;
+
+    medAbstractWorkspaceLegacy* workspace;
 
 public:
     QVBoxLayout *layout;
@@ -295,4 +299,142 @@ void medToolBox::onAboutButtonClicked()
     {
         dtkWarn() << "No plugin set for toolbox" << d->header->title();
     }
+}
+
+///////////////////////////////////////////////////////////////////
+/////////////////////////// MUSIC /////////////////////////////////
+///////////////////////////////////////////////////////////////////
+
+medAbstractWorkspaceLegacy* medToolBox::getWorkspace()
+{
+    return d->workspace;
+}
+
+void medToolBox::setWorkspace(medAbstractWorkspaceLegacy* workspace)
+{
+    d->workspace = workspace;
+}
+
+void medToolBox::handleDisplayError(int error)
+{
+    // Handle volume(s)/mesh(es) error
+    //TODO: get access to medAbstractJob enum
+    switch (error)
+    {
+    case 3://medAbstractJob::PIXEL_TYPE:
+        displayMessageError("Pixel type not yet implemented");
+        break;
+    case 4://medAbstractJob::DIMENSION_3D:
+        displayMessageError("This toolbox is designed to be used with 3D volumes");
+        break;
+    case 5://medAbstractJob::DIMENSION_4D:
+        displayMessageError("This toolbox is designed to be used with 4D volumes");
+        break;
+    case 6://medAbstractJob::MESH_TYPE:
+        displayMessageError("This toolbox is designed to be used with meshes");
+        break;
+    case 7://medAbstractJob::NO_MESH:
+        displayMessageError("This toolbox is not designed to be used with meshes");
+        break;
+    case 8://medAbstractJob::DATA_SIZE:
+        displayMessageError("Inputs must be the same size");
+        break;
+    case 9://medAbstractJob::MISMATCHED_DATA_TYPES:
+        displayMessageError("Inputs must be the same type");
+        break;
+    case 10://medAbstractJob::MISMATCHED_DATA_SIZES_ORIGIN_SPACING:
+        displayMessageError("Inputs must have the same size, origin, spacing");
+        break;
+    case 11://medAbstractJob::MISMATCHED_DATA_SIZE:
+        displayMessageError("Inputs must have the same size");
+        break;
+    case 12://medAbstractJob::MISMATCHED_DATA_ORIGIN:
+        displayMessageError("Inputs must have the same origin");
+        break;
+    case 13://medAbstractJob::MISMATCHED_DATA_SPACING:
+        displayMessageError("Inputs must have the same spacing");
+        break;
+    default:
+        displayMessageError("This action failed (undefined error)");
+        break;
+    }
+}
+
+void medToolBox::displayMessageError(QString error)
+{
+    qDebug() << name() + ": " + error;
+    medMessageController::instance()->showError(error, 3000);
+}
+
+void medToolBox::setToolBoxOnWaitStatus()
+{
+    this->setDisabled(true);
+}
+
+void medToolBox::setToolBoxOnWaitStatusForNonRunnableProcess()
+{
+    setToolBoxOnWaitStatus();
+
+    // Needed for non-medRunnableProcess functions
+    this->repaint();
+    QApplication::processEvents();
+}
+
+void medToolBox::setToolBoxOnReadyToUse()
+{
+    this->setDisabled(false);
+}
+
+medProgressionStack* medToolBox::getProgressionStack()
+{
+    return getWorkspace()->getProgressionStack();
+}
+
+void medToolBox::addConnectionsAndStartJob(medJobItemL* job)
+{
+    qDebug()<<"### medToolBox::addConnectionsAndStartJob...";
+    addToolBoxConnections(job);
+
+    qDebug()<<"### medToolBox::addConnectionsAndStartJob name"<< this->name();
+    //getProgressionStack()->addJobItem(job, "Progress "+this->name()+":");
+
+    medJobManagerL::instance()->registerJobItem(job);
+    QThreadPool::globalInstance()->start(dynamic_cast<QRunnable*>(job));
+}
+
+void medToolBox::addToolBoxConnections(medJobItemL* job)
+{
+    // If you want to deactivate the automatic import of process output, add:
+    // "enableOnProcessSuccessImportOutput(runProcess, false);"
+    // in your toolbox, after "addConnectionsAndStartJob(runProcess);"
+    enableOnProcessSuccessImportOutput(job, true);
+
+    connect (job, SIGNAL (success   (QObject*)),    this, SIGNAL (success ()), Qt::UniqueConnection);
+    connect (job, SIGNAL (failure   (QObject*)),    this, SIGNAL (failure ()), Qt::UniqueConnection);
+    connect (job, SIGNAL (cancelled (QObject*)),    this, SIGNAL (failure ()), Qt::UniqueConnection);
+    connect (job, SIGNAL (cancelled (QObject*)),    this, SLOT   (setToolBoxOnReadyToUse()), Qt::UniqueConnection);
+    connect (job, SIGNAL (success   (QObject*)),    this, SLOT   (setToolBoxOnReadyToUse()), Qt::UniqueConnection);
+    connect (job, SIGNAL (failure   (QObject*)),    this, SLOT   (setToolBoxOnReadyToUse()), Qt::UniqueConnection);
+    //connect (job, SIGNAL (failure   (int)),         this, SLOT   (handleDisplayError(int)), Qt::UniqueConnection);
+    //connect (job, SIGNAL (activate(QObject*,bool)), getProgressionStack(), SLOT(setActive(QObject*,bool)), Qt::UniqueConnection);
+}
+
+void medToolBox::enableOnProcessSuccessImportOutput(medJobItemL* job, bool enable)
+{
+    if (enable)
+    {
+        //connect(job, SIGNAL(success(QObject*)), this->getWorkspace(), SLOT(importProcessOutput()), Qt::UniqueConnection);
+        connect(job, SIGNAL(success(QObject*)), this, SLOT(importProcessOutput()), Qt::UniqueConnection);
+    }
+    else
+    {
+        //disconnect(job, SIGNAL(success(QObject*)), this->getWorkspace(), SLOT(importProcessOutput()));
+        disconnect(job, SIGNAL(success(QObject*)), this, SLOT(importProcessOutput()));
+    }
+}
+
+void medToolBox::importProcessOutput()
+{
+    medAbstractData* output = this->processOutput();
+    medDataManager::instance()->importData(output);
 }
