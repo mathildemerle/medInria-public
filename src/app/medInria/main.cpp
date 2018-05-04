@@ -21,7 +21,6 @@
 
 #include <medMainWindow.h>
 #include <medApplication.h>
-#include <medSplashScreen.h>
 
 #include <medPluginManager.h>
 #include <medDataIndex.h>
@@ -92,7 +91,6 @@ int main(int argc,char* argv[])
     // Qt doc, otherwise there are some edge cases where the style is not fully applied
     //QApplication::setStyle("plastique");
     medApplication application(argc,argv);
-    medSplashScreen splash(QPixmap(":/pixmaps/medInria-splash.png"));
 
     setlocale(LC_NUMERIC, "C");
     QLocale::setDefault(QLocale("C"));
@@ -105,16 +103,6 @@ int main(int argc,char* argv[])
         "[--view] [files]]";
         return 1;
     }
-
-    // Do not show the splash screen in debug builds because it hogs the
-    // foreground, hiding all other windows. This makes debugging the startup
-    // operations difficult.
-
-    #if !defined(_DEBUG)
-    bool show_splash = true;
-    #else
-    bool show_splash = false;
-    #endif
 
     medSettingsManager* mnger = medSettingsManager::instance();
 
@@ -143,7 +131,6 @@ int main(int argc,char* argv[])
 
     int runningMedInria = 0;
     if (DirectView) {
-        show_splash = false;
         for (QStringList::const_iterator i=posargs.constBegin();i!=posargs.constEnd();++i) {
             const QString& message = QString("/open ")+*i;
             runningMedInria = application.sendMessage(message);
@@ -154,16 +141,6 @@ int main(int argc,char* argv[])
 
     if (runningMedInria)
         return 0;
-
-    if (show_splash)
-    {
-        QObject::connect(medPluginManager::instance(),SIGNAL(loaded(QString)),
-                         &application,SLOT(redirectMessageToSplash(QString)) );
-        QObject::connect(&application,SIGNAL(showMessage(const QString&)),
-                         &splash,SLOT(showMessage(const QString&)) );
-        splash.show();
-        splash.showMessage("Loading plugins...");
-    }
 
     //  DATABASE INITIALISATION.
     //  First compare the current with the new data location
@@ -240,9 +217,6 @@ int main(int argc,char* argv[])
        format.setDirectRendering(true);
        QGLFormat::setDefaultFormat(format);
     }
-
-    if (show_splash)
-        splash.finish(mainwindow);
 
     if (medPluginManager::instance()->plugins().isEmpty()) {
         QMessageBox::warning(mainwindow,

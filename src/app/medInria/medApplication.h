@@ -33,7 +33,6 @@ signals:
     void showMessage(const QString& message);
 
 public slots:
-    void redirectMessageToSplash(const QString& message);
     void redirectMessageToLog(const QString & message);
     void redirectErrorMessageToLog(const QString & message);
 

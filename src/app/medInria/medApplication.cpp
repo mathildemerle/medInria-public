@@ -142,11 +142,6 @@ void medApplication::redirectErrorMessageToLog(const QString &message)
     dtkError()<< message;
 }
 
-void medApplication::redirectMessageToSplash(const QString &message)
-{
-    emit showMessage(message);
-}
-
 void medApplication::open(const medDataIndex & index)
 {
     d->mainWindow->open(index);
