@@ -156,18 +156,18 @@ void vtkImage2DDisplay::SetInput(vtkImageData * image)
 {
   this->Input = image;
 
-  if (image)
-    image->UpdateInformation();
+  //if (image)
+  //  image->UpdateInformation();
 
   if (image && image->GetScalarType()==VTK_UNSIGNED_CHAR &&
       ( image->GetNumberOfScalarComponents()==3 || image->GetNumberOfScalarComponents()==4) )
   {
-    this->ImageActor->SetInput( image );
+    this->ImageActor->SetInputData( image );
   }
   else
   {
-    this->ImageActor->SetInput( this->WindowLevel->GetOutput() );
-    this->WindowLevel->SetInput(image);
+    this->ImageActor->SetInputData( this->WindowLevel->GetOutput() );
+    this->WindowLevel->SetInputData(image);
   }
 }
 
@@ -365,10 +365,10 @@ unsigned long vtkImageView2D::GetMTime()
 
         const int numLayer = this->GetNumberOfLayers();
         for ( int i(0); i<numLayer; ++i ) {
-            if (this->GetImage2DDisplayForLayer(i)->GetInput())
+            /*if (this->GetImage2DDisplayForLayer(i)->GetInput())
             {
-              this->GetImage2DDisplayForLayer(i)->GetInput()->UpdateInformation();
-            }
+                this->GetImage2DDisplayForLayer(i)->GetInput()->UpdateInformation();
+            }*/
             vtkObject * object = this->GetImage2DDisplayForLayer(i)->GetImageActor();
             if (object) {
                 const MTimeType testMtime = object->GetMTime();
@@ -386,8 +386,8 @@ void vtkImageView2D::GetSliceRange(int &min, int &max) const
   vtkImageData *input = this->GetInput();
   if (input)
   {
-    input->UpdateInformation();
-    int *w_ext = input->GetWholeExtent();
+    //input->UpdateInformation();
+    int *w_ext = input->GetExtent();
     min = w_ext[this->SliceOrientation * 2];
     max = w_ext[this->SliceOrientation * 2 + 1];
   }
@@ -399,8 +399,8 @@ int* vtkImageView2D::GetSliceRange() const
   vtkImageData *input = this->GetInput();
   if (input)
   {
-    input->UpdateInformation();
-    return input->GetWholeExtent() + this->SliceOrientation * 2;
+    //input->UpdateInformation();
+    return input->GetExtent() + this->SliceOrientation * 2;
   }
   return NULL;
 }
@@ -545,9 +545,9 @@ void vtkImageView2D::UpdateDisplayExtent()
     return;
   }
 
-  input->UpdateInformation();
+  //input->UpdateInformation();
 
-  int *w_ext = input->GetWholeExtent();
+  int *w_ext = input->GetExtent();
 
   int slice = this->Slice;
   int *range = this->GetSliceRange();
@@ -587,14 +587,14 @@ void vtkImageView2D::UpdateDisplayExtent()
         break;
     }
 
-    if ( ! this->Compare ( imageInput->GetUpdateExtent (), imageDisplay->GetImageActor()->GetDisplayExtent (), 6 ) ) {
+    if ( ! this->Compare ( imageInput->GetExtent (), imageDisplay->GetImageActor()->GetDisplayExtent (), 6 ) ) {
 
-      imageInput->SetUpdateExtent(imageDisplay->GetImageActor()->GetDisplayExtent ());
+      imageInput->SetExtent(imageDisplay->GetImageActor()->GetDisplayExtent ());
 
       // SetUpdateExtent does not call modified. There is a comment relating to this in
       // vtkDataObject::SetUpdateExtent
       imageInput->Modified ();
-      imageInput->PropagateUpdateExtent();
+      //imageInput->PropagateUpdateExtent();
     }
   }
 
@@ -1601,7 +1601,7 @@ void vtkImageView2D::SetFirstLayer (vtkImageData *image, vtkMatrix4x4 *matrix, i
 
         this->GetImage2DDisplayForLayer(layer)->SetInput(image);
         this->Superclass::SetInput (image, matrix, 0);
-        this->GetWindowLevel(layer)->SetInput(image);
+        this->GetWindowLevel(layer)->SetInputData(image);
         double *range = this->GetImage2DDisplayForLayer(layer)->GetInput()->GetScalarRange();
         this->SetColorRange(range,layer);
         this->Reset();
@@ -1637,8 +1637,8 @@ int vtkImageView2D::GetFirstLayer() const
 //----------------------------------------------------------------------------
 void vtkImageView2D::SetInput (vtkImageData *image, vtkMatrix4x4 *matrix, int layer)
 {
-  if (image)
-    image->UpdateInformation(); // must be called before GetSliceForWorldCoordinates()
+  //if (image)
+    //image->UpdateInformation(); // must be called before GetSliceForWorldCoordinates()
 
   vtkRenderer *renderer = 0;
 
@@ -1665,9 +1665,9 @@ void vtkImageView2D::SetInput (vtkImageData *image, vtkMatrix4x4 *matrix, int la
 
       // determine the scalar range. Copy the update extent to match the input's one
       double range[2];
-      reslicedImage->SetUpdateExtent (this->GetInput()->GetUpdateExtent());
-      reslicedImage->PropagateUpdateExtent();
-      reslicedImage->Update();
+      reslicedImage->SetExtent (this->GetInput()->GetExtent());
+      //reslicedImage->PropagateUpdateExtent();
+      //reslicedImage->Update();
       reslicedImage->GetScalarRange(range);
 
       vtkImage2DDisplay * imageDisplay = this->GetImage2DDisplayForLayer(layer);
@@ -1675,7 +1675,7 @@ void vtkImageView2D::SetInput (vtkImageData *image, vtkMatrix4x4 *matrix, int la
       imageDisplay->GetImageActor()->SetUserMatrix (this->OrientationMatrix);
       this->SetColorRange(range,layer);
 
-      this->GetImage2DDisplayForLayer(layer)->GetInput()->UpdateInformation();
+      //this->GetImage2DDisplayForLayer(layer)->GetInput()->UpdateInformation();
 
       reslicedImage->Delete();
   }

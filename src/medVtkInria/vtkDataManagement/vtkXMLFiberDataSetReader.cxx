@@ -297,7 +297,7 @@ int vtkXMLFiberDataSetReader::RequestDataObject(vtkInformation* vtkNotUsed(reque
         output = vtkFiberDataSet::New();
         outInfo->Set( vtkDataObject::DATA_OBJECT(), output );
         output->FastDelete();
-        output->SetPipelineInformation( outInfo );
+        output->SetInformation(outInfo);
 
         this->GetOutputPortInformation(0)->Set(
                     vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType() );

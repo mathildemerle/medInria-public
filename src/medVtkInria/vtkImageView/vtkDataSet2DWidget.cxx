@@ -100,7 +100,9 @@ void vtkDataSet2DWidget::SetSource(vtkPointSet* arg)
   this->Source = arg;
 
   if (this->Source)
-    this->Cutter->SetInputConnection (this->Source->GetProducerPort());
+  {
+      this->Cutter->SetInputData(this->Source);
+  }
 }
 
 //----------------------------------------------------------------------

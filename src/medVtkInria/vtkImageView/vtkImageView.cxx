@@ -369,7 +369,7 @@ vtkImageData *vtkImageView::ResliceImageToInput(vtkImageData *image, vtkMatrix4x
 
   if ( this->Compare(image->GetOrigin(),      this->GetInput()->GetOrigin(), 3) &&
        this->Compare(image->GetSpacing(),     this->GetInput()->GetSpacing(), 3) &&
-       this->Compare(image->GetWholeExtent(), this->GetInput()->GetWholeExtent(), 6) &&
+       this->Compare(image->GetExtent(), this->GetInput()->GetExtent(), 6) &&
        (matrix && this->Compare(matrix, this->OrientationMatrix)) )
   {
     output = image;
@@ -391,11 +391,11 @@ vtkImageData *vtkImageView::ResliceImageToInput(vtkImageData *image, vtkMatrix4x
     vtkMatrix4x4::Multiply4x4(auxMatrix, this->OrientationMatrix, auxMatrix);
 
     vtkImageReslice *reslicer = vtkImageReslice::New();
-    reslicer->SetInput         (image);
+    reslicer->SetInputData     (image);
     reslicer->SetResliceAxes   (auxMatrix);
     reslicer->SetOutputOrigin  (this->GetInput()->GetOrigin());
     reslicer->SetOutputSpacing (this->GetInput()->GetSpacing());
-    reslicer->SetOutputExtent  (this->GetInput()->GetWholeExtent());
+    reslicer->SetOutputExtent  (this->GetInput()->GetExtent());
     reslicer->SetInterpolationModeToLinear();
     reslicer->Update();
 
@@ -491,7 +491,7 @@ void vtkImageView::GetWithinBoundsPosition (double* pos1, double* pos2)
 
   int indices[3];
   this->GetImageCoordinatesFromWorldCoordinates (pos1, indices);
-  int* w_extent = this->GetInput()->GetWholeExtent();
+  int* w_extent = this->GetInput()->GetExtent();
   bool out_of_bounds = false;
 
   for (unsigned int i=0; i<3; i++)
@@ -546,8 +546,8 @@ void vtkImageView::ResetCurrentPoint()
   if (!this->GetInput())
     return;
 
-  this->GetInput()->UpdateInformation();
-  int *wholeExtent = this->GetInput()->GetWholeExtent();
+  //this->GetInput()->UpdateInformation();
+  int *wholeExtent = this->GetInput()->GetExtent();
   //this->GetInput()->PropagateUpdateExtent ();
   //this->GetInput()->Update();
 
@@ -1065,7 +1065,7 @@ double vtkImageView::GetValueAtPosition(double worldcoordinates[3],
 
   int indices[3] = {0,0,0};
   this->GetImageCoordinatesFromWorldCoordinates (worldcoordinates, indices);
-  int* w_extent = input->GetWholeExtent();
+  int* w_extent = input->GetExtent();
 
   if ( (indices[0] < w_extent[0]) ||
       (indices[0] > w_extent[1]) ||
@@ -1085,23 +1085,23 @@ double vtkImageView::GetValueAtPosition(double worldcoordinates[3],
       (indices[2] > extent[5]) )
   {
 
-    int* u_extent = input->GetUpdateExtent ();
+    /*int* u_extent = input->GetUpdateExtent ();
     if ( (indices[0] < u_extent[0]) ||
         (indices[0] > u_extent[1]) ||
         (indices[1] < u_extent[2]) ||
         (indices[1] > u_extent[3]) ||
         (indices[2] < u_extent[4]) ||
         (indices[2] > u_extent[5]) )
-    {
+    {*/
 
       int pointExtent [6] = { indices [0], indices [0], indices [1], indices [1], indices [2], indices [2] };
-      input->SetUpdateExtent(pointExtent);
-      input->PropagateUpdateExtent();
-      input->UpdateData();
+      input->SetExtent(pointExtent);
+      //input->PropagateUpdateExtent();
+      //input->UpdateData();
 
-    } else {
+    /*} else {
 
-      input->Update ();
+      //input->Update ();
 
       int* new_extent = input->GetExtent ();
       if ( (indices[0] < new_extent[0]) ||
@@ -1112,14 +1112,14 @@ double vtkImageView::GetValueAtPosition(double worldcoordinates[3],
           (indices[2] > new_extent[5]) )
       {
         vtkErrorMacro( "data not in slice extent after update" );
-      }
+      }*/
 
-    }
-  } else {
+  }
+  /*} else {
 
     // Need to be sure that the input is up to date. Otherwise we may be requesting bad data.
-    input->Update ();
-  }
+    //input->Update ();
+  }*/
 
   return input->GetScalarComponentAsDouble (indices[0], indices[1], indices[2], component);
 
@@ -1207,12 +1207,12 @@ void vtkImageView::SetZoom (double arg)
     return;
 
   // Ensure that the spacing and dimensions are up-to-date.
-  this->GetInput()->UpdateInformation();
-  this->GetInput()->PropagateUpdateExtent ();
+  //this->GetInput()->UpdateInformation();
+  //this->GetInput()->PropagateUpdateExtent ();
 
   // It seems that the above still does not succeed in getting the dimensions in all cases.
   // int* dimensions = this->GetInput()->GetDimensions();
-  const int* extent = this->GetInput()->GetUpdateExtent ();
+  const int* extent = this->GetInput()->GetExtent ();
 
   double* spacing = this->GetInput()->GetSpacing();
   double xyz[3] = {0,0,0};
@@ -1240,11 +1240,11 @@ double vtkImageView::GetZoom()
     return 1.0;
 
   // Ensure that the spacing and dimensions are up-to-date.
-  this->GetInput()->UpdateInformation();
-  this->GetInput()->PropagateUpdateExtent ();
+  //this->GetInput()->UpdateInformation();
+  //this->GetInput()->PropagateUpdateExtent ();
 
   //int* dimensions = this->GetInput()->GetDimensions();
-  const int* extent = this->GetInput()->GetUpdateExtent ();
+  const int* extent = this->GetInput()->GetExtent ();
   double* spacing = this->GetInput()->GetSpacing();
   double xyz[3] = {0,0,0};
   for (unsigned int i=0; i<3; i++)
@@ -1410,7 +1410,7 @@ void vtkImageView::ResetWindowLevel()
     return;
   }
 
-  this->GetInput()->Update();
+  //this->GetInput()->Update();
 
   double* range = this->GetInput()->GetScalarRange();
   double window = range[1]-range[0];
@@ -1607,8 +1607,8 @@ void vtkImageView::SetTimeIndex ( vtkIdType index )
         };
       }
       this->TimeIndex = index;
-      this->GetInput ()->UpdateInformation ();
-      this->GetInput ()->PropagateUpdateExtent ();
+      //this->GetInput ()->UpdateInformation ();
+      //this->GetInput ()->PropagateUpdateExtent ();
       this->InvokeEvent( vtkImageView2DCommand::TimeChangeEvent );
       this->Modified ();
     }
@@ -1847,12 +1847,12 @@ itk::ImageBase<4>* vtkImageView::GetTemporalITKInput() const
 
 void vtkImageView::GetInputBounds ( double * bounds )
 {
-  this->GetInput()->UpdateInformation ();
+  //this->GetInput()->UpdateInformation ();
 
   // GetWholeBoundingBox may not be updated by UpdateInformation
   //this->GetInput()->GetWholeBoundingBox (bounds);
 
-  const int * wholeExtent = this->GetInput ()->GetWholeExtent ();
+  const int * wholeExtent = this->GetInput ()->GetExtent ();
   const double * spacing = this->GetInput ()->GetSpacing ();
   const double * origin = this->GetInput ()->GetOrigin ();
 
@@ -1866,9 +1866,9 @@ void vtkImageView::GetInputBounds ( double * bounds )
 void vtkImageView::GetInputBoundsInWorldCoordinates ( double * bounds )
 {
   double imageBounds [6];
-  this->GetInput()->UpdateInformation();
+  //this->GetInput()->UpdateInformation();
 
-  const int * wholeExtent = this->GetInput ()->GetWholeExtent ();
+  const int * wholeExtent = this->GetInput ()->GetExtent ();
   const double * spacing = this->GetInput ()->GetSpacing ();
   const double * origin = this->GetInput ()->GetOrigin ();
 

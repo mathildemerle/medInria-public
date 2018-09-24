@@ -399,9 +399,9 @@ void vtkImageView3D::SetupWidgets()
   this->Cube->SetCubeVisibility(1);
   this->Cube->SetFaceTextVisibility(1);
 #else
-  this->Cube->TextEdgesOn ();
-  this->Cube->FaceTextOn();
-  this->Cube->CubeOn();
+    this->Cube->SetTextEdgesVisibility(true);
+    this->Cube->SetFaceTextVisibility(true);
+    this->Cube->SetCubeVisibility(true);
 #endif
 
   this->Cube->GetXPlusFaceProperty()->SetColor (1, 0, 0);
@@ -514,7 +514,7 @@ void vtkImageView3D::SetInput(vtkImageData* image, vtkMatrix4x4 *matrix, int lay
         this->GetImage3DDisplayForLayer(0)->SetInput(image);
         //this->GetWindowLevel(0)->SetInput(image);
         //in order to get the right range, update the image first.
-        image->Update();
+        //image->Update();
         double *range = image->GetScalarRange();
         this->SetColorRange(range,0);
         this->VolumeProperty->SetShade(0, 1);
@@ -533,10 +533,10 @@ void vtkImageView3D::SetInput(vtkImageData* image, vtkMatrix4x4 *matrix, int lay
     return;
   }
 
-  image->UpdateInformation ();
+  //image->UpdateInformation ();
 
   // Get whole extent : More reliable than dimensions if not up-to-date.
-  int * w_extent = image->GetWholeExtent ();
+  int * w_extent = image->GetExtent ();
 
   int size [3] = { w_extent [1] - w_extent[0], w_extent [3] - w_extent[2], w_extent [5] - w_extent[4] };
 
@@ -546,13 +546,13 @@ void vtkImageView3D::SetInput(vtkImageData* image, vtkMatrix4x4 *matrix, int lay
       (size[2] < 2) )
   {
     vtkWarningMacro ( <<"Cannot do volume rendering for a single slice, skipping"<<endl);
-    this->ActorX->SetInput ( (vtkImageData*)0 );
-    this->ActorY->SetInput ( (vtkImageData*)0 );
-    this->ActorZ->SetInput ( (vtkImageData*)0 );
+    this->ActorX->SetInputData( (vtkImageData*)0 );
+    this->ActorY->SetInputData( (vtkImageData*)0 );
+    this->ActorZ->SetInputData( (vtkImageData*)0 );
 
-    this->VolumeMapper->SetInput( static_cast< vtkImageData * >( NULL ) );
-    this->BoxWidget->SetInput ( (vtkImageData*)0 );
-    this->PlaneWidget->SetInput ( (vtkImageData*)0 );
+    this->VolumeMapper->SetInputData( static_cast< vtkImageData * >( NULL ) );
+    this->BoxWidget->SetInputData( (vtkImageData*)0 );
+    this->PlaneWidget->SetInputData( (vtkImageData*)0 );
 
     return;
   }
@@ -627,9 +627,9 @@ void vtkImageView3D::InternalUpdate()
       this->Renderer->RemoveAllViewProps();
 
       //TODO apparently RemoveAllViewProps() is not enough, though it should be
-      this->ActorX->SetInput ( (vtkImageData*)0 );
-      this->ActorY->SetInput ( (vtkImageData*)0 );
-      this->ActorZ->SetInput ( (vtkImageData*)0 );
+      this->ActorX->SetInputData( (vtkImageData*)0 );
+      this->ActorY->SetInputData( (vtkImageData*)0 );
+      this->ActorZ->SetInputData( (vtkImageData*)0 );
 
       this->Render();
       return;
@@ -653,7 +653,7 @@ void vtkImageView3D::InternalUpdate()
       if (it->ImageDisplay->GetVisibility())
       {
         cpt++;
-        appender->AddInput(it->ImageDisplay->GetInput());
+        appender->AddInputData(it->ImageDisplay->GetInput());
       }
     }
     if (cpt==0)
@@ -677,7 +677,7 @@ void vtkImageView3D::InternalUpdate()
       input->Modified();
   }
 
-  this->VolumeMapper->SetInput (input);
+  this->VolumeMapper->SetInputData(input);
   this->VolumeMapper->Modified();
 
   // If an image is already of type unsigned char, there is no need to
@@ -689,15 +689,15 @@ void vtkImageView3D::InternalUpdate()
     //shading and more than one dependent component (rgb) don't work well...
     //as vtk stands now in debug mode an assert makes this crash.
     this->VolumeProperty->ShadeOff();
-    this->ActorX->SetInput ( input );
-    this->ActorY->SetInput ( input );
-    this->ActorZ->SetInput ( input );
+    this->ActorX->SetInputData( input );
+    this->ActorY->SetInputData( input );
+    this->ActorZ->SetInputData( input );
   }
   else
   {
     this->VolumeProperty->IndependentComponentsOn();
     this->VolumeProperty->ShadeOn();
-    this->PlanarWindowLevel->SetInput(this->Input);
+    this->PlanarWindowLevel->SetInputData(this->Input);
     this->PlanarWindowLevel->SetOutputFormatToRGB();
 
 
@@ -705,9 +705,9 @@ void vtkImageView3D::InternalUpdate()
     if (lut)
     {
       this->PlanarWindowLevel->SetLookupTable(lut);
-      this->ActorX->SetInput ( this->PlanarWindowLevel->GetOutput() );
-      this->ActorY->SetInput ( this->PlanarWindowLevel->GetOutput() );
-      this->ActorZ->SetInput ( this->PlanarWindowLevel->GetOutput() );
+      this->ActorX->SetInputData( this->PlanarWindowLevel->GetOutput() );
+      this->ActorY->SetInputData( this->PlanarWindowLevel->GetOutput() );
+      this->ActorZ->SetInputData( this->PlanarWindowLevel->GetOutput() );
     }
   }
 
@@ -715,11 +715,11 @@ void vtkImageView3D::InternalUpdate()
   double bounds [6];
   this->GetInputBounds (bounds);
 
-  this->BoxWidget->SetInput (input);
+  this->BoxWidget->SetInputData(input);
   this->BoxWidget->PlaceWidget (bounds);
   this->Callback->Execute (this->BoxWidget, 0, bounds);
 
-  this->PlaneWidget->SetInput (input);
+  this->PlaneWidget->SetInputData(input);
   this->PlaneWidget->PlaceWidget(bounds);
 
   this->UpdateDisplayExtent();
@@ -1021,8 +1021,8 @@ void vtkImageView3D::UpdateDisplayExtent()
     return;
   }
 
-  input->UpdateInformation();
-  int *w_ext = input->GetWholeExtent();
+  //input->UpdateInformation();
+  int *w_ext = input->GetExtent();
 
   int slices[3];
   this->GetImageCoordinatesFromWorldCoordinates (this->CurrentPoint, slices);
@@ -1064,9 +1064,9 @@ vtkActor* vtkImageView3D::AddDataSet (vtkPointSet* arg, vtkProperty* prop)
   normalextractor->SetFeatureAngle (90);
   ///\todo try to skip the normal extraction filter in order to
   // enhance the visualization speed when the data is time sequence.
-  geometryextractor->SetInput (arg);
-  normalextractor->SetInput (geometryextractor->GetOutput());
-  mapper->SetInput (normalextractor->GetOutput());
+  geometryextractor->SetInputData(arg);
+  normalextractor->SetInputData(geometryextractor->GetOutput());
+  mapper->SetInputData(normalextractor->GetOutput());
   actor->SetMapper (mapper);
   if (prop)
     actor->SetProperty (prop);
@@ -1184,7 +1184,7 @@ public:
       {
         this->Actor->SetDisplayExtent (imagecaller->GetDisplayExtent());
         this->Actor->SetVisibility(imagecaller->GetVisibility());
-        this->Actor->SetInput(imagecaller->GetInput());
+        this->Actor->SetInputData(imagecaller->GetInput());
         this->Actor->SetInterpolate(imagecaller->GetInterpolate());
         this->Actor->SetOpacity(imagecaller->GetOpacity());
         this->Actor->SetUserMatrix (imagecaller->GetUserMatrix());
@@ -1240,7 +1240,7 @@ void vtkImageView3D::AddExtraPlane (vtkImageActor* input)
   ImageActorCallback* cbk = ImageActorCallback::New();
   vtkImageActor* actor = vtkImageActor::New();
   cbk->SetActor (actor);
-  actor->SetInput (input->GetInput());
+  actor->SetInputData(input->GetInput());
   actor->SetDisplayExtent (input->GetDisplayExtent());
   actor->SetUserMatrix (input->GetUserMatrix());
   actor->SetInterpolate(input->GetInterpolate());
@@ -1435,7 +1435,7 @@ void vtkImageView3D::castLayers()
       {
         vtkImageCast *cast = vtkImageCast::New();
         vtkImageData * dataToCast = this->GetImage3DDisplayForLayer(i)->GetInput();
-        cast->SetInput(dataToCast);
+        cast->SetInputData(dataToCast);
         cast->SetOutputScalarType (this->GetInput()->GetScalarType());
         cast->Update();
         dataToCast->ShallowCopy (cast->GetOutput());

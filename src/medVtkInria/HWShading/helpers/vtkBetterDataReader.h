@@ -52,7 +52,7 @@ PURPOSE.  See the above copyright notices for more information.
 
 #include <medVtkInriaExport.h>
 
-#include <vtkSource.h>
+#include <vtkAlgorithm.h>
 
 #include <string>
 #include <vector>
@@ -64,7 +64,7 @@ using namespace std;
  * of ASCII-formatted input files. Note: the name may be misleading. This class
  * is perhaps not really better ;) Just more convenient for me at the time.
  */
-class MEDVTKINRIA_EXPORT vtkBetterDataReader : public vtkSource {
+class MEDVTKINRIA_EXPORT vtkBetterDataReader : public vtkAlgorithm {
 public:
     static vtkBetterDataReader *New();
     

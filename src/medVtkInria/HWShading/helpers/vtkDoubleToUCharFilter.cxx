@@ -110,9 +110,8 @@ void vtkDoubleToUCharFilter::SimpleExecute(vtkImageData* input,
     }
 
   output->CopyStructure(input);
-  output->SetScalarType(VTK_UNSIGNED_CHAR);
-  output->SetUpdateExtentToWholeExtent();
-  
+  output->AllocateScalars(VTK_UNSIGNED_CHAR, numComps);
+
   vtkUnsignedCharArray* outScalars = vtkUnsignedCharArray::New();
   outScalars->SetNumberOfComponents(numComps);
   outScalars->SetNumberOfTuples(numPts);
@@ -124,8 +123,6 @@ void vtkDoubleToUCharFilter::SimpleExecute(vtkImageData* input,
 		<<"input scalars number of components is "
 		<< numComps <<". They should be equal!");
     }
-
-  output->SetNumberOfScalarComponents(numComps);
 
   outPD->SetScalars(outScalars);
 

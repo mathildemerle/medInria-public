@@ -102,10 +102,11 @@ void vtkImageSliceActor::GetSliceRange(int &min, int &max)
   vtkImageData *input = this->GetInput();
   if (input)
     {
-    input->UpdateInformation();
-    int *w_ext = input->GetWholeExtent();
-    min = w_ext[this->SliceOrientation * 2];
-    max = w_ext[this->SliceOrientation * 2 + 1];
+    //input->UpdateInformation();
+      //TODO: replace GetWholeExtent
+    //int *w_ext = input->GetWholeExtent();
+    //min = w_ext[this->SliceOrientation * 2];
+    //max = w_ext[this->SliceOrientation * 2 + 1];
     }
 }
 
@@ -114,8 +115,8 @@ int* vtkImageSliceActor::GetSliceRange()
   vtkImageData *input = this->GetInput();
   if (input)
     {
-    input->UpdateInformation();
-    return input->GetWholeExtent() + this->SliceOrientation * 2;
+    //input->UpdateInformation();
+    return input->GetExtent() + this->SliceOrientation * 2;
     }
   return NULL;
 }
@@ -197,7 +198,7 @@ void vtkImageSliceActor::SetSliceOrientation(int orientation)
 
 void vtkImageSliceActor::SetInput(vtkImageData *in) 
 {
-  this->ExtractVOI->SetInput(in);
+  this->ExtractVOI->SetInputData(in);
   this->UpdateDisplayExtent();
 }
 
@@ -221,7 +222,7 @@ void vtkImageSliceActor::CenterSlice()
     return;
     }
 
-  int *w_ext = input->GetWholeExtent();
+  int *w_ext = input->GetExtent();
 //cout<<"===================================================================================================================="<<endl;
 //cout<<"w_ext = "<<w_ext[0]<<", "<<w_ext[1]<<", "<<w_ext[2]<<", "<<w_ext[3]<<", "<<w_ext[4]<<", "<<w_ext[5]<<endl;
   int slice_min = w_ext[this->SliceOrientation * 2];
@@ -250,9 +251,9 @@ void vtkImageSliceActor::UpdateDisplayExtent()
     return;
     }
 
-  input->UpdateInformation();
+  //input->UpdateInformation();
   //input->Update(); // commented out because the input filename may not have been set yet.
-  int *w_ext = input->GetWholeExtent();
+  int *w_ext = input->GetExtent();
 
   // Is the slice in range? If not, fix it
   int slice_min = w_ext[this->SliceOrientation * 2];
@@ -334,7 +335,7 @@ double vtkImageSliceActor::GetSliceLocation()
 {
   if (!this->GetInput()) return 0.0;
 
-  int *w_ext = this->GetInput()->GetWholeExtent();
+  int *w_ext = this->GetInput()->GetExtent();
   int slice_min = w_ext[this->SliceOrientation * 2];
   w_ext = NULL;
 
@@ -398,12 +399,12 @@ void vtkImageSliceActor::UpdateInput()
   //int* voi = this->ExtractVOI->GetVOI();
 //  cout<<this->ExtractVOI<<" VOI = "<<voi[0]<<", "<<voi[1]<<", "<<voi[2]<<", "<<voi[3]<<", "<<voi[4]<<", "<<voi[5]<<endl;
 
-  this->ExtractVOI->SetInput(NULL);
+  this->ExtractVOI->SetInputData(NULL);
   // make sure the data is available
   vtkDebugMacro(<<"Updating input dataset");
-  input->UpdateInformation();
-  input->Update();
-  this->ExtractVOI->SetInput(input);
+  //input->UpdateInformation();
+  //input->Update();
+  this->ExtractVOI->SetInputData(input);
 
   this->UpdateDisplayExtent();
   // XXX: CenterSlice instead of UpdateDisplayExtent?

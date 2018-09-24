@@ -651,8 +651,7 @@ int vtkImageViewCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
             {
                 if (ia->GetInput() && !wl)
                 {
-                    wl = vtkImageMapToWindowLevelColors::SafeDownCast(
-                                ia->GetInput()->GetProducerPort()->GetProducer());
+                    wl = vtkImageMapToWindowLevelColors::SafeDownCast(ia->GetInput());
                 }
                 break;
             }

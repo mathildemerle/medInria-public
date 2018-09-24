@@ -89,7 +89,7 @@ void vtkICPFilter::Update()
 
     //bring the source to the target
     vtkSmartPointer<vtkTransformPolyDataFilter> TransformFilter1 = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
-    TransformFilter1->SetInput(this->GetSource());
+    TransformFilter1->SetInputData(this->GetSource());
     TransformFilter1->SetTransform(linearTransform);
     TransformFilter1->Update();
 
@@ -140,7 +140,7 @@ void vtkICPFilter::Update()
 
     //bring the source to the target
     vtkSmartPointer<vtkTransformPolyDataFilter> TransformFilter2 = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
-    TransformFilter2->SetInput(TransformFilter1->GetOutput());
+    TransformFilter2->SetInputData(TransformFilter1->GetOutput());
     TransformFilter2->SetTransform(this->ICPTransform);
     TransformFilter2->Update();
     this->GetOutput()->DeepCopy(TransformFilter2->GetOutput());

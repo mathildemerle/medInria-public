@@ -32,7 +32,7 @@ medVtkSeedPointHandle::medVtkSeedPointHandle()
 {
     this->PolyData = vtkSmartPointer<vtkPolyData>::New();
     this->Mapper2D = vtkSmartPointer<vtkPolyDataMapper2D>::New();
-    this->Mapper2D->SetInput(this->PolyData);
+    this->Mapper2D->SetInputData(this->PolyData);
 
     this->SetHandle( PolyData );
     this->SizeInDisplayUnits = 10;

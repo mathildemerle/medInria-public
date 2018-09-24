@@ -65,39 +65,9 @@ ${${PROJECT_NAME}_CFILES})
 
 target_link_libraries(${PROJECT_NAME}  
   ${OPENGL_LIBRARIES}
+  ${ITK_LIBRARIES}
+  ${VTK_LIBRARIES}
   medCore
-  vtkCommon
-  vtkFiltering 
-  vtkRendering
-  vtkWidgets
-  vtkCommon
-  vtkFiltering 
-  vtkRendering
-  vtkWidgets
-  vtkHybrid
-  vtkImaging
-  vtkVolumeRendering
-  vtkGraphics
-  vtkInfovis
-  vtkIO
-  ITKVTK
-  ITKCommon
-  ITKIOPhilipsREC # ITK4 IO libs
-  ITKIOBMP
-  ITKIOBioRad
-  ITKIOHDF5
-  ITKIOGDCM
-  ITKIOGIPL
-  ITKIOGE
-  ITKIOJPEG
-  ITKIOLSM
-  ITKIOMeta
-  ITKIONIFTI
-  ITKIONRRD
-  ITKIOPNG
-  ITKIOStimulate
-  ITKIOVTK
-  ITKIOMRC
   )
 
 

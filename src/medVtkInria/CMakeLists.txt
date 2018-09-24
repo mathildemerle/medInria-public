@@ -136,9 +136,9 @@ add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_CFILES})
 
 target_link_libraries(${PROJECT_NAME}  
   ${OPENGL_LIBRARIES}
-  medCore
   ${ITK_LIBRARIES}
   ${VTK_LIBRARIES}
+  medCore
   )
 
 

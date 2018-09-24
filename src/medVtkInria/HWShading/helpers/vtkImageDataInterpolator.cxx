@@ -99,8 +99,8 @@ void vtkImageDataInterpolator::SetImageData(vtkImageData* imageData)
 
       // make sure the data arrays are initialized.
       // XXX: should this be here, or in the GetInterPolated...() functions?
-      this->ImageData->Update();
-      }
+      //this->ImageData->Update();
+    }
     this->Modified();
     }
 }
