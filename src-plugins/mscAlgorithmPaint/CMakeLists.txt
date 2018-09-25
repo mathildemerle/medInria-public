@@ -82,7 +82,6 @@ target_link_libraries(${PROJECT_NAME}
   ${ITK_LIBRARIES}
   medCore
   medVtkInria
-  QVTK
   medUtilities
   )
 

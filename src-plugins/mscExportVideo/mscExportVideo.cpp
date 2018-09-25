@@ -188,7 +188,7 @@ int ExportVideo::exportAsJPEG()
 
         vtkSmartPointer<vtkJPEGWriter> writerJPEG = vtkSmartPointer<vtkJPEGWriter>::New();
         writerJPEG->SetFileName(name.toStdString().c_str());
-        writerJPEG->SetInputConnection(vtkImage->GetProducerPort());
+        writerJPEG->SetInputData(vtkImage);
         writerJPEG->Write();
 
         cpt++;

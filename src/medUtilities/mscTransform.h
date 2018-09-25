@@ -260,7 +260,7 @@ void applyTransform(vtkMetaDataSet& mesh, const vtkMatrix4x4& transform)
     matrixToTransform->SetInput(transformCopy);
 
     vtkSmartPointer<vtkTransformFilter> transformFilter = vtkSmartPointer<vtkTransformFilter>::New();
-    transformFilter->SetInput(mesh.GetDataSet());
+    transformFilter->SetInputData(mesh.GetDataSet());
     transformFilter->SetTransform(matrixToTransform);
     transformFilter->Update();
 

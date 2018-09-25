@@ -170,7 +170,7 @@ medResliceViewer::medResliceViewer(medAbstractView * view,QWidget * parent): med
 
         rep->GetResliceCursorActor()->GetCursorAlgorithm()->SetReslicePlaneNormal(i);
 
-        riw[i]->SetInput(vtkViewData); 
+        riw[i]->SetInputData(vtkViewData);
         riw[i]->SetSliceOrientation(i);
         riw[i]->SetResliceModeToOblique();
     }
@@ -206,7 +206,7 @@ medResliceViewer::medResliceViewer(medAbstractView * view,QWidget * parent): med
         planeWidget[i]->SetTexturePlaneProperty(ipwProp);
         planeWidget[i]->TextureInterpolateOff();
         planeWidget[i]->SetResliceInterpolateToLinear();
-        planeWidget[i]->SetInput(vtkViewData);
+        planeWidget[i]->SetInputData(vtkViewData);
         planeWidget[i]->SetPlaneOrientation(i);
         planeWidget[i]->SetSliceIndex(imageDims[i]/2);
         planeWidget[i]->DisplayTextOn();
@@ -350,7 +350,7 @@ void medResliceViewer::saveImage()
     calculateResliceMatrix(resliceMatrix);
 
     vtkImageReslice *reslicerTop = vtkImageReslice::New();
-    reslicerTop->SetInput(vtkViewData);
+    reslicerTop->SetInputData(vtkViewData);
     reslicerTop->AutoCropOutputOn();
     reslicerTop->SetResliceAxes(resliceMatrix);
     reslicerTop->SetBackgroundLevel(riw[0]->GetInput()->GetScalarRange()[0]); // todo: set the background value in an automatic way.

@@ -94,7 +94,6 @@ target_link_libraries(${PROJECT_NAME}
   medImageIO
   medLog
   medVtkInria
-  QVTK
   )
 
 # needed because of link  with medImageIO

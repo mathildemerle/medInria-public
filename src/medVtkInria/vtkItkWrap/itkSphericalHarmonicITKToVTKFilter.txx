@@ -166,7 +166,7 @@ namespace itk {
         sh_array->Delete();
         aniso_array->Delete();
         rgb_array->Delete();
-        m_VTKSphericalHarmonic->Update();
+        this->Update();
     }
 
     template <class TSHImage>
