@@ -68,9 +68,7 @@ add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_CFILES} ${${PROJECT_NAME}_Q
 target_link_libraries(${PROJECT_NAME}
     ${QT_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    dtkCore
-    dtkGui
-    dtkLog
+    ${DTK_LIBRARIES}
     )
 
 if (WIN32) #TODO is that for the memory management thing ?

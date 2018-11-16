@@ -88,7 +88,8 @@ include(${QT_USE_FILE})
 
 
 find_package(dtk REQUIRED)
-include(${dtk_USE_FILE})
+include_directories(${dtk_INCLUDE_DIRS})
+#include(${dtk_USE_FILE})
 
 if (WIN32)
     find_package(Boost REQUIRED)

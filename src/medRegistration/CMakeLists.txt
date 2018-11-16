@@ -19,7 +19,8 @@ project(medRegistration)
 ## #############################################################################
 
 find_package(dtk REQUIRED)
-include(${dtk_USE_FILE})
+include_directories(${dtk_INCLUDE_DIRS})
+#include(${dtk_USE_FILE})
 
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
