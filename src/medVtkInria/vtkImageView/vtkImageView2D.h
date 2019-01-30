@@ -14,6 +14,8 @@
 #pragma once
 
 #include <medVtkInriaExport.h>
+#include <medVtkImageInfo.h>
+
 #include <vtkImageView.h>
 #include <vtkInteractorStyleImageView2D.h>
 
@@ -35,6 +37,7 @@ class vtkImageView2DCommand;
 class vtkTransform;
 class vtkPolyData;
 class vtkImage2DDisplay;
+class vtkImageAlgorithm;
 
 /**
 
@@ -111,22 +114,12 @@ public:
 
   // Description:
   // Set/Get the input image to the viewer.
-  virtual void SetInput (vtkImageData *image,
-                         vtkMatrix4x4 *matrix = 0,
-                         int layer=0);
-  virtual void SetInput (vtkActor *actor, int layer = 0, vtkMatrix4x4 *matrix = 0,
-                         const int imageSize[3] = 0, const double imageSpacing[] = 0, const double imageOrigin[] = 0);
+  virtual void SetInput (vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4x4 *matrix = 0, int layer = 0);
+  virtual void SetInput (vtkActor *actor, int layer = 0, vtkMatrix4x4 *matrix = 0, const int imageSize[3] = 0, const double imageSpacing[] = 0, const double imageOrigin[] = 0);
 
-  virtual void SetInputConnection (vtkAlgorithmOutput* arg,
-                                   vtkMatrix4x4 *matrix = 0,
-                                   int layer=0);
-
-    void RemoveLayerActor(vtkActor *actor, int layer = 0);
+  void RemoveLayerActor(vtkActor *actor, int layer = 0);
     
-  int AddInput (vtkImageData *image, vtkMatrix4x4 *matrix);
-
-  vtkImageData *GetImageInput(int layer) const;
-  vtkImageData *GetInput(int layer = 0) const;
+  medVtkImageInfo* GetMedVtkImageInfo(int layer = 0) const;
 
   // Description:
   // Start/Stop the interactor relation with the view.
@@ -566,6 +559,7 @@ public:
                              const double imageOrigin[] = 0);
 
   virtual vtkRenderer * GetRenderer() const;
+  vtkImageAlgorithm * GetImageAlgorithmForLayer(int layer) const;
 
 protected:
   vtkImageView2D();
@@ -693,7 +687,7 @@ protected:
   std::list<vtkDataSet2DWidget*>::iterator FindDataSetWidget(vtkPointSet* arg);
   //ETX
 
-  void SetFirstLayer (vtkImageData *image, vtkMatrix4x4 *matrix, int layer);
+  void SetFirstLayer(vtkAlgorithmOutput *pi_poInputAlgoImg, vtkMatrix4x4 *matrix, int layer);
   bool IsFirstLayer(int layer) const;
   int GetFirstLayer() const;
 
@@ -726,6 +720,7 @@ protected:
 
   struct LayerInfo {
       vtkSmartPointer<vtkImage2DDisplay> ImageDisplay;
+      vtkSmartPointer<vtkImageAlgorithm> ImageAlgo;
       vtkSmartPointer<vtkRenderer> Renderer;
   };
   typedef std::vector<LayerInfo > LayerInfoVecType;
@@ -736,6 +731,3 @@ private:
   void operator=(const vtkImageView2D&);    // Not implemented.
 
 };
-
-
-

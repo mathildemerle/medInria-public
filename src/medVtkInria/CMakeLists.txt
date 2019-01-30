@@ -28,10 +28,6 @@ endif()
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
 
-if (APPLE OR WIN32)
-    find_package(Boost REQUIRED)
-endif()
-
 find_package(OpenGL REQUIRED)
 
 
@@ -42,12 +38,10 @@ find_package(OpenGL REQUIRED)
 list_source_files(${PROJECT_NAME}
   ${CMAKE_CURRENT_SOURCE_DIR}
   medClutEditorToolBox
-  vtkDataManagement
   vtkImageView
   vtkWidgetsAddOn
   vtkVisuManagement
   vtkVisuManagement/lut
-  vtkItkWrap
   HWShading
   HWShading/helpers
   )
@@ -119,7 +113,6 @@ list_header_directories_to_include(${PROJECT_NAME}
   )
 
 include_directories(${${PROJECT_NAME}_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIR}
   ${medCore_INCLUDE_DIRS}
   ${${PROJECT_NAME}_BINARY_DIR}/shaders
   )

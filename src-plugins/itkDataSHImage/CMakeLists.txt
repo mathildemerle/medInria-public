@@ -37,6 +37,9 @@ include(${ITK_USE_FILE})
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
+if (APPLE OR WIN32)
+    find_package(Boost REQUIRED)
+endif()
 
 ## #############################################################################
 ## List Sources
@@ -45,6 +48,7 @@ include(${VTK_USE_FILE})
 list_source_files(${PROJECT_NAME}
   . # current dir
   datas
+  management
   interactors
   readers
   writers
@@ -63,6 +67,7 @@ list_header_directories_to_include(${PROJECT_NAME}
 
 include_directories(${${PROJECT_NAME}_INCLUDE_DIRS}
   ${MEDINRIA_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIR}
   )
 
 ## #############################################################################

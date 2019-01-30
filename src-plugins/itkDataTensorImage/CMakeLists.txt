@@ -48,7 +48,9 @@ include(${VTK_USE_FILE})
 list_source_files(${PROJECT_NAME}
   . # current dir
   datas
+  filter
   interactors
+  manager
   readers
   writers
   )

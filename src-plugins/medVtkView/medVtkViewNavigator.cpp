@@ -16,7 +16,6 @@
 #include <vtkCamera.h>
 #include <vtkImageView2D.h>
 #include <vtkImageView3D.h>
-#include <vtkMetaDataSet.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkTransform.h>
@@ -629,12 +628,10 @@ void medVtkViewNavigator::changeOrientation(medImageView::Orientation orientatio
     this->cameraParameter()->blockSignals(true);
 
     double pos[3];
-    int timeIndex = 0;
     vtkRenderWindow * renWin = 0;
     if(d->currentView)
     {
         d->currentView->GetCurrentPoint(pos);
-        timeIndex = d->currentView->GetTimeIndex();
         d->currentView->UnInstallInteractor();
         renWin = d->currentView->GetRenderWindow();
         d->currentView->SetRenderWindow(NULL);
@@ -680,7 +677,6 @@ void medVtkViewNavigator::changeOrientation(medImageView::Orientation orientatio
 
     d->currentView->SetRenderWindow(renWin);
     d->currentView->SetCurrentPoint(pos);
-    d->currentView->SetTimeIndex(timeIndex);
     d->currentView->GlobalWarningDisplayOff();
     d->currentView->Render();
 

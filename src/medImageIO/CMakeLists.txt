@@ -71,6 +71,7 @@ target_link_libraries(${PROJECT_NAME}
   medCore
   ${DCMTK_LIBRARIES}
   ${ITK_LIBRARIES}
+  ${VTK_LIBRARIES}
   )
 
 if(APPLE)

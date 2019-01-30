@@ -20,6 +20,7 @@
 
 #include <vtkImageView2D.h>
 #include <vtkImageView3D.h>
+#include <vtkItkConversion.h>
 #include <vtkTransferFunctionPresets.h>
 #include <vtkLookupTableManager.h>
 #include <vtkRenderWindow.h>
@@ -82,6 +83,7 @@ medVtkViewItkDataImageInteractor::medVtkViewItkDataImageInteractor(medAbstractVi
 
     d->isFloatImage = false;
     d->intensityStep = 0;
+    m_poConv = nullptr;
 }
 
 medVtkViewItkDataImageInteractor::~medVtkViewItkDataImageInteractor()
@@ -162,19 +164,7 @@ void medVtkViewItkDataImageInteractor::setInputData(medAbstractData *data)
     if(!d->imageData)
         return;
 
-    if (!(SetViewInput<itk::Image<char,3> >("itkDataImageChar3", data, d->view->layer(data)) ||
-          SetViewInput<itk::Image<unsigned char,3> >("itkDataImageUChar3", data, d->view->layer(data)) ||
-          SetViewInput<itk::Image<short,3> >("itkDataImageShort3", data, d->view->layer(data)) ||
-          SetViewInput<itk::Image<unsigned short,3> >("itkDataImageUShort3", data, d->view->layer(data)) ||
-          SetViewInput<itk::Image<int,3> >("itkDataImageInt3", data, d->view->layer(data)) ||
-          SetViewInput<itk::Image<unsigned,3> >("itkDataImageUInt3", data, d->view->layer(data)) ||
-          SetViewInput<itk::Image<long,3> >("itkDataImageLong3", data, d->view->layer(data)) ||
-          SetViewInput<itk::Image<unsigned long,3> >("itkDataImageULong3", data, d->view->layer(data)) ||
-          SetViewInput<itk::Image<float,3> >("itkDataImageFloat3", data , d->view->layer(data)) ||
-          SetViewInput<itk::Image<double,3> >("itkDataImageDouble3", data, d->view->layer(data)) ||
-          SetViewInput<itk::Image<itk::RGBPixel<unsigned char>,3> >("itkDataImageRGB3", data, d->view->layer(data)) ||
-          SetViewInput<itk::Image<itk::RGBAPixel<unsigned char>,3> >("itkDataImageRGBA3", data, d->view->layer(data)) ||
-          SetViewInput<itk::Image<itk::Vector<unsigned char,3>,3> >("itkDataImageVectorUChar3", data, d->view->layer(data))))
+    if (!SetViewInput (data, d->view->layer(data)))
     {
         qDebug() << "Unable to add data: " << data->identifier() << " to view " << this->identifier();
         return;
@@ -183,10 +173,9 @@ void medVtkViewItkDataImageInteractor::setInputData(medAbstractData *data)
     if( d->imageData->PixelType() == typeid(double) || d->imageData->PixelType() == typeid(float) )
         d->isFloatImage = true;
 
-    d->view2d->GetImageActor(d->view2d->GetCurrentLayer())->GetProperty()->SetInterpolationTypeToCubic();
     initParameters(d->imageData);
 
-    double* range = d->view2d->GetInput(d->view->layer(d->imageData))->GetScalarRange();
+    double* range = d->view2d->GetScalarRange(d->view->layer(d->imageData));
     this->initWindowLevelParameters(range);
 }
 
@@ -196,20 +185,34 @@ void medVtkViewItkDataImageInteractor::removeData()
     d->view3d->RemoveLayer(d->view->layer(d->imageData));
 }
 
-
-template <typename IMAGE>
-bool medVtkViewItkDataImageInteractor::SetViewInput(const char* type, medAbstractData* data, int layer)
+bool medVtkViewItkDataImageInteractor::SetViewInput(medAbstractData* data, int layer)
 {
-    if (data->identifier() != type)
-        return false;
+    bool bRes = true;
 
-    if (IMAGE* image = dynamic_cast<IMAGE*>((itk::Object*)(data->data())))
+    m_poConv = vtkItkConversionInterface::createInstance(data);
+
+    if (m_poConv)
     {
-        d->view2d->SetITKInput(image, layer);
-        d->view3d->SetITKInput(image, layer);
-        return true;
+        itk::DataObject::Pointer image = (itk::DataObject*)(data->data());
+        vtkAlgorithmOutput *poVtkAlgoOutputPort = nullptr;
+        vtkMatrix4x4 *poMatrix = nullptr;
+
+        bRes = m_poConv->SetITKInput(image);
+        if (bRes)
+        {
+            bRes = m_poConv->GetConversion(poVtkAlgoOutputPort, poMatrix);
+            if (bRes)
+            {
+                d->view2d->SetInput(poVtkAlgoOutputPort, poMatrix, layer);
+                d->view3d->SetInput(poVtkAlgoOutputPort, poMatrix, layer);
+            }
+        }
     }
-    return false;
+    else
+    {
+        bRes = false;
+    }
+    return bRes;
 }
 
 void medVtkViewItkDataImageInteractor::initParameters(medAbstractImageData* data)
@@ -270,7 +273,7 @@ void medVtkViewItkDataImageInteractor::initParameters(medAbstractImageData* data
     d->enableWindowLevelParameter = new medBoolParameter("Windowing", this);
     d->enableWindowLevelParameter->setIcon(QIcon (":/icons/wlww.png"));
     d->enableWindowLevelParameter->setToolTip (tr("Windowing"));
-    connect(d->enableWindowLevelParameter, SIGNAL(valueChanged(bool)), this, SLOT(enableWIndowLevel(bool)));
+    connect(d->enableWindowLevelParameter, SIGNAL(valueChanged(bool)), this, SLOT(enableWindowLevel(bool)));
 
     connect(d->view->positionBeingViewedParameter(), SIGNAL(valueChanged(QVector3D)),
             this, SLOT(updateSlicingParam()));
@@ -409,9 +412,10 @@ void medVtkViewItkDataImageInteractor::setPreset(QString preset)
     for(int i=0;i<d->presetParam->getComboBox()->count();i++)
 		if(this->d->presetParam->getComboBox()->itemText(i)==preset)
 			d->presetParam->getComboBox()->setCurrentIndex(i);
+
     if ( preset == "None" )
     {
-        double *range = d->view2d->GetInput(d->view->layer(d->imageData))->GetScalarRange();
+        double *range = d->view2d->GetScalarRange(d->view->layer(d->imageData));
         wl["Window"] = QVariant(range[1]-range[0]);
         wl["Level"] = QVariant(0.5*(range[1]+range[0]));
         setWindowLevel(wl);
@@ -704,7 +708,7 @@ void medVtkViewItkDataImageInteractor::updateSlicingParam()
     d->slicingParameter->blockSignals(false);
 }
 
-void medVtkViewItkDataImageInteractor::enableWIndowLevel(bool enable)
+void medVtkViewItkDataImageInteractor::enableWindowLevel(bool enable)
 {
     if(enable)
         d->view2d->SetLeftButtonInteractionStyle ( vtkInteractorStyleImageView2D::InteractionTypeWindowLevel );

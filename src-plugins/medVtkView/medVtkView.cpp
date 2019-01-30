@@ -28,7 +28,6 @@ PURPOSE.
 #include <vtkTextProperty.h>
 #include <vtkImageView2DCommand.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkTransferFunctionPresets.h>
 #include <vtkInriaInteractorStyleRubberBandZoom.h>
 #include <vtkMatrix4x4.h>
 #include <vtkMath.h>
@@ -48,7 +47,6 @@ PURPOSE.
 #include <medParameterPoolManager.h>
 #include <medSettingsManager.h>
 #include <medClutEditorToolBox/medClutEditorToolBox.h>
-#include <vtkMetaDataSet.h>
 #include <vtkPointSet.h>
 
 #ifdef Q_OS_MAC

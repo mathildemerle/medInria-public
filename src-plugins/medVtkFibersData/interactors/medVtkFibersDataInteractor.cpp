@@ -1445,6 +1445,7 @@ void medVtkFibersDataInteractor::setUpViewForThumbnail()
     d->view->setOrientation(medImageView::VIEW_ORIENTATION_3D);
     d->view->reset();
     d->view3d->ShowAnnotationsOff();
+    d->view3d->ShowCubeOff();
 }
 
 QList<medAbstractParameter*> medVtkFibersDataInteractor::linkableParameters()

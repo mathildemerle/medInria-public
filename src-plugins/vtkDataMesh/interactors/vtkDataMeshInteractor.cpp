@@ -30,13 +30,10 @@
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkBoundingBox.h>
-#include <vtkImageFromBoundsSource.h>
 #include <vtkImageData.h>
 #include <vtkImageActor.h>
 #include <vtkLookupTableManager.h>
 #include <vtkLookupTable.h>
-#include <vtkMetaDataSet.h>
-#include <vtkMetaDataSetSequence.h>
 #include <vtkDataArrayCollection.h>
 
 #include <dtkLog/dtkLog.h>
@@ -680,6 +677,7 @@ void vtkDataMeshInteractor::setUpViewForThumbnail()
     d->view->setOrientation(medImageView::VIEW_ORIENTATION_3D);
     d->view->reset();
     d->view3d->ShowAnnotationsOff();
+    d->view3d->ShowCubeOff();
 }
 
 void vtkDataMeshInteractor::updateWidgets()

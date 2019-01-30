@@ -48,6 +48,8 @@ list_source_files(${PROJECT_NAME}
   . #current dir
   datas
   interactors
+  limit
+  manager
   readers
   writers
   )
