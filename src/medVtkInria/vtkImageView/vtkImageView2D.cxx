@@ -268,6 +268,7 @@ unsigned long vtkImageView2D::GetMTime()
             {
                 this->GetImage2DDisplayForLayer(i)->GetInput()->UpdateInformation();
             }*/
+            // TODO Mathilde check
             vtkObject * object = this->GetImage2DDisplayForLayer(i)->GetImageActor();
             if (object) {
                 const MTimeType testMtime = object->GetMTime();
@@ -284,8 +285,8 @@ void vtkImageView2D::GetSliceRange(int &min, int &max) const
 {
     if (this->GetMedVtkImageInfo()->initialized)
     {
-        this->GetInputAlgorithm()->UpdateInformation();
-        int* w_ext = this->GetInputAlgorithm()->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+        this->Get2DDisplayMapperInputAlgorithm()->UpdateInformation();
+        int* w_ext = this->Get2DDisplayMapperInputAlgorithm()->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
         min = w_ext[this->SliceOrientation * 2];
         max = w_ext[this->SliceOrientation * 2 + 1];
     }
@@ -2004,6 +2005,22 @@ vtkImageMapToColors * vtkImageView2D::GetWindowLevel( int layer/*=0*/ ) const
     if (imageDisplay)
         return imageDisplay->GetWindowLevel();
     else return NULL;
+}
+
+vtkAlgorithm* vtkImageView2D::Get2DDisplayMapperInputAlgorithm (int layer) const
+{
+    return this->GetWindowLevel(layer);
+}
+
+vtkImageAlgorithm* vtkImageView2D::GetInputAlgorithm(int layer) const
+{
+    vtkImageAlgorithm *poRes = nullptr;
+
+    vtkImage2DDisplay * imageDisplay = this->GetImage2DDisplayForLayer(layer);
+    if (imageDisplay)
+        poRes = imageDisplay->GetInputProducer();
+
+    return poRes;
 }
 
 ////----------------------------------------------------------------------------

@@ -312,6 +312,10 @@ public:
   //! Get the WindowLevel for given layer. Overrides Superclass.
   virtual vtkImageMapToColors *GetWindowLevel(int layer=0) const;
 
+  using vtkImageView::Get2DDisplayMapperInputAlgorithm;
+  virtual vtkAlgorithm* Get2DDisplayMapperInputAlgorithm(int layer) const;
+  virtual vtkImageAlgorithm* GetInputAlgorithm(int layer) const;
+
   //BTX
   /**
    Access to the command of the viewer.
