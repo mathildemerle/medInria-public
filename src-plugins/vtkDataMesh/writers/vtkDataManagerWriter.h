@@ -27,7 +27,7 @@ class VTKDATAMESHPLUGIN_EXPORT vtkDataManagerWriter : public vtkXMLWriter
 {
 public:
   static vtkDataManagerWriter* New();
-  vtkTypeRevisionMacro(vtkDataManagerWriter,vtkXMLWriter);
+  vtkTypeMacro(vtkDataManagerWriter,vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent);  
   
   // Get the default file extension for files written by this writer.

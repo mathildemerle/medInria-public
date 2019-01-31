@@ -29,7 +29,6 @@
 
 #include "vtkLookupTableManager.h"
 
-vtkCxxRevisionMacro(vtkTensorVisuManager, "$Revision: 1320 $");
 vtkStandardNewMacro(vtkTensorVisuManager);
 
 vtkTensorVisuManager::vtkTensorVisuManager()

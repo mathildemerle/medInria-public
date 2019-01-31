@@ -2,7 +2,7 @@
 
  medInria
 
- Copyright (c) INRIA 2013 - 2014. All rights reserved.
+ Copyright (c) INRIA 2013 - 2017. All rights reserved.
  See LICENSE.txt for details.
 
   This software is distributed WITHOUT ANY WARRANTY; without even
@@ -51,10 +51,6 @@
 #ifdef WIN32
     #define snprintf _snprintf_s
 #endif
-
-vtkCxxRevisionMacro(vtkImageView, "$Revision: 1 $");
-//vtkStandardNewMacro(vtkImageView); // pure virtual class
-
 
 // Enumeration for the supported pixel types
 // NT: why not using the vtk IO definitions ?

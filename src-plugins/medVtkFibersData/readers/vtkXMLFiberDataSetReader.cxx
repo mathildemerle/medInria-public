@@ -29,7 +29,6 @@
 #include <vtkCellData.h>
 #include <vtkVector.h>
 
-vtkCxxRevisionMacro(vtkXMLFiberDataSetReader, "$Revision: $");
 vtkStandardNewMacro(vtkXMLFiberDataSetReader);
 
 //----------------------------------------------------------------------------

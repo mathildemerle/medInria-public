@@ -29,7 +29,7 @@ class vtkIsosurfaceManager: public vtkObject
  public:
   
   static vtkIsosurfaceManager* New();
-  vtkTypeRevisionMacro(vtkIsosurfaceManager, vtkObject);
+  vtkTypeMacro(vtkIsosurfaceManager, vtkObject);
 
   vtkSetObjectMacro (Input, vtkImageData);
   vtkGetObjectMacro (Input, vtkImageData);

@@ -36,7 +36,7 @@ class vtkTensorVisuManager : public vtkObject
  public:
   
   static vtkTensorVisuManager *New();
-  vtkTypeRevisionMacro(vtkTensorVisuManager, vtkObject);
+  vtkTypeMacro(vtkTensorVisuManager, vtkObject);
   
   //BTX
   /** enum of the possible shapes for the glyphs */

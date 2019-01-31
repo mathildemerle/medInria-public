@@ -43,7 +43,6 @@ PURPOSE.  See the above copyright notices for more information.
 #include <vtkProperty.h>
 #include <vtkTexture.h>
 
-//vtkCxxRevisionMacro(vtkImageSliceActor, "$Revision: 1.1.1.1 $");
 vtkStandardNewMacro(vtkImageSliceActor);
 
 vtkImageSliceActor::vtkImageSliceActor()

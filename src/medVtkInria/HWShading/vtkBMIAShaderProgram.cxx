@@ -53,7 +53,6 @@ PURPOSE.  See the above copyright notices for more information.
 #include <string>
 #include <vtkgl.h>
 
-vtkCxxRevisionMacro(vtkBMIAShaderProgram, "$Revision: 1 $");
 vtkStandardNewMacro(vtkBMIAShaderProgram);
 
 vtkBMIAShaderProgram::vtkBMIAShaderProgram()

@@ -56,7 +56,7 @@ class MEDVTKINRIA_EXPORT vtkLookupTableManager: public vtkObject
   //ETX
 
   static vtkLookupTableManager* New();
-  vtkTypeRevisionMacro (vtkLookupTableManager, vtkObject);
+  vtkTypeMacro (vtkLookupTableManager, vtkObject);
 
   static vtkLookupTable* GetBWLookupTable();
 

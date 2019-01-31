@@ -21,7 +21,7 @@ class vtkLimitFibersToVOI: public vtkPolyDataAlgorithm
 
  public:
   static vtkLimitFibersToVOI *New();
-  vtkTypeRevisionMacro(vtkLimitFibersToVOI, vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkLimitFibersToVOI, vtkPolyDataAlgorithm);
     
   void PrintSelf (ostream& os, vtkIndent indent){};
   

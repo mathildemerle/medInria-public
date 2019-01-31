@@ -28,8 +28,6 @@
 #include "vtkRenderWindowInteractor.h"
 
 vtkStandardNewMacro(vtkRulerWidget);
-vtkCxxRevisionMacro(vtkRulerWidget, "$Revision: 1.0 $");
-
 
 class vtkRulerWidgetObserver : public vtkCommand
 {

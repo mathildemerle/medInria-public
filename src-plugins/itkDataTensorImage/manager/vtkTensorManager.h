@@ -31,7 +31,7 @@ class vtkTensorManager: public vtkObject
  public:
 
   static vtkTensorManager *New();
-  vtkTypeRevisionMacro (vtkTensorManager, vtkObject);
+  vtkTypeMacro (vtkTensorManager, vtkObject);
 
 
   void SetRenderWindowInteractor (vtkRenderWindowInteractor*, vtkRenderer* ren=0);

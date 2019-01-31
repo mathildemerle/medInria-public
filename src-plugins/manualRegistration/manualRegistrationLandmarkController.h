@@ -35,7 +35,7 @@ class VTK_EXPORT manualRegistrationLandmarkController : public vtkObject
 {
 public:
     static manualRegistrationLandmarkController* New();
-    vtkTypeRevisionMacro(manualRegistrationLandmarkController, vtkObject);
+    vtkTypeMacro(manualRegistrationLandmarkController, vtkObject);
 
     vtkGetObjectMacro (InteractorCollection, vtkCollection);
     void SetInteractorCollection(vtkCollection*);

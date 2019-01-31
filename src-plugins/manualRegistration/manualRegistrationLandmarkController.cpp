@@ -34,8 +34,6 @@ static QString indexColors[] = {
     "#34362D", "#B4A8BD", "#00A6AA", "#452C2C", "#636375", "#A3C8C9", "#FF913F", "#938A81"
 };
 
-
-vtkCxxRevisionMacro(manualRegistrationLandmarkController, "$Revision: 08092014 $");
 vtkStandardNewMacro(manualRegistrationLandmarkController);
 
 //----------------------------------------------------------------------------

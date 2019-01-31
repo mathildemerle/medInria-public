@@ -66,12 +66,14 @@ add_library(${PROJECT_NAME} SHARED
 
 target_link_libraries(${PROJECT_NAME}
   ${QT_LIBRARIES}
-  dtkCore 
-  dtkLog
+  ${DTK_LIBRARIES}
   medCore
   ${DCMTK_LIBRARIES}
   ${ITK_LIBRARIES}
   ${VTK_LIBRARIES}
+  ITKVTK
+  vtkIOImage
+  medVtkInria
   )
 
 if(APPLE)

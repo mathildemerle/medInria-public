@@ -57,7 +57,7 @@ class VTKDATAMESHPLUGIN_EXPORT vtkMetaDataSet: public vtkDataObject
  public:
 
   static vtkMetaDataSet* New();
-  vtkTypeRevisionMacro(vtkMetaDataSet,vtkDataObject);
+  vtkTypeMacro(vtkMetaDataSet,vtkDataObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX

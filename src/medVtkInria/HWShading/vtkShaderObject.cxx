@@ -47,8 +47,6 @@ PURPOSE.  See the above copyright notices for more information.
 
 #include <vtkIOStream.h>
 
-vtkCxxRevisionMacro (vtkShaderObject, "$Revision: 540 $");
-
 vtkShaderObject::vtkShaderObject()
 {
   //this->SourceFileName = NULL;

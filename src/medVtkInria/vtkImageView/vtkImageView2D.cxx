@@ -85,7 +85,6 @@
 #include <vtkImageAlgorithm.h>
 #include <vtkAlgorithmOutput.h>
 
-vtkCxxRevisionMacro(vtkImageView2D, "$Revision: 3 $");
 vtkStandardNewMacro(vtkImageView2D);
 
 //----------------------------------------------------------------------------

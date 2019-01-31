@@ -29,7 +29,6 @@
 
 //extern int vtkrint(double a);
 
-vtkCxxRevisionMacro(vtkLimitFibersToROI, "$Revision: 1322 $");
 vtkStandardNewMacro(vtkLimitFibersToROI);
 
 vtkLimitFibersToROI::vtkLimitFibersToROI()

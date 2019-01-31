@@ -42,7 +42,7 @@ class MEDVTKINRIA_EXPORT vtkBMIAShaderProgramReader: public vtkBetterDataReader
 {
 public:
   static vtkBMIAShaderProgramReader *New();
-  vtkTypeRevisionMacro (vtkBMIAShaderProgramReader, vtkBetterDataReader);
+  vtkTypeMacro (vtkBMIAShaderProgramReader, vtkBetterDataReader);
 
   /**
    * Set/Get the output of this reader.

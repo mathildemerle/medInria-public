@@ -28,7 +28,7 @@ class MEDVTKFIBERSDATAPLUGIN_EXPORT vtkFiberDataSet : public vtkMultiBlockDataSe
 {
  public:
   static vtkFiberDataSet *New();
-  vtkTypeRevisionMacro(vtkFiberDataSet, vtkMultiBlockDataSet);
+  vtkTypeMacro(vtkFiberDataSet, vtkMultiBlockDataSet);
 
   struct vtkFiberBundleType
   {

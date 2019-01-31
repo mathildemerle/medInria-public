@@ -11,8 +11,6 @@
 #include "vtkICPFilter.h"
 
 vtkStandardNewMacro(vtkICPFilter);
-vtkCxxRevisionMacro(vtkICPFilter, "$Revision$");
-
 
 //-----------------------------------------------------------------------------
 vtkICPFilter::vtkICPFilter()

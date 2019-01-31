@@ -93,7 +93,6 @@ PURPOSE.  See the above copyright notices for more information.
 #include <vtkOpenGLExtensionManager.h>
 #include <vtkProperty.h>
 
-vtkCxxRevisionMacro(vtkFiberMapper, "$Revision: 1 $");
 vtkStandardNewMacro(vtkFiberMapper);
 
 vtkFiberMapper::vtkFiberMapper()

@@ -70,8 +70,8 @@
 #include <vtkAlgorithmOutput.h>
 #include <vtkImageAlgorithm.h>
 #include "vtkImage3DDisplay.h"
+#include <vtkImageMapper3D.h>
 
-vtkCxxRevisionMacro(vtkImageView3D, "$Revision: 1324 $");
 vtkStandardNewMacro(vtkImageView3D);
 
 //----------------------------------------------------------------------------
@@ -532,101 +532,93 @@ void vtkImageView3D::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4
 //----------------------------------------------------------------------------
 void vtkImageView3D::InternalUpdate()
 {
-  bool multiLayers = false;
+    bool multiLayers = false;
+       bool multichannelInput = (this->m_poInternalImageFromInput->GetScalarType() == VTK_UNSIGNED_CHAR &&
+                                 (this->m_poInternalImageFromInput->GetNumberOfScalarComponents() == 3 ||
+                                  this->m_poInternalImageFromInput->GetNumberOfScalarComponents() == 4 ));
+       if(this->GetMedVtkImageInfo() == NULL || !this->GetMedVtkImageInfo()->initialized)
+       {
+           this->Renderer->RemoveAllViewProps();
+           //TODO apparently RemoveAllViewProps() is not enough, though it should be
+           this->ActorX->GetMapper()->SetInputConnection(nullptr);
+           this->ActorY->GetMapper()->SetInputConnection(nullptr);
+           this->ActorZ->GetMapper()->SetInputConnection(nullptr);
+           this->Render();
+           return;
+       }
+       vtkImageAppendComponents *appender = vtkImageAppendComponents::New();
+       if (this->LayerInfoVec.size()>0 && !multichannelInput)
+       {
+           // append all scalar buffer into the same image
+           //vtkImageAppendComponents *appender = vtkImageAppendComponents::New();
+           for( LayerInfoVecType::const_iterator it = this->LayerInfoVec.begin();
+                it!=this->LayerInfoVec.end(); ++it)
+           {
+               if (!it->ImageDisplay->GetVtkImageInfo() || !it->ImageDisplay->GetVtkImageInfo()->initialized)
+                   continue;
+               appender->AddInputConnection(it->ImageDisplay->GetOutputPort());
+           }
+           if (this->LayerInfoVec.size()>1)
+           {
+               multiLayers = true;
+           }
+       }
+       appender->Update();
+       appender->GetOutput();
+       // hack: modify the input MTime such that it is higher
+       // than the VolumeMapper's one to force it to refresh
+       // (see vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper *m))
+       /*
+       if (this->VolumeMapper->GetInput())
+       {
+           unsigned long mtime = this->VolumeMapper->GetInput()->GetMTime();
+           while (input->GetMTime()<=mtime)
+               input->Modified();
+       }
+       */
+       this->VolumeMapper->SetInputConnection( appender->GetOutputPort());
+       this->VolumeMapper->Update();
+       this->VolumeMapper->Modified();
+       //appender->Delete();
+       // If an image is already of type unsigned char, there is no need to
+       // map it through a lookup table
+       if ( !multiLayers && multichannelInput )
+       {
+           this->VolumeProperty->IndependentComponentsOff();
+           //shading and more than one dependent component (rgb) don't work well...
+           //as vtk stands now in debug mode an assert makes this crash.
+           this->VolumeProperty->ShadeOff();
+           this->ActorX->GetMapper()->SetInputConnection(appender->GetOutputPort());
+           this->ActorY->GetMapper()->SetInputConnection(appender->GetOutputPort());
+           this->ActorZ->GetMapper()->SetInputConnection(appender->GetOutputPort());
+       }
+       else
+       {
+           this->VolumeProperty->IndependentComponentsOn();
+           this->VolumeProperty->ShadeOn();
+           this->PlanarWindowLevel->SetInputConnection(this->m_poInputVtkAlgoOutput);
+           this->PlanarWindowLevel->SetOutputFormatToRGB();
+           this->PlanarWindowLevel->UpdateInformation();
+           this->PlanarWindowLevel->Update();
 
-  bool multichannelInput = (this->m_poInternalImageFromInput->GetScalarType() == VTK_UNSIGNED_CHAR &&
-                            (this->m_poInternalImageFromInput->GetNumberOfScalarComponents() == 3 ||
-                             this->m_poInternalImageFromInput->GetNumberOfScalarComponents() == 4 ));
-  if(this->GetMedVtkImageInfo() == NULL || !this->GetMedVtkImageInfo()->initialized)
-  {
-      this->Renderer->RemoveAllViewProps();
-
-      //TODO apparently RemoveAllViewProps() is not enough, though it should be
-      this->ActorX->SetInputData( (vtkImageData*)0 );
-      this->ActorY->SetInputData( (vtkImageData*)0 );
-      this->ActorZ->SetInputData( (vtkImageData*)0 );
-
-      this->Render();
-      return;
-  }
-
-  if (this->LayerInfoVec.size()>0 &&  !multichannelInput)
-  {
-    // append all scalar buffer into the same image
-    vtkImageAppendComponents *appender = vtkImageAppendComponents::New();
-    
-    if (this->RenderingMode == VOLUME_RENDERING) // if we are in VR mode, we need the cast.
-      castLayers();
-
-    int cpt=0;
-    for(LayerInfoVecType::const_iterator it = this->LayerInfoVec.begin();
-      it!=this->LayerInfoVec.end(); ++it)
-    {
-      if (!it->ImageDisplay->GetVtkImageInfo() || !it->ImageDisplay->GetVtkImageInfo()->initialized)
-        continue;
-      
-      if (it->ImageDisplay->GetVisibility())
-      {
-        cpt++;
-        appender->AddInputConnection(it->ImageDisplay->GetOutputPort()); //TODO Mathilde check, function not the same
-      }
-    }
-    if (cpt==0)
-      this->VolumeActor->SetVisibility(0);
-    
-    appender->GetOutput();
-    
-    if (cpt>1)
-      multiLayers = true;
-  }
-
-  this->VolumeMapper->SetInputConnection( appender->GetOutputPort());
-  this->VolumeMapper->Update();
-  this->VolumeMapper->Modified();
-
-  // If an image is already of type unsigned char, there is no need to
-  // map it through a lookup table
-
-  if ( !multiLayers &&  multichannelInput )
-  {
-    this->VolumeProperty->IndependentComponentsOff();
-    //shading and more than one dependent component (rgb) don't work well...
-    //as vtk stands now in debug mode an assert makes this crash.
-    this->VolumeProperty->ShadeOff();
-    this->ActorX->GetMapper()->SetInputConnection(appender->GetOutputPort());
-    this->ActorY->GetMapper()->SetInputConnection(appender->GetOutputPort());
-    this->ActorZ->GetMapper()->SetInputConnection(appender->GetOutputPort());
-  }
-  else
-  {
-    this->VolumeProperty->IndependentComponentsOn();
-    this->VolumeProperty->ShadeOn();
-    this->PlanarWindowLevel->SetInputConnection(this->m_poInputVtkAlgoOutput);
-    this->PlanarWindowLevel->SetOutputFormatToRGB();
-
-
-    vtkScalarsToColors* lut = this->VolumeProperty->GetRGBTransferFunction(0);
-    if (lut)
-    {
-      this->PlanarWindowLevel->SetLookupTable(lut);
-      this->ActorX->SetInputData( this->PlanarWindowLevel->GetOutput() );
-      this->ActorY->SetInputData( this->PlanarWindowLevel->GetOutput() );
-      this->ActorZ->SetInputData( this->PlanarWindowLevel->GetOutput() );
-    }
-  }
-
-  // Read bounds and use these to place widget, rather than force whole dataset to be read.
-  double bounds [6];
-  this->GetInputBounds (bounds);
-
-  this->BoxWidget->SetInputConnection(appender->GetOutputPort());
-  this->BoxWidget->PlaceWidget (bounds);
-  this->Callback->Execute (this->BoxWidget, 0, bounds);
-
-  this->PlaneWidget->SetInputConnection(appender->GetOutputPort());
-  this->PlaneWidget->PlaceWidget(bounds);
-
-  this->UpdateDisplayExtent();
+           vtkScalarsToColors* lut = this->VolumeProperty->GetRGBTransferFunction(0);
+           if (lut)
+           {
+               this->PlanarWindowLevel->SetLookupTable(lut);
+               this->ActorX->GetMapper()->SetInputConnection(this->PlanarWindowLevel->GetOutputPort());
+               this->ActorY->GetMapper()->SetInputConnection(this->PlanarWindowLevel->GetOutputPort());
+               this->ActorZ->GetMapper()->SetInputConnection(this->PlanarWindowLevel->GetOutputPort());
+           }
+       }
+       // Read bounds and use these to place widget, rather than force whole dataset to be read.
+       double bounds [6];
+       this->GetInputBounds (bounds);
+       this->BoxWidget->SetInputConnection(appender->GetOutputPort());
+       this->BoxWidget->PlaceWidget (bounds);
+       this->Callback->Execute (this->BoxWidget, 0, bounds);
+       this->PlaneWidget->SetInputConnection(appender->GetOutputPort());
+       this->PlaneWidget->PlaceWidget(bounds);
+       this->UpdateDisplayExtent();
 }
 
 //----------------------------------------------------------------------------

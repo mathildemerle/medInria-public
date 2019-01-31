@@ -23,5 +23,4 @@ PURPOSE.  See the above copyright notices for more information.
 #include "vtkShaderObjectCollection.h"
 #include <vtkObjectFactory.h>
 
-vtkCxxRevisionMacro(vtkShaderObjectCollection, "$Revision: 1 $");
 vtkStandardNewMacro(vtkShaderObjectCollection);

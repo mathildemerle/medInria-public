@@ -65,7 +65,7 @@ class MEDVTKFIBERSDATAPLUGIN_EXPORT vtkFibersManager : public vtkObject
  public:
 
   static vtkFibersManager* New();
-  vtkTypeRevisionMacro(vtkFibersManager, vtkObject);
+  vtkTypeMacro(vtkFibersManager, vtkObject);
 
   //BTX
   enum vtkFiberRenderingMode

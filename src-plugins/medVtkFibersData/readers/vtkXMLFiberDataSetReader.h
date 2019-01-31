@@ -21,7 +21,7 @@ class MEDVTKFIBERSDATAPLUGIN_EXPORT vtkXMLFiberDataSetReader : public vtkXMLComp
 {
 public:
   static vtkXMLFiberDataSetReader* New();
-  vtkTypeRevisionMacro(vtkXMLFiberDataSetReader,vtkXMLCompositeDataReader);
+  vtkTypeMacro(vtkXMLFiberDataSetReader,vtkXMLCompositeDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

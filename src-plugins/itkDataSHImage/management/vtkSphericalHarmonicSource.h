@@ -24,7 +24,7 @@ class vtkMatrix4x4;
 
 class vtkSphericalHarmonicSource: public vtkPolyDataAlgorithm {
 public:
-    vtkTypeRevisionMacro(vtkSphericalHarmonicSource,vtkPolyDataAlgorithm);
+    vtkTypeMacro(vtkSphericalHarmonicSource,vtkPolyDataAlgorithm);
     void PrintSelf(ostream& os,vtkIndent indent);
 
     static vtkSphericalHarmonicSource* New();

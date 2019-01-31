@@ -14,7 +14,7 @@ class MANUALREGISTRATIONPLUGIN_EXPORT manualRegistrationLandmark : public vtkObj
 
 public:
     static manualRegistrationLandmark* New();
-    vtkTypeRevisionMacro(manualRegistrationLandmark, vtkObject);
+    vtkTypeMacro(manualRegistrationLandmark, vtkObject);
     
     vtkGetObjectMacro(View, vtkImageView2D);
     vtkGetObjectMacro(HandleWidget, vtkHandleWidget);

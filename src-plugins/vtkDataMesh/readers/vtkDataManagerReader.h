@@ -27,7 +27,7 @@ class VTKDATAMESHPLUGIN_EXPORT vtkDataManagerReader : public vtkXMLReader
 {
 public:
   static vtkDataManagerReader* New();
-  vtkTypeRevisionMacro(vtkDataManagerReader,vtkXMLReader);
+  vtkTypeMacro(vtkDataManagerReader,vtkXMLReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Get the output data object for a port on this algorithm.

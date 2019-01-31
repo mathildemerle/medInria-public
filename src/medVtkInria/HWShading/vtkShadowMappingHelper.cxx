@@ -78,7 +78,6 @@ vtkErrorMacro(<<"FBO programming error; will fail on all hardware!"); \
 } \
 }
 
-vtkCxxRevisionMacro(vtkShadowMappingHelper, "$Revision: 540 $");
 vtkStandardNewMacro(vtkShadowMappingHelper);
 
 vtkShadowMappingHelper::vtkShadowMappingHelper() {

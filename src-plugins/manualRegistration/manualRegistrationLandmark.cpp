@@ -24,7 +24,6 @@
 #include <vtkHandleWidget.h>
 #include <manualRegistrationLandmarkController.h>
 
-vtkCxxRevisionMacro(manualRegistrationLandmark, "$Revision: 11092014 $");
 vtkStandardNewMacro(manualRegistrationLandmark);
 
 class vtkSeedCallback : public vtkCommand

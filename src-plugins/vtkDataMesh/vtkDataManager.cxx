@@ -34,7 +34,6 @@
 vtkStandardNewMacro( vtkDataManager );
 
 
-
 //----------------------------------------------------------------------------
 vtkDataManager::vtkDataManager()
 {

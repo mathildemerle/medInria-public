@@ -39,7 +39,6 @@ PURPOSE.  See the above copyright notices for more information.
 #include <vtkObjectFactory.h>
 //#include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkAnisoLiShadowMapSP, "$Revision: 1 $");
 vtkStandardNewMacro(vtkAnisoLiShadowMapSP);
 
 vtkAnisoLiShadowMapSP::vtkAnisoLiShadowMapSP()

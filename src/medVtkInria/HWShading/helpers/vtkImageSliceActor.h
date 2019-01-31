@@ -50,7 +50,7 @@ class MEDVTKINRIA_EXPORT vtkImageSliceActor : public vtkAssembly
 {
 public:
   static vtkImageSliceActor* New();
-//  vtkTypeRevisionMacro(vtkImageSliceActor,vtkAssembly); // gives a vtable link error..:S
+//  vtkTypeMacro(vtkImageSliceActor,vtkAssembly); // gives a vtable link error..:S
 //  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

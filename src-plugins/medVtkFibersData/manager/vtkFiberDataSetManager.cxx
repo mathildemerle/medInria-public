@@ -25,7 +25,6 @@
 
 #include <map>
 
-vtkCxxRevisionMacro(vtkFiberDataSetManager, "$Revision: 1 $");
 vtkStandardNewMacro(vtkFiberDataSetManager);
 
 

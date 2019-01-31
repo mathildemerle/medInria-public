@@ -20,7 +20,7 @@ class vtkLimitVectorsToVOI: public vtkUnstructuredGridAlgorithm
 
  public:
   static vtkLimitVectorsToVOI *New();
-  vtkTypeRevisionMacro(vtkLimitVectorsToVOI, vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkLimitVectorsToVOI, vtkUnstructuredGridAlgorithm);
   //vtkStandardNewMacro(vtkLimitVectorsToVOI);
   //{ return new vtkLimitVectorsToVOI; }
     

@@ -23,7 +23,6 @@
 
 #include <vtkSphericalHarmonicGlyph.h>
 
-vtkCxxRevisionMacro(vtkSphericalHarmonicGlyph,"$Revision: 0 $");
 vtkStandardNewMacro(vtkSphericalHarmonicGlyph);
 
 // Function taken from 3D Slicer, SuperquadricTensorGlyph

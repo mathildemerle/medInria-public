@@ -92,7 +92,6 @@ static void
 TranslateAndDeformShell(vtkPolyData* shell,vtkPoints* outPts,double center[3],
                         bool deform,vtkMatrix4x4* transform=0);
 
-vtkCxxRevisionMacro(vtkSphericalHarmonicSource,"$Revision: 0 $");
 vtkStandardNewMacro(vtkSphericalHarmonicSource);
 
 vtkSphericalHarmonicSource::vtkSphericalHarmonicSource(const int tess) {

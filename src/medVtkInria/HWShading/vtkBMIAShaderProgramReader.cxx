@@ -30,8 +30,6 @@ PURPOSE.  See the above copyright notices for more information.
 #include <vtkObjectFactory.h>
 
 vtkStandardNewMacro(vtkBMIAShaderProgramReader);
-vtkCxxRevisionMacro (vtkBMIAShaderProgramReader, "$Revision: 540 $");
-	
 vtkCxxSetObjectMacro(vtkBMIAShaderProgramReader, Output, vtkBMIAShaderProgram);
 
 vtkBMIAShaderProgramReader::vtkBMIAShaderProgramReader()

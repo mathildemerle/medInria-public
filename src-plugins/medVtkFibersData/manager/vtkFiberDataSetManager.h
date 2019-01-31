@@ -26,7 +26,7 @@ class vtkFiberDataSetManager : public vtkFibersManager
 {
  public:
   static vtkFiberDataSetManager *New();
-  vtkTypeRevisionMacro(vtkFiberDataSetManager, vtkFibersManager);
+  vtkTypeMacro(vtkFiberDataSetManager, vtkFibersManager);
 
     using vtkFibersManager::SetInput;
   virtual void SetInput (vtkFiberDataSet *input);

@@ -26,7 +26,7 @@ class MEDLOG_EXPORT vtkLogForwarder : public vtkOutputWindow
 public:
     static vtkLogForwarder *New();
     
-    vtkTypeRevisionMacro(vtkLogForwarder,vtkOutputWindow);
+    vtkTypeMacro(vtkLogForwarder,vtkOutputWindow);
 
     void PrintSelf(ostream& os, vtkIndent indent);
 

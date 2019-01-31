@@ -17,7 +17,6 @@
 #include <vtkPolyData.h>
 #include <vtkInformation.h>
 
-vtkCxxRevisionMacro(vtkFiberDataSet, "$Revision: 1.0 $");
 vtkStandardNewMacro(vtkFiberDataSet);
 
 vtkFiberDataSet::vtkFiberDataSet()

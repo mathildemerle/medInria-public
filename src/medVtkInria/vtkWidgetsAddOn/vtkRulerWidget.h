@@ -27,7 +27,7 @@ class MEDVTKINRIA_EXPORT vtkRulerWidget : public vtkInteractorObserver
 
  public:
   static vtkRulerWidget *New();
-  vtkTypeRevisionMacro(vtkRulerWidget, vtkInteractorObserver);
+  vtkTypeMacro(vtkRulerWidget, vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent) {};
 
   virtual void SetEnabled(int);

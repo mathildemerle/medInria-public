@@ -18,7 +18,6 @@
 #include "vtkRendererCollection.h"
 #include "vtkLookupTableManager.h"
 
-vtkCxxRevisionMacro(vtkIsosurfaceManager, "$Revision: 1317 $");
 vtkStandardNewMacro(vtkIsosurfaceManager);
 
 vtkIsosurfaceManager::vtkIsosurfaceManager()

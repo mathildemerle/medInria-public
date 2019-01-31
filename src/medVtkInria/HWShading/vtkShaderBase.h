@@ -63,7 +63,7 @@ class MEDVTKINRIA_EXPORT vtkShaderBase : public vtkObject
 public:
 
   static vtkShaderBase *New();
-  vtkTypeRevisionMacro(vtkShaderBase, vtkObject);
+  vtkTypeMacro(vtkShaderBase, vtkObject);
 
   /**
    * Returns true if the specified version of OpenGL is supported, and

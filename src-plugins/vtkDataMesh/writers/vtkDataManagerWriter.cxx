@@ -54,8 +54,6 @@
 #include "vtkDataSet.h"
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkDataManagerWriter);
-vtkCxxRevisionMacro(vtkDataManagerWriter, "$Revision: 1298 $");
-
 
 
 class vtkDataManagerWriterInternals

@@ -17,7 +17,6 @@
 
 #include <dtkLog/dtkLog.h>
 
-vtkCxxRevisionMacro(vtkLogForwarder, "$Revision: 1 $");
 vtkStandardNewMacro(vtkLogForwarder);
 
 void vtkLogForwarder::DisplayErrorText( const char *txt )
@@ -37,7 +36,7 @@ void vtkLogForwarder::DisplayDebugText( const char *txt )
 
 void vtkLogForwarder::PrintSelf( ostream& os, vtkIndent indent )
 {
-    this->Superclass::PrintSelf(os, indent);  
+    this->Superclass::PrintSelf(os, indent);
 }
 
 vtkLogForwarder::vtkLogForwarder()

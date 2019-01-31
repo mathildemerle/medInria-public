@@ -27,7 +27,7 @@ class vtkSphericalHarmonicManager: public vtkObject {
 public:
 
     static vtkSphericalHarmonicManager *New();
-    vtkTypeRevisionMacro(vtkSphericalHarmonicManager, vtkObject);
+    vtkTypeMacro(vtkSphericalHarmonicManager, vtkObject);
 
     void SetRenderWindowInteractor(vtkRenderWindowInteractor*, vtkRenderer* ren=0);
     vtkGetObjectMacro(RenderWindowInteractor, vtkRenderWindowInteractor);

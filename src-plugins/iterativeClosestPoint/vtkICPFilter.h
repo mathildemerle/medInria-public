@@ -18,7 +18,7 @@ class ITERATIVECLOSESTPOINTPLUGIN_EXPORT vtkICPFilter : public vtkPolyDataAlgori
 {
 public:
     static vtkICPFilter *New();
-    vtkTypeRevisionMacro(vtkICPFilter, vtkPolyDataAlgorithm);
+    vtkTypeMacro(vtkICPFilter, vtkPolyDataAlgorithm);
     void PrintSelf(ostream &os, vtkIndent indent);
 
     // Description:

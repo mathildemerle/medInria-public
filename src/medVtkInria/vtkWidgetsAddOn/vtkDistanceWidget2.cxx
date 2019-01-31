@@ -42,7 +42,6 @@
 #include <sstream>
 #include <cmath>
 
-vtkCxxRevisionMacro(vtkDistanceWidget2, "$Revision: 2 $");
 vtkStandardNewMacro(vtkDistanceWidget2);
 
 //----------------------------------------------------------------------------
