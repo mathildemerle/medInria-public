@@ -90,7 +90,6 @@ PURPOSE.  See the above copyright notices for more information.
 #include "vtkShadowMappingHelperLines.h"
 
 #include <vtkOpenGLRenderWindow.h>
-#include <vtkOpenGLExtensionManager.h>
 #include <vtkProperty.h>
 
 vtkStandardNewMacro(vtkFiberMapper);
@@ -323,10 +322,10 @@ void vtkFiberMapper::DrawLines(vtkPoints* points, vtkCellArray* lineStrips,
           //cout << tangent[j] << " ";
           } // for k
 
-        vtkgl::VertexAttrib3dv(1, tangent);
+        glVertexAttrib3dv(1, tangent);
         if (this->Shadowing)
           {
-          vtkgl::VertexAttrib2sv(2, lineID); // pass fibernr, linenr (in fiber)
+            glVertexAttrib2sv(2, lineID); // pass fibernr, linenr (in fiber)
           }  // this->Shadowing
         } // this->Lighting
 
@@ -362,7 +361,7 @@ void vtkFiberMapper::DrawLines(vtkPoints* points, vtkCellArray* lineStrips,
 
       if (this->Shadowing)
         {
-        vtkgl::VertexAttrib2sv(2, lineID);
+          glVertexAttrib2sv(2, lineID);
         } // this->Shadowing
       glVertex3dv(currentPoint);
       } // for i
@@ -560,7 +559,7 @@ void vtkFiberMapper::Initialize(vtkRenderer *r)
 {
   this->Initialized = false;
 
-  vtkOpenGLExtensionManager *extensions=static_cast<vtkOpenGLRenderWindow *>(
+  /*vtkOpenGLExtensionManager *extensions=static_cast<vtkOpenGLRenderWindow *>(
     r->GetRenderWindow())->GetExtensionManager();
   
   int supports_GL_VERSION_2_0			= extensions->ExtensionSupported("GL_VERSION_2_0");
@@ -584,7 +583,7 @@ void vtkFiberMapper::Initialize(vtkRenderer *r)
     {
     vtkWarningMacro(<<"GL_EXT_framebuffer_object not supported!");
     return;
-    }
+    }*/
 
   this->Initialized = true;
 }

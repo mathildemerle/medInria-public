@@ -53,7 +53,7 @@ bool vtkFragmentShader::CreateGlShader()
     }
 
   vtkDebugMacro("Calling glCreateShader(GL_FRAGMENT_SHADER)");
-  GLuint handle = vtkgl::CreateShader(vtkgl::FRAGMENT_SHADER);
+  GLuint handle = glCreateShader(GL_FRAGMENT_SHADER);
   vtkDebugMacro("glCreateShader() returned handle "<<handle<<".");
   this->SetHandle(handle);
   return true;

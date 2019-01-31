@@ -44,6 +44,7 @@ list_source_files(${PROJECT_NAME}
   vtkVisuManagement/lut
   HWShading
   HWShading/helpers
+  vtkItkWrap # TODO Mathilde : remove (and according files) if possible
   )
 
 

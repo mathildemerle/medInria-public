@@ -231,21 +231,21 @@ void vtkImageView3D::SetVolumeMapperToDefault()
 //----------------------------------------------------------------------------
 void vtkImageView3D::SetVolumeRayCastFunctionToComposite()
 {
-  this->castLayers();
+  //this->castLayers();
   this->VolumeMapper->SetBlendModeToComposite();
 }
 
 //----------------------------------------------------------------------------
 void vtkImageView3D::SetVolumeRayCastFunctionToMaximumIntensityProjection()
 {
-  this->castLayers();
+  //this->castLayers();
   this->VolumeMapper->SetBlendModeToMaximumIntensity();
 }
 
 //----------------------------------------------------------------------------
 void vtkImageView3D::SetVolumeRayCastFunctionToMinimumIntensityProjection()
 {
-  this->castLayers();
+  //this->castLayers();
   this->VolumeMapper->SetBlendModeToMinimumIntensity();
 }
 
@@ -644,22 +644,21 @@ void vtkImageView3D::SetTransferFunctions (vtkColorTransferFunction * color,
                                            vtkPiecewiseFunction * opacity,
                                            int layer)
 {
-  if (this->HasLayer (layer))
-  {
-    if (!this->GetImage3DDisplayForLayer(layer)->GetInput())
-      return;
-    double *range = this->GetImage3DDisplayForLayer(layer)->GetInput()->GetScalarRange();
-    this->SetTransferFunctionRangeFromWindowSettings(color, opacity, range[0], range[1]);
-    this->VolumeProperty->SetColor(layer, color );
-
-    this->VolumeProperty->SetScalarOpacity(layer, opacity );
-    if (layer == 0)
+    if (this->HasLayer (layer))
     {
-      //update planar window level only if we change layer 0
-      this->PlanarWindowLevel->SetLookupTable(color);
-    }
-  }
+        if (!this->GetImage3DDisplayForLayer(layer)->GetVtkImageInfo())
+            return;
+        double *range = this->GetImage3DDisplayForLayer(layer)->GetVtkImageInfo()->scalarRange;
+        this->SetTransferFunctionRangeFromWindowSettings(color, opacity, range[0], range[1]);
+        this->VolumeProperty->SetColor(layer, color );
 
+        this->VolumeProperty->SetScalarOpacity(layer, opacity );
+        if (layer == 0)
+        {
+            //update planar window level only if we change layer 0
+            this->PlanarWindowLevel->SetLookupTable(color);
+        }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -975,7 +974,8 @@ vtkActor* vtkImageView3D::AddDataSet (vtkPointSet* arg, vtkProperty* prop)
   // If this is the first widget to be added, reset camera
   if ( ! this->GetMedVtkImageInfo() || !this->GetMedVtkImageInfo()->initialized)
   {
-    this->ResetCamera(arg);
+      //this->ResetCamera(arg);
+      this->ResetCamera();
   }
 
   this->DataSetCollection->AddItem (arg);
@@ -1061,7 +1061,7 @@ void vtkImageView3D::RemoveAllLayers()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageView3D::AddExtraPlane (vtkImageActor* input)
+/*void vtkImageView3D::AddExtraPlane (vtkImageActor* input)
 {
 
   if (!this->GetRenderer())
@@ -1087,7 +1087,7 @@ void vtkImageView3D::AddExtraPlane (vtkImageActor* input)
   this->ExtraPlaneInputCollection->AddItem (input);
 
   actor->Delete();
-  cbk->Delete();
+  cbk->Delete();*/
 
   /**
      IMPORTANT NOTE
@@ -1101,7 +1101,7 @@ void vtkImageView3D::AddExtraPlane (vtkImageActor* input)
   */
 //  this->GetRenderer()->AddActor (input);
 
-}
+//}
 
 //----------------------------------------------------------------------------
 void vtkImageView3D::RemoveExtraPlane (vtkImageActor* input)
@@ -1251,7 +1251,7 @@ medVtkImageInfo* vtkImageView3D::GetMedVtkImageInfo(int layer /*= 0*/) const
   return imageDisplay->GetVtkImageInfo();
 }
 
-void vtkImageView3D::castLayers()
+/*void vtkImageView3D::castLayers()
 {
   for(unsigned int i=0;i<LayerInfoVec.size();i++)
   { 
@@ -1277,4 +1277,4 @@ void vtkImageView3D::castLayers()
       }
     }
   }
-}
+}*/

@@ -34,8 +34,7 @@ PURPOSE.  See the above copyright notices for more information.
 #include <vtkShaderBaseHandle.h>
 #include <vtkObjectFactory.h>
 
-#include <vtkgl.h> // for vtkgl::GLchar
-
+#include <vtk_glew.h> // for vtkgl::GLchar
 
 /**
  * Representation of a uniform variable for GLSL.
@@ -87,6 +86,6 @@ private:
   /**
    * The name associated with this uniform.
    */
-	vtkgl::GLchar* Name;
+    GLchar* Name;
 
 };

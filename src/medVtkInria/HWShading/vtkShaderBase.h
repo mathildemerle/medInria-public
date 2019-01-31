@@ -44,8 +44,8 @@ PURPOSE.  See the above copyright notices for more information.
 #include <medVtkInriaExport.h>
 
 //#include <GL/glew.h> // for OpenGL types and some functions
-		     // TODO: can this be done without glew?
-#include <vtkgl.h>
+// TODO: can this be done without glew?
+#include <vtk_glew.h>
 
 #include <vtkObject.h>
 

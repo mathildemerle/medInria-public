@@ -734,6 +734,7 @@ protected:
   vtkRenderWindow*                RenderWindow;
   vtkRenderWindowInteractor*      Interactor;
   vtkInteractorStyle*             InteractorStyle;
+  vtkImageMapToColors*            WindowLevel;
 
   vtkImageData*                   m_poInternalImageFromInput;
   vtkAlgorithmOutput*             m_poInputVtkAlgoOutput;

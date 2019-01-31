@@ -362,21 +362,20 @@ void vtkImageView::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4x4
         this->WindowLevel->SetInputConnection(pi_poVtkAlgoOutput);
     }
 
-  if (layer==0)
-  {
-    if (matrix)
+    if (layer==0)
     {
-      this->SetOrientationMatrix(matrix);
+        if (matrix)
+        {
+            this->SetOrientationMatrix(matrix);
+        }
+        else
+        {
+            vtkMatrix4x4 *identity = vtkMatrix4x4::New();
+            identity->Identity();
+            this->SetOrientationMatrix (identity);
+            identity->Delete();
+        }
     }
-    else
-    {
-      vtkMatrix4x4 *identity = vtkMatrix4x4::New();
-      identity->Identity();
-      this->SetOrientationMatrix (identity);
-      identity->Delete();
-    }
-
-  }
 }
 
 //----------------------------------------------------------------------------

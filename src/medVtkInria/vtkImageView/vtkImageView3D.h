@@ -257,7 +257,7 @@ public:
      be displayed in the 3D scene and will be fully synchronized with
      the actor it came from.
   */
-  virtual void AddExtraPlane (vtkImageActor* input);
+  //virtual void AddExtraPlane (vtkImageActor* input);
   virtual void RemoveExtraPlane (vtkImageActor* input);
 
 
@@ -306,7 +306,7 @@ protected:
   vtkImage3DDisplay * GetImage3DDisplayForLayer(int layer) const;
   
   //! Cast layers to layer 0 's type if necessary
-  void castLayers();
+  //void castLayers();
 
   // plane actors
   vtkImageActor* ActorX;

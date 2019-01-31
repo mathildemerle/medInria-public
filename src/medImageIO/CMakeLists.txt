@@ -67,13 +67,37 @@ add_library(${PROJECT_NAME} SHARED
 target_link_libraries(${PROJECT_NAME}
   ${QT_LIBRARIES}
   ${DTK_LIBRARIES}
-  medCore
   ${DCMTK_LIBRARIES}
   ${ITK_LIBRARIES}
   ${VTK_LIBRARIES}
+  medCore
+  medVtkInria
+  ITKCommon
+  ITKIOImageBase
+  ITKIOBMP
+  ITKIOBruker
+  ITKIOLSM
+  ITKIOJPEG
+  ITKIOPNG
+  ITKIOVTK
+  ITKIOGDCM
+  ITKNrrdIO
+  ITKIONRRD
+  ITKIOMeta
+  ITKIOMINC
+  ITKIONIFTI
+  ITKIOGIPL
+  ITKIOGE
+  ITKIOHDF5
+  ITKIOBioRad
+  ITKIOStimulate
+  ITKIOMRC
+  ITKIOTIFF
   ITKVTK
   vtkIOImage
-  medVtkInria
+  ${ITKIOPhilipsREC_LIBRARIES}
+  #ItkVtkGlue
+  #vtkItkWrap
   )
 
 if(APPLE)

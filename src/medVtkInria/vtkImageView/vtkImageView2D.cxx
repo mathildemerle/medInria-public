@@ -84,6 +84,8 @@
 
 #include <vtkImageAlgorithm.h>
 #include <vtkAlgorithmOutput.h>
+#include <vtkInformation.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
 
 vtkStandardNewMacro(vtkImageView2D);
 

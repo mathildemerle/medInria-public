@@ -62,19 +62,19 @@ PURPOSE.  See the above copyright notices for more information.
 
 #define CHECK_FRAMEBUFFER_STATUS() \
 { \
-GLenum status; \
-status = glCheckFramebufferStatusEXT(vtkgl::FRAMEBUFFER_EXT); \
-switch(status) { \
-case vtkgl::FRAMEBUFFER_COMPLETE_EXT: \
-vtkDebugMacro(<<"Framebuffer objects supported."); \
-break; \
-case vtkgl::FRAMEBUFFER_UNSUPPORTED_EXT: \
-/* choose different formats */ \
-vtkErrorMacro(<<"Framebuffer objects not supported!"); \
-break; \
-default: \
-/* programming error; will fail on all hardware */ \
-vtkErrorMacro(<<"FBO programming error; will fail on all hardware!"); \
+    GLenum status; \
+    status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT); \
+    switch(status) { \
+    case GL_FRAMEBUFFER_COMPLETE_EXT: \
+    vtkDebugMacro(<<"Framebuffer objects supported."); \
+    break; \
+    case GL_FRAMEBUFFER_UNSUPPORTED_EXT: \
+    /* choose different formats */ \
+    vtkErrorMacro(<<"Framebuffer objects not supported!"); \
+    break; \
+    default: \
+    /* programming error; will fail on all hardware */ \
+    vtkErrorMacro(<<"FBO programming error; will fail on all hardware!"); \
 } \
 }
 
@@ -116,104 +116,104 @@ vtkShadowMappingHelper::~vtkShadowMappingHelper() {
 
 void vtkShadowMappingHelper::InitializeShadowMap()
 {
-  // TODO: check whether needed extensions are supported
+    // TODO: check whether needed extensions are supported
 
-  // =========================
-  // Create the shadow texture
-  // =========================
+    // =========================
+    // Create the shadow texture
+    // =========================
 
-  // Generate one texture name:
-  glGenTextures(1, &(this->ShadowTexture));
+    // Generate one texture name:
+    glGenTextures(1, &(this->ShadowTexture));
 
-  // Bind texture to texturing target: 
-  glBindTexture(GL_TEXTURE_2D, this->ShadowTexture);
+    // Bind texture to texturing target:
+    glBindTexture(GL_TEXTURE_2D, this->ShadowTexture);
 
-  // Specify a 2D texture
-  // Levels of detail: 0 (no mipmap)
-  // Internal components: Depth component
-  // Width, Height: 512, 512
-  // Border: 0
-  // Format: Depth component
-  // Type: unsigned byte
-  // Image data pointer: NULL
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->ShadowMapWidth, this->ShadowMapHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-//  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->ShadowMapWidth, this->ShadowMapHeight, 0, GL_RGB, GL_SHORT, NULL);
+    // Specify a 2D texture
+    // Levels of detail: 0 (no mipmap)
+    // Internal components: Depth component
+    // Width, Height: 512, 512
+    // Border: 0
+    // Format: Depth component
+    // Type: unsigned byte
+    // Image data pointer: NULL
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->ShadowMapWidth, this->ShadowMapHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    //  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->ShadowMapWidth, this->ShadowMapHeight, 0, GL_RGB, GL_SHORT, NULL);
 
-  // Linear interpolation for pixel values when pixel is > or <= one
-  // texture element:
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // Linear interpolation for pixel values when pixel is > or <= one
+    // texture element:
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  // Clamp (and not repeat) parameters for texture coordinates:
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    // Clamp (and not repeat) parameters for texture coordinates:
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
-  // create FBO
-  //glGenFramebuffersEXT(1, &(this->ShadowFBO));
-  vtkgl::GenFramebuffersEXT(1, &(this->ShadowFBO));
-  vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT, this->ShadowFBO);
+    // create FBO
+    //glGenFramebuffersEXT(1, &(this->ShadowFBO));
+    glGenFramebuffersEXT(1, &(this->ShadowFBO));
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, this->ShadowFBO);
 
-//  glDrawBuffer(GL_NONE);
-//  glReadBuffer(GL_NONE);
+    //  glDrawBuffer(GL_NONE);
+    //  glReadBuffer(GL_NONE);
 
-  // bind texture to FBO
-  vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT, vtkgl::COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, this->ShadowTexture, 0);
+    // bind texture to FBO
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, this->ShadowTexture, 0);
 
-  // the render buffer for storing intermediate depth values.
-  vtkgl::GenRenderbuffersEXT(1, &(this->DepthRBO));
-  vtkgl::BindRenderbufferEXT(vtkgl::RENDERBUFFER_EXT, this->DepthRBO);
-  vtkgl::RenderbufferStorageEXT(vtkgl::RENDERBUFFER_EXT, vtkgl::DEPTH_COMPONENT24, this->ShadowMapWidth, this->ShadowMapHeight);
-  vtkgl::FramebufferRenderbufferEXT(vtkgl::FRAMEBUFFER_EXT, vtkgl::DEPTH_ATTACHMENT_EXT, vtkgl::RENDERBUFFER_EXT, this->DepthRBO);
+    // the render buffer for storing intermediate depth values.
+    glGenRenderbuffersEXT(1, &(this->DepthRBO));
+    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, this->DepthRBO);
+    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, this->ShadowMapWidth, this->ShadowMapHeight);
+    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, this->DepthRBO);
 
- // glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, this->ShadowTexture, 0);
-//  CHECK_FRAMEBUFFER_STATUS();
+    // glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, this->ShadowTexture, 0);
+    //  CHECK_FRAMEBUFFER_STATUS();
 
-  GLenum status;
-  status = vtkgl::CheckFramebufferStatusEXT(vtkgl::FRAMEBUFFER_EXT);
+    GLenum status;
+    status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 
-  switch(status) {
-  case vtkgl::FRAMEBUFFER_COMPLETE_EXT:
-    vtkDebugMacro(<<"Framebuffer objects supported.");
-    break;
-  case vtkgl::FRAMEBUFFER_UNSUPPORTED_EXT:
-    // choose different formats
-    vtkErrorMacro(<<"Framebuffer objects not supported!");
-    break;
-  case vtkgl::FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-    vtkErrorMacro(<<"FBO: Incomplete attachment!");
-    break;
-  case vtkgl::FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-    vtkErrorMacro(<<"GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT");
-    break;
-    //  case vtkgl::FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
-    //vtkErrorMacro(<<"FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT");
-    //break;
-  case vtkgl::FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-    vtkErrorMacro(<<"FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT");
-    break;
-  case vtkgl::FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-    vtkErrorMacro(<<"FRAMEBUFFER_INCOMPLETE_FORMATS_EXT");
-    break;
-  case vtkgl::FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-    vtkErrorMacro(<<"FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT");
-    break;
-  case vtkgl::FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-    vtkErrorMacro(<<"FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT");
-    break;
-//  case vtkgl::FRAMEBUFFER_STATUS_ERROR_EXT:
-//    vtkErrorMacro(<<"FBO: status error!");
-//    break;
-  default:
-    // programming error; will fail on all hardware
-    vtkErrorMacro(<<"FBO programming error; will fail on all hardware!");
-    //assert(0);
-  }
-  vtkDebugMacro(<<"Shadowmap texture initialized.");
+    switch(status) {
+    case GL_FRAMEBUFFER_COMPLETE_EXT:
+        vtkDebugMacro(<<"Framebuffer objects supported.");
+        break;
+    case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+        // choose different formats
+        vtkErrorMacro(<<"Framebuffer objects not supported!");
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+        vtkErrorMacro(<<"FBO: Incomplete attachment!");
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+        vtkErrorMacro(<<"GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT");
+        break;
+        //  case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
+        //vtkErrorMacro(<<"FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT");
+        //break;
+    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+        vtkErrorMacro(<<"FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT");
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+        vtkErrorMacro(<<"FRAMEBUFFER_INCOMPLETE_FORMATS_EXT");
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+        vtkErrorMacro(<<"FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT");
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+        vtkErrorMacro(<<"FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT");
+        break;
+        //  case GL_FRAMEBUFFER_STATUS_ERROR_EXT:
+        //    vtkErrorMacro(<<"FBO: status error!");
+        //    break;
+    default:
+        // programming error; will fail on all hardware
+        vtkErrorMacro(<<"FBO programming error; will fail on all hardware!");
+        //assert(0);
+    }
+    vtkDebugMacro(<<"Shadowmap texture initialized.");
 
-  vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT, 0);
-  this->ShadowTextureInitialized = true;
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    this->ShadowTextureInitialized = true;
 }
 
 // TODO: speed this up. Generation of shadow map is too slow. This can
@@ -231,7 +231,7 @@ void vtkShadowMappingHelper::PreShadowMapRender(vtkCamera* lightCamera)
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
 
-  vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT, this->ShadowFBO);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, this->ShadowFBO);
 
     
   glGetIntegerv(GL_VIEWPORT, this->WindowViewport);
@@ -297,21 +297,15 @@ void vtkShadowMappingHelper::PreShadowMapRender(vtkCamera* lightCamera)
   matrix->DeepCopy(lightCamera->GetPerspectiveTransformMatrix(1, 0, 1)); //TODO: replace first 1 by aspect ratio
 #endif
   matrix->Transpose();
-  glLoadMatrixd(matrix->Element[0]);
-
-
-  
+  glLoadMatrixd(matrix->Element[0]); 
   
   // Also add this to the texture matrix.
-  if( vtkgl::ActiveTexture )
+  if( glActiveTexture )
   {
-    vtkgl::ActiveTexture(vtkgl::TEXTURE0);
-  }  
+      glActiveTexture(GL_TEXTURE0);
+  }
   glMatrixMode(GL_TEXTURE);
-  glLoadMatrixd(matrix->Element[0]);
-
-
-  
+  glLoadMatrixd(matrix->Element[0]);  
     
   // Set up modelview parameters
   glMatrixMode(GL_MODELVIEW);
@@ -324,10 +318,7 @@ void vtkShadowMappingHelper::PreShadowMapRender(vtkCamera* lightCamera)
   glMultMatrixd(matrix->Element[0]);
 
   // store the texture matrix because it will be used later in SetupTextureMatrix.
-  glGetDoublev(GL_TEXTURE_MATRIX, this->StoredTextureMatrix);
-
-
-  
+  glGetDoublev(GL_TEXTURE_MATRIX, this->StoredTextureMatrix); 
   
 // van hier
 /*
@@ -347,16 +338,6 @@ void vtkShadowMappingHelper::PreShadowMapRender(vtkCamera* lightCamera)
   //cam = NULL;
 */
 // tot hier
-
-
-
-
-
-
-
-
-
-
   
   glMatrixMode(GL_MODELVIEW);
 
@@ -406,12 +387,12 @@ void vtkShadowMappingHelper::PostShadowMapRender()
   // restore the original clear color.
   glClearColor(this->ColorClearValue[0], this->ColorClearValue[1], this->ColorClearValue[2], this->ColorClearValue[3]);
 
-  vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT, 0);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
   // XXX: is glActivateTexture(GL_TEXTURE0); needed?
   // appears not.. what is glActivateTexture useful for then?
-  if( vtkgl::ActiveTexture )
+  if( glActiveTexture )
   {
-    vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+      glActiveTexture(GL_TEXTURE0);
   }
   
   this->ShadowMapSampler->SetValue(0);
