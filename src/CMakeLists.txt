@@ -27,6 +27,8 @@ add_subdirectory(medRegistration)
 
 add_subdirectory(medVtkInria)
 add_subdirectory(medUtilities)
+add_subdirectory(vtkDataMesh)
+
 ## #############################################################################
 ## complete medInria_INCLUDE_DIRS
 ## #############################################################################
@@ -42,6 +44,7 @@ set(${PROJECT_NAME}_INCLUDE_DIRS
   ${medRegistration_INCLUDE_DIRS}
   ${medVtkInria_INCLUDE_DIRS}
   ${medUtilities_INCLUDE_DIRS}
+  ${vtkDataMesh_INCLUDE_DIRS}
   ${${PROJECT_NAME}_INCLUDE_DIRS}
   PARENT_SCOPE
   )

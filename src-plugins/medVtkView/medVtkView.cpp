@@ -48,6 +48,7 @@ PURPOSE.
 #include <medSettingsManager.h>
 #include <medClutEditorToolBox/medClutEditorToolBox.h>
 #include <vtkPointSet.h>
+#include <vtkDataMesh/vtkMetaDataSet.h>
 
 #ifdef Q_OS_MAC
 # define CONTROL_KEY "Meta"

@@ -685,7 +685,7 @@ void vtkMetaDataSet::SetScalarNullValue(const char * arrayName, double nullValue
 }
 
 //----------------------------------------------------------------------------
-double* vtkMetaDataSet::GetScalarRange(QString attributeName)
+/*double* vtkMetaDataSet::GetScalarRange(QString attributeName)
 {
     double* val = new double[2];
     val[0] = VTK_DOUBLE_MAX;
@@ -718,6 +718,28 @@ double* vtkMetaDataSet::GetScalarRange(QString attributeName)
         val[0] = 0;
         val[1] = 1;
     }
+
+    return val;
+}*/
+
+//----------------------------------------------------------------------------
+
+double* vtkMetaDataSet::GetCurrentScalarRange()
+{
+    double* val = new double[2];
+    val[0] = VTK_DOUBLE_MAX;
+    val[1] = VTK_DOUBLE_MIN;
+
+    if (this->GetCurrentScalarArray())
+    {
+        double* range2 = this->GetCurrentScalarArray()->GetRange ();
+        val[0] = range2[0];
+        val[1] = range2[1];
+    }
+
+    else if (this->GetDataSet() && ( val[0] == VTK_DOUBLE_MAX ) )
+        val = this->GetDataSet()->GetScalarRange();
+
 
     return val;
 }

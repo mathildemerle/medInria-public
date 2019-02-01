@@ -88,6 +88,9 @@ vtkImageView::vtkImageView()
   this->DataSetCollection       = vtkDataSetCollection::New();
   this->DataSetActorCollection  = vtkProp3DCollection::New();
 
+  this->LookupTable             = vtkLookupTable::New();
+  this->WindowLevel             = vtkImageMapToColors::New();
+
   this->ScalarBar               = vtkScalarBarActor::New();
 
   this->Renderer               = 0;
@@ -132,6 +135,17 @@ vtkImageView::vtkImageView()
   this->ShowScalarBar = true;
 
   this->OrientationTransform->SetInput (this->OrientationMatrix);
+
+  this->WindowLevel->SetLookupTable( this->LookupTable );
+  this->WindowLevel->SetOutputFormatToRGB();
+  this->ScalarBar->SetLookupTable( this->WindowLevel->GetLookupTable() );
+
+  this->LookupTable->SetTableRange (0, 1);
+  this->LookupTable->SetSaturationRange (0, 0);
+  this->LookupTable->SetHueRange (0, 0);
+  this->LookupTable->SetValueRange (0, 1);
+  this->LookupTable->SetAlphaRange (0, 1);
+  this->LookupTable->Build();
 }
 
 vtkImageView::~vtkImageView()
@@ -149,6 +163,9 @@ vtkImageView::~vtkImageView()
   this->DataSetActorCollection->Delete();
 
   this->ScalarBar->Delete();
+
+  this->LookupTable->Delete();
+  this->WindowLevel->Delete();
 
   if( this->RenderWindow )
   {
@@ -191,20 +208,20 @@ unsigned long vtkImageView::GetMTime()
 
     vtkObject * objectsToInclude[] = {
         // Renderer, RenderWindow,Interactor,
-        InteractorStyle, OrientationTransform, ScalarBar, OrientationMatrix,
-        InvertOrientationMatrix, CornerAnnotation, TextProperty,
+        InteractorStyle, WindowLevel, OrientationTransform, ScalarBar, OrientationMatrix,
+        InvertOrientationMatrix, CornerAnnotation, TextProperty, LookupTable,
         ScalarBar, m_poInternalImageFromInput };
-        const int numObjects = sizeof(objectsToInclude) / sizeof(vtkObject *);
+    const int numObjects = sizeof(objectsToInclude) / sizeof(vtkObject *);
 
-        for ( int i(0); i<numObjects; ++i ) {
-            vtkObject * object = objectsToInclude[i];
-            if (object) {
-                const MTimeType testMtime = object->GetMTime();
-                if ( testMtime > mTime )
-                    mTime = testMtime;
-            }
+    for ( int i(0); i<numObjects; ++i ) {
+        vtkObject * object = objectsToInclude[i];
+        if (object) {
+            const MTimeType testMtime = object->GetMTime();
+            if ( testMtime > mTime )
+                mTime = testMtime;
         }
-        return mTime;
+    }
+    return mTime;
 }
 
 //----------------------------------------------------------------------------
@@ -621,22 +638,23 @@ void vtkImageView::SetLookupTable (vtkLookupTable* lookuptable)
 //----------------------------------------------------------------------------
 void vtkImageView::SetLookupTable (vtkLookupTable* lookuptable,int layer)
 {
-  if (lookuptable && this->HasLayer(layer))
-  {
-    this->SetUseLookupTable(true,layer);
-    this->StoreLookupTable(lookuptable,layer);
-    this->ScalarBar->SetLookupTable( lookuptable );
+    if (lookuptable && this->HasLayer(layer))
+    {
+        this->SetUseLookupTable(true,layer);
+        this->StoreLookupTable(lookuptable,layer);
+        this->ScalarBar->SetLookupTable( lookuptable );
+        this->WindowLevel->SetLookupTable( this->LookupTable );
 
-    if ( this->GetColorTransferFunction(layer) != NULL )
-    {
-      this->StoreColorTransferFunction(NULL,layer);
+        if ( this->GetColorTransferFunction(layer) != NULL )
+        {
+            this->StoreColorTransferFunction(NULL,layer);
+        }
+        if ( this->GetOpacityTransferFunction(layer) != NULL )
+        {
+            this->StoreOpacityTransferFunction(NULL,layer);
+        }
+        this->SetTransferFunctionRangeFromWindowSettings(layer);
     }
-    if ( this->GetOpacityTransferFunction(layer) != NULL )
-    {
-      this->StoreOpacityTransferFunction(NULL,layer);
-    }
-    this->SetTransferFunctionRangeFromWindowSettings(layer);
-  }
 }
 
 void vtkImageView::SetUseLookupTable(bool use)

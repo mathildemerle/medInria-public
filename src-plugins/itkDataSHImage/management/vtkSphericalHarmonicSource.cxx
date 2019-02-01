@@ -221,7 +221,7 @@ RequestData(vtkInformation *vtkNotUsed(request),vtkInformationVector **vtkNotUse
 
     for (int i=0; i<N; ++i) {
         if (i%10000==0) {
-            UpdateProgress ((vtkFloatingPointType)i/N);
+            UpdateProgress ((double)i/N);
             if (GetAbortExecute())
                 break;
         }
@@ -262,11 +262,8 @@ int vtkSphericalHarmonicSource::RequestInformation(vtkInformation*,vtkInformatio
     // Get the info object
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),-1);
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),
-               Center[0]-Radius,Center[0]+Radius,
-               Center[1]-Radius,Center[1]+Radius,
-               Center[2]-Radius,Center[2]+Radius);
+    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(),
+                 1);
 
     return 1;
 }

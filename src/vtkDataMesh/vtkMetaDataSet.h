@@ -14,7 +14,7 @@
 #pragma once
 
 #include <vtkDataObject.h>
-#include <vtkDataMeshPluginExport.h>
+#include "vtkDataMeshPluginExport.h"
 #include <string>
 #include <vector>
 
@@ -354,10 +354,12 @@ class VTKDATAMESHPLUGIN_EXPORT vtkMetaDataSet: public vtkDataObject
     this->CurrentScalarArray = array;
   }
 
+  virtual double* GetCurrentScalarRange();
+
   virtual double GetScalarNullValue(const char * arrayName);
   virtual void SetScalarNullValue(const char * arrayName, double nullValue);
 
-  virtual double* GetScalarRange(QString attributeName = QString());
+  //virtual double* GetScalarRange(QString attributeName = QString());
   
   
   /**

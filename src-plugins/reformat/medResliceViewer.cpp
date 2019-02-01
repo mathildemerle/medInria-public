@@ -116,7 +116,8 @@ medResliceViewer::medResliceViewer(medAbstractView * view,QWidget * parent): med
     view3d = static_cast<medVtkViewBackend*>(view->backend())->view3D;
 
     vtkViewData = vtkSmartPointer<vtkImageData>::New();
-    vtkViewData->DeepCopy(view3d->GetInput());
+    //vtkViewData->DeepCopy(view3d->GetInput());
+    vtkViewData->DeepCopy(view3d->GetInputAlgorithm(view3d->GetCurrentLayer())->GetInput());
     imageDims = vtkViewData->GetDimensions();
 
     viewBody = new QWidget(parent);

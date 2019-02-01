@@ -11,16 +11,16 @@
 #
 ################################################################################
 
-project(vtkDataMeshPlugin)
+project(vtkDataMesh)
 
 ## #############################################################################
 ## Setup version numbering
 ## #############################################################################
 
-set(${PROJECT_NAME}_VERSION ${MEDINRIA_VERSION})
+#set(${PROJECT_NAME}_VERSION ${MEDINRIA_VERSION})
 
-string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UP)
-add_definitions(-D${PROJECT_NAME_UP}_VERSION="${${PROJECT_NAME}_VERSION}")
+#string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UP)
+#add_definitions(-D${PROJECT_NAME_UP}_VERSION="${${PROJECT_NAME}_VERSION}")
 
 ## #############################################################################
 ## Resolve dependencies
@@ -59,9 +59,13 @@ list_header_directories_to_include(${PROJECT_NAME}
   ${${PROJECT_NAME}_HEADERS}
   )
 
+#include_directories(${${PROJECT_NAME}_INCLUDE_DIRS}
+#  ${MEDINRIA_INCLUDE_DIRS}
+#  )
 include_directories(${${PROJECT_NAME}_INCLUDE_DIRS}
-  ${MEDINRIA_INCLUDE_DIRS}
-  )
+${MEDINRIA_INCLUDE_DIRS}
+${medVtkInria_INCLUDE_DIRS}
+${medCore_INCLUDE_DIRS})
 
 ## #############################################################################
 ## add library
@@ -88,4 +92,7 @@ target_link_libraries(${PROJECT_NAME}
 ## Install rules
 ## #############################################################################
 
-set_plugin_install_rules(${PROJECT_NAME})
+#set_plugin_install_rules(${PROJECT_NAME})
+set_lib_install_rules(${PROJECT_NAME}
+  ${${PROJECT_NAME}_HEADERS}
+  )

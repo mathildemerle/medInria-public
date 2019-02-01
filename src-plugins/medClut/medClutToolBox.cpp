@@ -217,7 +217,7 @@ void medClutToolBox::ApplyLut()
     if (d->rangeView->contains(d->view))
         range = d->rangeView->value(d->view);
     else
-        range = mesh->GetScalarRange();
+        range = mesh->GetCurrentScalarRange();
 
     vtkImageView2D * view2d = static_cast<medVtkViewBackend*>(d->view->backend())->view2D;
     vtkImageView3D * view3d = static_cast<medVtkViewBackend*>(d->view->backend())->view3D;
@@ -374,7 +374,7 @@ void medClutToolBox::changeAttribute(int ind)
     }*/
     ////
 
-    double * range = mesh->GetScalarRange();
+    double * range = mesh->GetCurrentScalarRange();
     double step = (range[1]-range[0])/100;
     d->minRange->setStep(step);
     d->maxRange->setStep(step);

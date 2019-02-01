@@ -681,10 +681,10 @@ void vtkImageView2D::InitializeSlicePlane()
   array->SetNumberOfComponents (3);
   unsigned char vals[3];
   vals[0] = 255; vals[1] = 0; vals[2] = 0;
-  array->InsertNextTupleValue (vals);
-  array->InsertNextTupleValue (vals);
-  array->InsertNextTupleValue (vals);
-  array->InsertNextTupleValue (vals);
+  array->InsertNextTypedTuple (vals);
+  array->InsertNextTypedTuple (vals);
+  array->InsertNextTypedTuple (vals);
+  array->InsertNextTypedTuple (vals);
 
   this->SlicePlane->GetPointData()->SetScalars (array);
   array->Delete();
@@ -1041,10 +1041,10 @@ void vtkImageView2D::SetSlicePlaneFromOrientation()
   vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast (this->SlicePlane->GetPointData()->GetScalars());
   if (!array)
     return;
-  array->SetTupleValue (0, vals);
-  array->SetTupleValue (1, vals);
-  array->SetTupleValue (2, vals);
-  array->SetTupleValue (3, vals);
+  array->SetTypedTuple (0, vals);
+  array->SetTypedTuple (1, vals);
+  array->SetTypedTuple (2, vals);
+  array->SetTypedTuple (3, vals);
 
   this->UpdateSlicePlane();
 
@@ -1507,9 +1507,6 @@ int vtkImageView2D::GetFirstLayer() const
 //----------------------------------------------------------------------------
 void vtkImageView2D::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4x4 *matrix /*= 0*/, int layer /*= 0*/)
 {
-  //if (image)
-    //image->UpdateInformation(); // must be called before GetSliceForWorldCoordinates()
-
   vtkRenderer *renderer = 0;
 
   if ( layer == 0 || IsFirstLayer(layer))

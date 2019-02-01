@@ -242,14 +242,14 @@ void resliceToolBox::displayInfoOnCurrentView()
 
     if (d->bySpacingOrDimension->currentIndex() == 0) // Spacing
     {
-        double* spacing = view2d->GetInput()->GetSpacing();
+        double* spacing = view2d->GetMedVtkImageInfo()->spacing;
         d->spacingX->setValue(spacing[0]);
         d->spacingY->setValue(spacing[1]);
         d->spacingZ->setValue(spacing[2]);
     }
     else // Dimension
     {
-        int* dimension = view2d->GetInput()->GetDimensions();
+        int* dimension = view2d->GetMedVtkImageInfo()->dimensions;
         d->spacingX->setValue(dimension[0]);
         d->spacingY->setValue(dimension[1]);
         d->spacingZ->setValue(dimension[2]);

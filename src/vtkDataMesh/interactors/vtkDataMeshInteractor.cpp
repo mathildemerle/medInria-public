@@ -35,6 +35,7 @@
 #include <vtkLookupTableManager.h>
 #include <vtkLookupTable.h>
 #include <vtkDataArrayCollection.h>
+#include <vtkMetaDataSet.h>
 
 #include <dtkLog/dtkLog.h>
 
@@ -449,7 +450,8 @@ void vtkDataMeshInteractor::setAttribute(const QString & attributeName)
         mapper3d->SelectColorArray(qPrintable(attributeName));
 
         d->range_button->show();
-        double * range = d->metaDataSet->GetScalarRange(attributeName);
+        //double * range = d->metaDataSet->GetScalarRange(attributeName);
+        double * range = d->metaDataSet->GetCurrentScalarRange();
         d->minRange->setRange(range[0],range[1]);
         d->maxRange->setRange(range[0],range[1]);
         d->minRange->getSpinBox()->setRange(range[0],range[1]);
@@ -561,7 +563,8 @@ void vtkDataMeshInteractor::setLut(vtkLookupTable * lut)
             values[3] = 1.0;
             lut->SetTableValue(i, values);
         }
-        double * range = d->metaDataSet->GetScalarRange(d->attributesParam->value());
+        //double * range = d->metaDataSet->GetScalarRange(d->attributesParam->value());
+        double * range = d->metaDataSet->GetCurrentScalarRange();
         lut->SetRange(range);
     }
 

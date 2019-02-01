@@ -212,6 +212,7 @@ bool medVtkViewItkDataImageInteractor::SetViewInput(medAbstractData* data, int l
     {
         bRes = false;
     }
+
     return bRes;
 }
 

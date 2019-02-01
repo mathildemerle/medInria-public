@@ -694,6 +694,14 @@ protected:
   vtkTextProperty* TextProperty;
 
   /**
+      The lookup table is an alternative way to define a transfer
+      function.  Internally this is transformed into a
+      vtkColorTransferFunction (color) and a vtkPiecewiseFunction
+      (opacity/alpha).  Default is a linear black to white table.
+     */
+ vtkLookupTable* LookupTable;
+
+  /**
      Get the scalar bar actor. This instance follows the color window/level
      of the viewer.
   */
@@ -705,11 +713,8 @@ protected:
   */
   vtkMatrixToLinearTransform* OrientationTransform;
 
-  /**
-   */
+
   vtkDataSetCollection* DataSetCollection;
-  /**
-   */
   vtkProp3DCollection* DataSetActorCollection;
 
   /**

@@ -33,6 +33,9 @@
 #include <medViewFactory.h>
 #include <medVtkViewBackend.h>
 
+#include <vtkDataMesh/vtkMetaDataSet.h>
+#include <vtkImageActor.h>
+
 /*=========================================================================
 
     D pointer
