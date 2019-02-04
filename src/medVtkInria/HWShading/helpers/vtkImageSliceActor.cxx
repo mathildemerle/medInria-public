@@ -98,14 +98,14 @@ vtkImageSliceActor::~vtkImageSliceActor()
 
 void vtkImageSliceActor::GetSliceRange(int &min, int &max)
 {
-  vtkImageData *input = this->GetInput();
-  if (input)
+    vtkImageData *input = this->GetInput();
+    if (input)
     {
-    //input->UpdateInformation();
-      //TODO: replace GetWholeExtent
-    //int *w_ext = input->GetWholeExtent();
-    //min = w_ext[this->SliceOrientation * 2];
-    //max = w_ext[this->SliceOrientation * 2 + 1];
+        std::cout<<"### vtkImageSliceActor::GetSliceRange"<<std::endl;
+        //input->UpdateInformation();
+        int *w_ext = input->GetExtent();
+        min = w_ext[this->SliceOrientation * 2];
+        max = w_ext[this->SliceOrientation * 2 + 1];
     }
 }
 

@@ -106,28 +106,36 @@ int vtkLimitVectorsToVOI::RequestData (vtkInformation *vtkNotUsed(request),
     
     while(i<npts)
     {
-      double vector[3];
-      unsigned char color[3];
-      double* pt;
-      
-      pt = points->GetPoint (i);
-      if (vectors)
-	vectors->GetTupleValue (i, vector);
-      if (colors)
-	colors->GetTupleValue (i, color);
-      
-      if(pt[0]>m_XMin && pt[0]<m_XMax &&
-	 pt[1]>m_YMin && pt[1]<m_YMax &&
-	 pt[2]>m_ZMin && pt[2]<m_ZMax )
-      {
-	newpoints->InsertNextPoint(pt);
-	if (vectors)
-	  newvectors->InsertNextTupleValue (vector);
-	if (colors)
-	  newcolors->InsertNextTupleValue (color);
-      }
-      
-      i++;
+        double vector[3];
+        unsigned char color[3];
+        double* pt;
+
+        pt = points->GetPoint (i);
+        if (vectors)
+        {
+            vectors->GetTypedTuple(i, vector);
+        }
+        if (colors)
+        {
+            colors->GetTypedTuple(i, color);
+        }
+
+        if(pt[0]>m_XMin && pt[0]<m_XMax &&
+                pt[1]>m_YMin && pt[1]<m_YMax &&
+                pt[2]>m_ZMin && pt[2]<m_ZMax )
+        {
+            newpoints->InsertNextPoint(pt);
+            if (vectors)
+            {
+                newvectors->InsertNextTypedTuple(vector);
+            }
+            if (colors)
+            {
+                newcolors->InsertNextTypedTuple (color);
+            }
+        }
+
+        i++;
     }
 
     if (vectors)

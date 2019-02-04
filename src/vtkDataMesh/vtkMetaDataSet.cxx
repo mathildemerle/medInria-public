@@ -499,7 +499,7 @@ void vtkMetaDataSet::ReadDataInternal(const char* filename)
     for (unsigned int t=0; t<Dim; t++)
       file >> tuple[t];
     
-    array->InsertNextTupleValue (tuple);
+    array->InsertNextTypedTuple(tuple);
     i++;
     
   }
@@ -577,7 +577,7 @@ void vtkMetaDataSet::ReadCSVData(const char* filename)
             for (int t=0; t<numberOfLines; t++)
             {
                 tuple[0]=(csvReader->GetOutput()->GetValue(t,i)).ToFloat();
-                array->InsertNextTupleValue (tuple);
+                array->InsertNextTypedTuple(tuple);
             }
             delete tuple;
             this->GetDataSet()->GetPointData()->AddArray (array);
@@ -598,7 +598,7 @@ void vtkMetaDataSet::ReadCSVData(const char* filename)
             for (int t=0; t<numberOfLines; t++)
             {
                 tuple[0]=(csvReader->GetOutput()->GetValue(t,i)).ToFloat();
-                array->InsertNextTupleValue (tuple);
+                array->InsertNextTypedTuple(tuple);
             }
             delete tuple;
             this->GetDataSet()->GetCellData()->AddArray (array);
