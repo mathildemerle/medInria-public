@@ -14,21 +14,12 @@
 project(vtkDataMesh)
 
 ## #############################################################################
-## Setup version numbering
-## #############################################################################
-
-set(${PROJECT_NAME}_VERSION ${MEDINRIA_VERSION})
-
-string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UP)
-add_definitions(-D${PROJECT_NAME_UP}_VERSION="${${PROJECT_NAME}_VERSION}")
-
-## #############################################################################
 ## Resolve dependencies
 ## #############################################################################
 
 find_package(dtk REQUIRED)
 include(${dtk_USE_FILE})
-include(dtkPlugin)
+#include(dtkPlugin)
 
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
@@ -60,7 +51,6 @@ list_header_directories_to_include(${PROJECT_NAME}
   )
 
 include_directories(${${PROJECT_NAME}_INCLUDE_DIRS}
-${MEDINRIA_INCLUDE_DIRS}
 ${medVtkInria_INCLUDE_DIRS}
 ${medCore_INCLUDE_DIRS})
 
@@ -68,7 +58,8 @@ ${medCore_INCLUDE_DIRS})
 ## add library
 ## #############################################################################
 
-add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_CFILES})
+add_library(${PROJECT_NAME} SHARED
+${${PROJECT_NAME}_CFILES})
 
 ## #############################################################################
 ## Link

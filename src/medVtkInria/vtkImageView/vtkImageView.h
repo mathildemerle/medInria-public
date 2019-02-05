@@ -411,7 +411,7 @@ class MEDVTKINRIA_EXPORT vtkImageView : public vtkObject
    * the parameter dataset
    * @param dataSetToFocusOn
    */
-  virtual void ResetCamera(vtkDataSet* dataSetToFocusOn);
+  //virtual void ResetCamera(vtkDataSet* dataSetToFocusOn);
 
   // Description:
   // Set window and level for mapping pixels to colors.

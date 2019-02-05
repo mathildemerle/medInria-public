@@ -168,9 +168,8 @@ bool medPluginGenerator::run()
                 && generateFile(QString(d->plugin).append("ToolBox.h"),":/template/registration/typeToolBox.h")
                 && generateFile(QString(d->plugin).append("ToolBox.cpp"),":/template/registration/typeToolBox.cpp");
         break;
-//    TODO
-//    case DIFFUSION:
-//        break;
+    case DIFFUSION:
+        break;
     case DATA_READER:
         res = generateFile(QString(d->plugin).append(".h"),":/template/data/reader.h")
                 && generateFile(QString(d->plugin).append(".cpp"),":/template/data/reader.cpp");

@@ -249,7 +249,7 @@ vtkSphericalHarmonicGlyph::RequestData(vtkInformation*,vtkInformationVector** in
     double x[4];
     for (vtkIdType inPtId=0,inPtIdReal=0;inPtId<numPts;++inPtId) {
         if (inPtId%10000==0) {
-            UpdateProgress ((double)inPtId/numPts);
+            UpdateProgress (static_cast<double>(inPtId)/numPts);
             if (GetAbortExecute())
                 break;
         }

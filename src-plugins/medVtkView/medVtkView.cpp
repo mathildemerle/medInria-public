@@ -57,9 +57,9 @@ PURPOSE.
 #endif
 
 // declare x11-specific function to prevent the window manager breaking thumbnail generation
-#ifdef Q_WS_X11
-void qt_x11_wait_for_window_manager(QWidget*);
-#endif
+//#ifdef Q_WS_X11
+//void qt_x11_wait_for_window_manager(QWidget*);
+//#endif
 
 class medVtkViewPrivate
 {
@@ -179,16 +179,6 @@ medVtkView::medVtkView(QObject* parent): medAbstractImageView(parent),
 
     d->view2d->GetRenderWindow()->GetInteractor()->AddObserver(vtkCommand::KeyPressEvent,d->observer,0);
     d->view2d->GetRenderWindow()->GetInteractor()->AddObserver(vtkCommand::KeyReleaseEvent,d->observer,0);
-
-    //action for transfer function-------------------------------------------------
-    /*QAction * transFunAction = new QAction("Toggle Tranfer Function Widget", this);
-    transFunAction->setShortcut(QKeySequence(tr(CONTROL_KEY "+H")));
-    transFunAction->setCheckable( true );
-    transFunAction->setChecked( false );
-    connect(transFunAction, SIGNAL(toggled(bool)),
-        this, SLOT(bringUpTransferFunction(bool)));
-
-    d->viewWidget->addAction(transFunAction);*/
 }
 
 medVtkView::~medVtkView()
@@ -468,14 +458,14 @@ QImage medVtkView::buildThumbnail(const QSize &size)
     d->renWin->SetSize(w,h);
     render();
 
-#ifdef Q_WS_X11
-    // X11 likes to animate window creation, which means by the time we grab the
-    // widget, it might not be fully ready yet, in which case we get artefacts.
-    // Only necessary if rendering to an actual screen window.
-    if(d->renWin->GetOffScreenRendering() == 0) {
-        qt_x11_wait_for_window_manager(d->viewWidget);
-    }
-#endif
+//#ifdef Q_WS_X11
+//    // X11 likes to animate window creation, which means by the time we grab the
+//    // widget, it might not be fully ready yet, in which case we get artefacts.
+//    // Only necessary if rendering to an actual screen window.
+//    if(d->renWin->GetOffScreenRendering() == 0) {
+//        qt_x11_wait_for_window_manager(d->viewWidget);
+//    }
+//#endif
 
     QImage thumbnail = QPixmap::grabWidget(d->viewWidget).toImage();
 
@@ -592,15 +582,13 @@ void medVtkView::resetCameraOnLayer(int layer)
     medAbstractData* data = layerData(layer);
     if (data && (data->identifier() == "vtkDataMesh" || data->identifier() == "EPMap"))
     {
-        vtkMetaDataSet* metaDataSet = static_cast<vtkMetaDataSet*>(data->data());
-        vtkDataSet* arg = metaDataSet->GetDataSet();
         if(this->is2D())
         {
-            d->view2d->ResetCamera(arg);
+            d->view2d->ResetCamera();
         }
         else
         {
-            d->view3d->ResetCamera(arg);
+            d->view3d->ResetCamera();
         }
         this->render();
     }

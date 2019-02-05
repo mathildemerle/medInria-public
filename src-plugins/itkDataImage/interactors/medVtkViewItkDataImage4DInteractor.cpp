@@ -41,7 +41,7 @@ public:
 
     medAbstractImageData *imageData;
 
-    vtkSmartPointer<vtkTextActor> textActor;
+    //vtkSmartPointer<vtkTextActor> textActor;
 };
 
 medVtkViewItkDataImage4DInteractor::medVtkViewItkDataImage4DInteractor(medAbstractView *parent):
@@ -53,7 +53,7 @@ medVtkViewItkDataImage4DInteractor::medVtkViewItkDataImage4DInteractor(medAbstra
     d->view2d = backend->view2D;
     d->view3d = backend->view3D;
 
-    d->textActor = nullptr;
+    //d->textActor = nullptr;
 }
 
 medVtkViewItkDataImage4DInteractor::~medVtkViewItkDataImage4DInteractor()
@@ -130,6 +130,10 @@ void medVtkViewItkDataImage4DInteractor::setInputData(medAbstractData *data)
             d->imageData->addMetaData("SequenceDuration", QString::number(m_poConv->getTotalTime()));
             d->imageData->addMetaData("SequenceFrameRate", QString::number((double)m_poConv->getNumberOfVolumes() / (double)m_poConv->getTotalTime()));
 
+
+            qDebug() << "SequenceDuration" << m_poConv->getTotalTime();
+            qDebug() << "SequenceFrameRate" <<(double)(m_poConv->getNumberOfVolumes() -1)/ m_poConv->getTotalTime();
+
             d->view2d->GetImageActor(d->view2d->GetCurrentLayer())->GetProperty()->SetInterpolationTypeToCubic();
             initParameters(d->imageData);
 
@@ -182,6 +186,7 @@ bool medVtkViewItkDataImage4DInteractor::SetViewInput(medAbstractData* data, int
     {
         bRes = false;
     }
+
     return bRes;
 }
 
@@ -189,6 +194,7 @@ template <typename IMAGE>
 bool medVtkViewItkDataImage4DInteractor::SetViewInput(const char* type, medAbstractData* data, int layer)
 {
     bool bRes = data->identifier() == type;
+
     if (bRes)
     {
         if (IMAGE* image = dynamic_cast<IMAGE*>((itk::Object*)(data->data())))

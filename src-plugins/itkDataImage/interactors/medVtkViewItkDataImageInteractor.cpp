@@ -373,9 +373,10 @@ QString medVtkViewItkDataImageInteractor::lut() const
 
 void medVtkViewItkDataImageInteractor::setLut(QString value)
 {
-	for(int i=0;i<d->lutParam->getComboBox()->count();i++)
-		if(this->d->lutParam->getComboBox()->itemText(i)==value)
-			d->lutParam->getComboBox()->setCurrentIndex(i);
+    //for(int i=0;i<d->lutParam->getComboBox()->count();i++)
+    //	if(this->d->lutParam->getComboBox()->itemText(i)==value)
+    //		d->lutParam->getComboBox()->setCurrentIndex(i);
+
     typedef vtkTransferFunctionPresets Presets;
     vtkColorTransferFunction * rgb   = vtkColorTransferFunction::New();
     vtkPiecewiseFunction     * alpha = vtkPiecewiseFunction::New();
@@ -407,12 +408,12 @@ void medVtkViewItkDataImageInteractor::setPreset(QString preset)
       d->lutParam->setValue(d->presetToLut[preset]);
 
     QHash <QString, QVariant> wl;
-    for(int i=0;i<d->presetParam->getComboBox()->count();i++)
+    /*for(int i=0;i<d->presetParam->getComboBox()->count();i++)
 		if(this->d->presetParam->getComboBox()->itemText(i)==preset)
 			d->presetParam->getComboBox()->setCurrentIndex(i);
     for(int i=0;i<d->presetParam->getComboBox()->count();i++)
 		if(this->d->presetParam->getComboBox()->itemText(i)==preset)
-			d->presetParam->getComboBox()->setCurrentIndex(i);
+            d->presetParam->getComboBox()->setCurrentIndex(i);*/
 
     if ( preset == "None" )
     {
@@ -539,40 +540,40 @@ void medVtkViewItkDataImageInteractor::setWindowLevelFromMinMax()
     double level = 0.5 * (d->maxIntensityParameter->value() - d->minIntensityParameter->value()) + d->minIntensityParameter->value();
     double window = d->maxIntensityParameter->value() - d->minIntensityParameter->value();
 
-    bool needsUpdate = false;
+    //bool needsUpdate = false;
 
     this->windowLevelParameter()->blockSignals(true);
 
     if(d->view2d->GetColorWindow(d->view->layer(d->imageData)) != window)
     {
         d->view2d->SetColorWindow(window, d->view->layer(d->imageData));
-        if (d->view->is2D())
-            needsUpdate = true;
+        //if (d->view->is2D())
+        //    needsUpdate = true;
     }
     if(d->view3d->GetColorWindow(d->view->layer(d->imageData)) != window)
     {
         d->view3d->SetColorWindow(window, d->view->layer(d->imageData));
-        if (!d->view->is2D())
-            needsUpdate = true;
+        //if (!d->view->is2D())
+        //    needsUpdate = true;
     }
 
     if(d->view2d->GetColorLevel(d->view->layer(d->imageData)) != level)
     {
         d->view2d->SetColorLevel(level, d->view->layer(d->imageData));
-        if (d->view->is2D())
-            needsUpdate = true;
+        //if (d->view->is2D())
+        //    needsUpdate = true;
     }
     if(d->view3d->GetColorLevel(d->view->layer(d->imageData)) != level)
     {
         d->view3d->SetColorLevel(level, d->view->layer(d->imageData));
-        if (!d->view->is2D())
-            needsUpdate = true;
+        //if (!d->view->is2D())
+        //    needsUpdate = true;
     }
 
     this->windowLevelParameter()->blockSignals(false);
 
-    if (needsUpdate)
-        this->update();
+    //if (needsUpdate)
+    //    this->update();
 }
 
 void medVtkViewItkDataImageInteractor::setWindowLevel(QHash<QString,QVariant> values)
@@ -583,7 +584,7 @@ void medVtkViewItkDataImageInteractor::setWindowLevel(QHash<QString,QVariant> va
         return;
     }
 
-    bool needUpdate = false;
+    //bool needUpdate = false;
 
     double w = values["Window"].toDouble();
     double l = values["Level"].toDouble();
@@ -594,36 +595,36 @@ void medVtkViewItkDataImageInteractor::setWindowLevel(QHash<QString,QVariant> va
     {
         d->view2d->SetColorWindow(w, d->view->layer(d->imageData));
 
-        if (d->view->is2D())
-            needUpdate = true;
+        //if (d->view->is2D())
+        //    needUpdate = true;
     }
 
     if (d->view3d->GetColorWindow(d->view->layer(d->imageData)) != w)
     {
         d->view3d->SetColorWindow(w, d->view->layer(d->imageData));
 
-        if (!d->view->is2D())
-            needUpdate = true;
+        //if (!d->view->is2D())
+        //    needUpdate = true;
     }
 
     if (d->view2d->GetColorLevel(d->view->layer(d->imageData)) != l)
     {
         d->view2d->SetColorLevel(l, d->view->layer(d->imageData));
 
-        if (d->view->is2D())
-            needUpdate = true;
+        //if (d->view->is2D())
+        //    needUpdate = true;
     }
 
     if (d->view3d->GetColorLevel(d->view->layer(d->imageData)) != l)
     {
         d->view3d->SetColorLevel(l, d->view->layer(d->imageData));
 
-        if (!d->view->is2D())
-            needUpdate = true;
+        //if (!d->view->is2D())
+        //    needUpdate = true;
     }
 
-    if(needUpdate)
-        this->update();
+   // if(needUpdate)
+   //     this->update();
 
     d->minIntensityParameter->blockSignals(true);
     d->maxIntensityParameter->blockSignals(true);

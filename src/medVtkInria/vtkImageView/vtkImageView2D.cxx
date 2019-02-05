@@ -237,11 +237,10 @@ double vtkImageView2D::GetOpacity(int layer) const
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkImageView2D::GetMTime()
+/** Override vtkObject - return the maximum mtime of this and any objects owned by this. */
+vtkMTimeType vtkImageView2D::GetMTime()
 {
-    typedef unsigned long MTimeType;
-
-    MTimeType mTime = Superclass::GetMTime();
+    vtkMTimeType mTime = Superclass::GetMTime();
 
     vtkObject * objectsToInclude[] = {
         this->Axes2DWidget,
@@ -252,33 +251,28 @@ unsigned long vtkImageView2D::GetMTime()
         this->SlicePlane,
         this->OrientationAnnotation };
 
-        const int numObjects = sizeof(objectsToInclude) / sizeof(vtkObject *);
+    const int numObjects = sizeof(objectsToInclude) / sizeof(vtkObject *);
 
-        for ( int i(0); i<numObjects; ++i ) {
-            vtkObject * object = objectsToInclude[i];
-            if (object) {
-                const MTimeType testMtime = object->GetMTime();
-                if ( testMtime > mTime )
-                    mTime = testMtime;
-            }
+    for ( int i(0); i<numObjects; ++i ) {
+        vtkObject * object = objectsToInclude[i];
+        if (object) {
+            const vtkMTimeType testMtime = object->GetMTime();
+            if ( testMtime > mTime )
+                mTime = testMtime;
         }
+    }
 
-        const int numLayer = this->GetNumberOfLayers();
-        for ( int i(0); i<numLayer; ++i ) {
-            /*if (this->GetImage2DDisplayForLayer(i)->GetInput())
-            {
-                this->GetImage2DDisplayForLayer(i)->GetInput()->UpdateInformation();
-            }*/
-            // TODO Mathilde check
-            vtkObject * object = this->GetImage2DDisplayForLayer(i)->GetImageActor();
-            if (object) {
-                const MTimeType testMtime = object->GetMTime();
-                if ( testMtime > mTime )
-                    mTime = testMtime;
-            }
+    const int numLayer = this->GetNumberOfLayers();
+    for ( int i(0); i<numLayer; ++i ) {
+        vtkObject * object = this->GetImage2DDisplayForLayer(i)->GetImageActor();
+        if (object) {
+            const vtkMTimeType testMtime = object->GetMTime();
+            if ( testMtime > mTime )
+                mTime = testMtime;
         }
+    }
 
-        return mTime;
+    return mTime;
 }
 
 //----------------------------------------------------------------------------
@@ -305,6 +299,8 @@ int* vtkImageView2D::GetSliceRange() const
 }
 
 //----------------------------------------------------------------------------
+/** Return the minimum and maximum slice values (depending on the orientation
+ this can be in X, Y or Z). */
 int vtkImageView2D::GetSliceMin() const
 {
   int *range = this->GetSliceRange();
@@ -327,6 +323,9 @@ int vtkImageView2D::GetSliceMax() const
 }
 
 //----------------------------------------------------------------------------
+/** Set/Get the current slice to display (depending on the orientation
+ this can be in X, Y or Z).
+ */
 int vtkImageView2D::GetSlice() const
 {
   return this->Slice;
@@ -410,6 +409,12 @@ void vtkImageView2D::SetSliceOrientation(int orientation)
 }
 
 //----------------------------------------------------------------------------
+/**
+After the orientation has changed, it is crucial to adapt
+a couple of things according to new orientation.
+In UpdateOrientation() the SlicePlane, the Camera settings,
+the CornerAnnotation are modified.
+*/
 void vtkImageView2D::UpdateOrientation()
 {
   // Store zoom and pan :
@@ -434,6 +439,17 @@ void vtkImageView2D::UpdateOrientation()
 }
 
 //----------------------------------------------------------------------------
+/** Update the display extent manually so that the proper slice for the
+ given orientation is displayed. It will also try to set a
+ reasonable camera clipping range.
+ This method is called automatically when the Input is changed, but
+ most of the time the input of this class is likely to remain the same,
+ i.e. connected to the output of a filter, or an image reader. When the
+ input of this filter or reader itself is changed, an error message might
+ be displayed since the current display extent is probably outside
+ the new whole extent. Calling this method will ensure that the display
+ extent is reset properly.
+ */
 void vtkImageView2D::UpdateDisplayExtent()
 {
   if (this->LayerInfoVec.empty())
@@ -655,6 +671,13 @@ void vtkImageView2D::SetOrientationMatrix (vtkMatrix4x4* matrix)
 }
 
 //----------------------------------------------------------------------------
+/**
+This method is called each time the orientation changes (SetViewOrientation())
+and sets the appropriate color to the slice plane.
+Red: R-L direction --> sagittal orientation
+Green: A-P direction --> coronal orientation
+Blue: I-S direction --> axial orientation
+*/
 void vtkImageView2D::InitializeSlicePlane()
 {
   vtkPoints* points = vtkPoints::New();
@@ -691,6 +714,14 @@ void vtkImageView2D::InitializeSlicePlane()
 }
 
 //----------------------------------------------------------------------------
+/**
+The wolrd is not always what we think it is ...
+
+Use this method to move the viewer slice such that the position
+(in world coordinates) given by the arguments is contained by
+the slice plane. If the given position is outside the bounds
+of the image, then the slice will be as close as possible.
+*/
 void vtkImageView2D::SetCurrentPoint(double pos[3])
 {
   int old_slice = this->Slice;
@@ -724,6 +755,12 @@ void vtkImageView2D::SetCurrentPoint(double pos[3])
 
 
 //----------------------------------------------------------------------------
+/**
+Returns the estimated View-Orientation corresponding
+to a given Slice-Orientation, and outputs the camera's parameters
+This is crucial when choosing to impose the View-Orientation
+instead of imposing the Slice-Orientation.
+*/
 int vtkImageView2D::GetViewOrientationFromSliceOrientation(int sliceorientation, double* cam_pos, double* cam_focus)
 {
   double position[4] = {0,0,0,0}, focalpoint[4] = {0,0,0,0};
@@ -802,6 +839,12 @@ int vtkImageView2D::GetViewOrientationFromSliceOrientation(int sliceorientation,
 
 
 //----------------------------------------------------------------------------
+/**
+After the orientation has changed, it is crucial to adapt
+a couple of things according to new orientation.
+In UpdateOrientation() the SlicePlane, the Camera settings,
+the CornerAnnotation are modified.
+*/
 int vtkImageView2D::SetCameraFromOrientation()
 {
   // We entirely rely on the slice orientation this->SliceOrientation
@@ -893,6 +936,13 @@ int vtkImageView2D::SetCameraFromOrientation()
 }
 
 //----------------------------------------------------------------------------
+/**
+ Switch between annotation style.
+ AnnotationStyle1 is there by default, it shows the X-Y position (in-plane),
+ and specify the orientation on lower-right corner
+ AnnotationStyle1 shows the global physical x-y-z position (scanner coordinates),
+ and leaves lower-right corner empty for user to fill.
+*/
 void vtkImageView2D::SetAnnotationStyle(unsigned int arg)
 {
   this->AnnotationStyle = arg;
@@ -900,6 +950,12 @@ void vtkImageView2D::SetAnnotationStyle(unsigned int arg)
 }
 
 //----------------------------------------------------------------------------
+/**
+After the orientation has changed, it is crucial to adapt
+a couple of things according to new orientation.
+In UpdateOrientation() the SlicePlane, the Camera settings,
+the CornerAnnotation are modified.
+*/
 void vtkImageView2D::SetAnnotationsFromOrientation()
 {
   // This method has to be called after the camera
@@ -1028,6 +1084,12 @@ void vtkImageView2D::SetAnnotationsFromOrientation()
 }
 
 //----------------------------------------------------------------------------
+/**
+After the orientation has changed, it is crucial to adapt
+a couple of things according to new orientation.
+In UpdateOrientation() the SlicePlane, the Camera settings,
+the CornerAnnotation are modified.
+*/
 void vtkImageView2D::SetSlicePlaneFromOrientation()
 {
   if (this->ViewOrientation < VIEW_ORIENTATION_SAGITTAL || this->ViewOrientation > VIEW_ORIENTATION_AXIAL)
@@ -1051,6 +1113,13 @@ void vtkImageView2D::SetSlicePlaneFromOrientation()
 }
 
 //----------------------------------------------------------------------------
+/**
+The SlicePlane instance (GetSlicePlane()) is the polygonal
+square corresponding to the slice plane,
+it is color-coded according to conventions.
+UpdateSlicePlane() is thus called each time we change slice
+or change orientation.
+*/
 void vtkImageView2D::UpdateSlicePlane()
 {
   if( !this->GetMedVtkImageInfo() || !this->GetMedVtkImageInfo()->initialized) // if input is not set yet, no way we can now the display bounds
@@ -1079,6 +1148,13 @@ void vtkImageView2D::UpdateSlicePlane()
 }
 
 //----------------------------------------------------------------------------
+/**
+The ViewCenter instance follows the center of the view
+in world coordinates. It is updated UpdateCenter() each
+time the slice or the orientation changes.
+CAUTION: for the moment it is de-activated to speed up the
+visualization. (The ViewCenter is not used anywhere else).
+*/
 void vtkImageView2D::UpdateCenter()
 {
   if (!this->GetMedVtkImageInfo() || !this->GetMedVtkImageInfo()->initialized)
@@ -1099,6 +1175,9 @@ void vtkImageView2D::UpdateCenter()
 }
 
 //----------------------------------------------------------------------------
+/**
+Convert a world coordinate point into an image indices coordinate point
+*/
 int vtkImageView2D::GetSliceForWorldCoordinates(double pos[3]) const
 {
   int indices[3];
@@ -1107,6 +1186,9 @@ int vtkImageView2D::GetSliceForWorldCoordinates(double pos[3]) const
 }
 
 //----------------------------------------------------------------------------
+/**
+Convert an indices coordinate point (image coordinates) into a world coordinate point
+*/
 void vtkImageView2D::GetWorldCoordinatesForSlice(int slice, double* position)
 {
   int indices[3] = {0,0,0};
@@ -1115,6 +1197,9 @@ void vtkImageView2D::GetWorldCoordinatesForSlice(int slice, double* position)
 }
 
 //----------------------------------------------------------------------------
+/**
+Get/Set the pan factor of the view
+*/
 void vtkImageView2D::SetPan (double* arg)
 {
   this->Pan[0] = arg[0];
@@ -1216,6 +1301,9 @@ void vtkImageView2D::GetPan (double pan[2])
 }
 
 //----------------------------------------------------------------------------
+/**
+Reset the camera in a nice way for the 2D view
+*/
 void vtkImageView2D::ResetCamera()
 {
   this->Superclass::ResetCamera();
@@ -1225,19 +1313,176 @@ void vtkImageView2D::ResetCamera()
 }
 
 //----------------------------------------------------------------------------
+/**
+Reset position - zoom - window/level to default
+*/
 void vtkImageView2D::Reset()
 {
   this->Superclass::Reset();
   this->UpdateDisplayExtent();
 }
 //----------------------------------------------------------------------------
+/**
+ Show/Hide the annotations (CornerAnnotation AND OrientationAnnotation)
+*/
 void vtkImageView2D::SetShowAnnotations (int val)
 {
   this->Superclass::SetShowAnnotations (val);
   this->OrientationAnnotation->SetVisibility (val);
 }
 
+/**
+Change the interaction triggered by the mouse buttons.
+Choices are listed in vtkInteractorStyleImageView2D class:
+InteractionTypeSlice : changes the slice number.
+InteractionTypeWindowLevel : changes the window-level values.
+InteractionTypeZoom : changes the zoom level.
+InteractionTypePan : translate the view in-plane.
+*/
+void vtkImageView2D::SetLeftButtonInteractionStyle (int arg)
+{
+    vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
+    if (t)
+        t->SetLeftButtonInteraction (arg);
+}
+
+int vtkImageView2D::GetLeftButtonInteractionStyle()
+{
+    vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
+    if (t)
+        return t->GetLeftButtonInteraction ();
+    return -1;
+}
+
+/**
+Change the interaction triggered by the keyboard.
+Choices are listed in vtkInteractorStyleImageView2D class:
+InteractionTypeSlice : changes the slice number.
+InteractionTypeWindowLevel : changes the window-level values.
+InteractionTypeZoom : changes the zoom level.
+InteractionTypePan : translate the view in-plane.
+*/
+void vtkImageView2D::SetKeyboardInteractionStyle (int arg)
+{
+    vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
+    if (t)
+        t->SetKeyboardInteraction (arg);
+}
+
+int vtkImageView2D::GetKeyboardInteractionStyle()
+{
+    vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
+    if (t)
+        return t->GetKeyboardInteraction ();
+    return -1;
+}
+
+/**
+Change the interaction triggered by the mouse buttons.
+Choices are listed in vtkInteractorStyleImageView2D class:
+InteractionTypeSlice : changes the slice number.
+InteractionTypeWindowLevel : changes the window-level values.
+InteractionTypeZoom : changes the zoom level.
+InteractionTypePan : translate the view in-plane.
+*/
+void vtkImageView2D::SetRightButtonInteractionStyle (int arg)
+{
+    vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
+    if (t)
+        t->SetRightButtonInteraction (arg);
+}
+
+int vtkImageView2D::GetRightButtonInteractionStyle()
+{
+    vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
+    if (t)
+        return t->GetRightButtonInteraction ();
+    return -1;
+}
+
+/**
+Change the interaction triggered by the mouse buttons.
+Choices are listed in vtkInteractorStyleImageView2D class:
+InteractionTypeSlice : changes the slice number.
+InteractionTypeWindowLevel : changes the window-level values.
+InteractionTypeZoom : changes the zoom level.
+InteractionTypePan : translate the view in-plane.
+*/
+void vtkImageView2D::SetMiddleButtonInteractionStyle (int arg)
+{
+    vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
+    if (t)
+        t->SetMiddleButtonInteraction (arg);
+}
+
+int vtkImageView2D::GetMiddleButtonInteractionStyle()
+{
+    vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
+    if (t)
+        return t->GetMiddleButtonInteraction ();
+    return -1;
+}
+
+/**
+Change the interaction triggered by the mouse buttons.
+Choices are listed in vtkInteractorStyleImageView2D class:
+InteractionTypeSlice : changes the slice number.
+InteractionTypeWindowLevel : changes the window-level values.
+InteractionTypeZoom : changes the zoom level.
+InteractionTypePan : translate the view in-plane.
+*/
+void vtkImageView2D::SetWheelInteractionStyle (int arg)
+{
+    vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
+    if (t)
+        t->SetWheelButtonInteraction (arg);
+}
+
+int vtkImageView2D::GetWheelInteractionStyle()
+{
+    vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
+    if (t)
+        return t->GetWheelButtonInteraction ();
+    return -1;
+}
+
+/**
+Change the interaction triggered by the mouse buttons.
+Choices are listed in vtkInteractorStyleImageView2D class:
+InteractionTypeSlice : changes the slice number.
+InteractionTypeWindowLevel : changes the window-level values.
+InteractionTypeZoom : changes the zoom level.
+InteractionTypePan : translate the view in-plane.
+*/
+void vtkImageView2D::SetInteractionStyle (int arg)
+{
+    this->SetLeftButtonInteractionStyle (arg);
+    this->SetRightButtonInteractionStyle (arg);
+    this->SetMiddleButtonInteractionStyle (arg);
+    this->SetWheelInteractionStyle (arg);
+}
+
+/**
+Change the interaction triggered by the mouse buttons.
+Choices are listed in vtkInteractorStyleImageView2D class:
+InteractionTypeSlice : changes the slice number.
+InteractionTypeWindowLevel : changes the window-level values.
+InteractionTypeZoom : changes the zoom level.
+InteractionTypePan : translate the view in-plane.
+*/
+int vtkImageView2D::GetInteractionStyle()
+{
+    vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
+    if (t)
+        return t->GetLeftButtonInteraction();
+    else
+        return 0;
+}
+
 //----------------------------------------------------------------------------
+/**
+Useful method that transform a display position into a world corrdinate point
+*/
 void vtkImageView2D::GetWorldCoordinatesFromDisplayPosition (int xy[2], double* position)
 {
   vtkCamera *cam = this->GetRenderer() ? this->GetRenderer()->GetActiveCamera() : NULL;
@@ -1253,6 +1498,10 @@ void vtkImageView2D::GetWorldCoordinatesFromDisplayPosition (int xy[2], double* 
 }
 
 //----------------------------------------------------------------------------
+/**
+Overwrite of the Superclass InstallPipeline() method in order to set up the
+home made InteractorStyle, and make it observe all events we need
+*/
 void vtkImageView2D::InstallPipeline()
 {
   this->Superclass::InstallPipeline();
@@ -1305,6 +1554,10 @@ void vtkImageView2D::InstallPipeline()
 }
 
 //----------------------------------------------------------------------------
+/**
+Overwrite of the Superclass UnInstallPipeline() method in order to set up the
+home made InteractorStyle, and make it observe all events we need
+*/
 void vtkImageView2D::UnInstallPipeline()
 {
   if ( this->GetRenderer() )
@@ -1335,6 +1588,9 @@ void vtkImageView2D::UnInstallPipeline()
 }
 
 //----------------------------------------------------------------------------
+/** Start/Stop the interactor relation with the view.
+ it basically plug or unplug the interactor.
+ */
 void vtkImageView2D::InstallInteractor()
 {
   if (this->Interactor && this->InteractorStyle)
@@ -1424,6 +1680,10 @@ void vtkImageView2D::UnInstallInteractor()
 }
 
 //----------------------------------------------------------------------------
+/**
+ Get/Set weither or not the interpolation between pixels should be activated.
+ It is On by default
+*/
 void vtkImageView2D::SetInterpolate(int val, int layer)
 {
   if (!this->HasLayer (layer))
@@ -1505,6 +1765,7 @@ int vtkImageView2D::GetFirstLayer() const
 }
 
 //----------------------------------------------------------------------------
+/** Set/Get the input image to the viewer. */
 void vtkImageView2D::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4x4 *matrix /*= 0*/, int layer /*= 0*/)
 {
   vtkRenderer *renderer = 0;
@@ -1575,13 +1836,6 @@ void vtkImageView2D::SetInput (vtkActor *actor, int layer, vtkMatrix4x4 *matrix,
 
     renderer->AddActor(actor);
 
-    this->SetCurrentLayer(layer);
-    this->Slice = this->GetSliceForWorldCoordinates (this->CurrentPoint);
-    this->UpdateDisplayExtent();
-    // this->UpdateCenter();
-    this->UpdateSlicePlane();
-    this->InvokeEvent (vtkImageView2D::SliceChangedEvent);
-
     double bounds[6];
     actor->GetBounds(bounds);
 
@@ -1597,6 +1851,13 @@ void vtkImageView2D::SetInput (vtkActor *actor, int layer, vtkMatrix4x4 *matrix,
 
     unsigned int numberOfLayers = GetNumberOfLayers();
     UpdateBounds(bounds, layer, imageSize, imageSpacing, imageOrigin);
+
+    this->SetCurrentLayer(layer);
+    this->Slice = this->GetSliceForWorldCoordinates (this->CurrentPoint);
+    this->UpdateDisplayExtent();
+    // this->UpdateCenter();
+    this->UpdateSlicePlane();
+    this->InvokeEvent (vtkImageView2D::SliceChangedEvent);
 
     if ((numberOfLayers == 0) && matrix)
         this->SetOrientationMatrix(matrix);
@@ -1620,6 +1881,9 @@ void vtkImageView2D::RemoveLayerActor(vtkActor *actor, int layer)
 }
 
 //----------------------------------------------------------------------------
+/**
+Return the vtkImageActor's instance.
+*/
 vtkImageActor *vtkImageView2D::GetImageActor(int layer) const
 {
     int tempLayer = layer;
@@ -1649,6 +1913,9 @@ medVtkImageInfo* vtkImageView2D::GetMedVtkImageInfo(int layer) const
 }
 
 //----------------------------------------------------------------------------
+/**
+Set/Get the ruler widget visibility.
+*/
 void vtkImageView2D::SetShowRulerWidget (int val)
 {
   this->ShowRulerWidget = val;
@@ -1664,6 +1931,9 @@ void vtkImageView2D::SetShowRulerWidget (int val)
 }
 
 //----------------------------------------------------------------------------
+/**
+Set/Get the ruler widget visibility.
+*/
 void vtkImageView2D::SetShowDistanceWidget (int val)
 {
   this->ShowDistanceWidget = val;
@@ -1679,6 +1949,9 @@ void vtkImageView2D::SetShowDistanceWidget (int val)
 }
 
 //----------------------------------------------------------------------------
+/**
+Set/Get the ruler widget visibility.
+*/
 void vtkImageView2D::SetShowAngleWidget (int val)
 {
   this->ShowAngleWidget = val;
@@ -1694,6 +1967,9 @@ void vtkImageView2D::SetShowAngleWidget (int val)
 }
 
 //----------------------------------------------------------------------------
+/**
+Set/Get the axes2D widget visibility.
+*/
 void vtkImageView2D::SetShowImageAxis (int val)
 {
   this->ShowImageAxis = val;
@@ -1705,6 +1981,9 @@ void vtkImageView2D::SetShowImageAxis (int val)
 }
 
 //----------------------------------------------------------------------------
+/**
+Set/Get whether the cursor should follow the mouse or not.
+*/
 void vtkImageView2D::SetCursorFollowMouse (int val)
 {
   this->CursorFollowMouse = val;
@@ -1742,6 +2021,11 @@ void vtkImageView2D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+/**
+ adding a PointSet to the view.
+ The method will "cut" the dataset, therefore reducing the dimension by 1.
+ e.g. volumes become surfaces, surfaces lines, and lines points.
+*/
 vtkActor* vtkImageView2D::AddDataSet(vtkPointSet* arg, vtkProperty* prop)
 {
   if (this->FindDataSetWidget (arg) != this->DataSetWidgets.end())
@@ -1765,7 +2049,23 @@ vtkActor* vtkImageView2D::AddDataSet(vtkPointSet* arg, vtkProperty* prop)
   // If this is the first widget to be added, reset camera
   if ( (!this->GetMedVtkImageInfo() || !this->GetMedVtkImageInfo()->initialized) && (this->DataSetWidgets.size() == 1))
   {
-    this->ResetCamera(arg);
+      vtkBoundingBox box;
+      typedef std::list<vtkDataSet2DWidget*> WidgetListType;
+
+      // Find bounds of all input data.
+      for ( WidgetListType::const_iterator it( this->DataSetWidgets.begin() );
+            it != this->DataSetWidgets.end();
+            ++it )
+      {
+          box.AddBounds( widget->GetSource()->GetBounds() );
+      }
+
+      double center[3];
+      box.GetCenter(center);
+      this->SetCurrentPoint(center);
+      double bounds[6];
+      box.GetBounds(bounds);
+      this->GetRenderer()->ResetCamera(bounds);
   }
 
   return widget->GetActor();
@@ -1997,6 +2297,7 @@ vtkRenderer * vtkImageView2D::GetRenderer() const
     return this->LayerInfoVec.at(this->CurrentLayer).Renderer;
 }
 
+//! Get the WindowLevel for given layer. Overrides Superclass.
 vtkImageMapToColors * vtkImageView2D::GetWindowLevel( int layer/*=0*/ ) const
 {
     vtkImage2DDisplay * imageDisplay = this->GetImage2DDisplayForLayer(layer);
