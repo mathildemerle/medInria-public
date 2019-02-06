@@ -458,6 +458,7 @@ unsigned int vtkMetaSurfaceMesh::CanReadFile (const char* filename)
 
 void vtkMetaSurfaceMesh::ReadMeshFile (const char* filename)
 {
+    std::cout<<"### vtkMetaSurfaceMesh::ReadMeshFile"<<std::endl;
   std::ifstream file (filename );
 
   if(file.fail())

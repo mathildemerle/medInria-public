@@ -38,6 +38,9 @@ public:
 
     vtkMetaDataSetSequence *sequence;
 
+    // MUSIC
+    vtkImageView2D *view2d;
+    vtkImageView3D *view3d;
     vtkSmartPointer<vtkTextActor> textActor;
 };
 
@@ -48,6 +51,10 @@ vtkDataMesh4DInteractor::vtkDataMesh4DInteractor(medAbstractView* parent): vtkDa
     d->view = dynamic_cast<medAbstractImageView *>(parent);
     d->data = NULL;
 
+    // Display text on view with 4D VTK
+    medVtkViewBackend* backend = static_cast<medVtkViewBackend*>(parent->backend());
+    d->view2d = backend->view2D;
+    d->view3d = backend->view3D;
     d->textActor = nullptr;
 }
 

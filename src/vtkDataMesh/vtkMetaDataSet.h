@@ -250,7 +250,6 @@ class VTKDATAMESHPLUGIN_EXPORT vtkMetaDataSet: public vtkDataObject
      nb dim (integers. nb is the number of Tuples of the field; dim is the Tuple size)\n\n
   */
   virtual void ReadData (const char* filename);
-  virtual void ReadCSVData(const char* filename); // specific for CSV files
 
   /**
      read and assign some scalars to the dataset (should be point set). 
@@ -355,9 +354,6 @@ class VTKDATAMESHPLUGIN_EXPORT vtkMetaDataSet: public vtkDataObject
   }
 
   virtual double* GetCurrentScalarRange();
-
-  virtual double GetScalarNullValue(const char * arrayName);
-  virtual void SetScalarNullValue(const char * arrayName, double nullValue);
 
   //virtual double* GetScalarRange(QString attributeName = QString());
   

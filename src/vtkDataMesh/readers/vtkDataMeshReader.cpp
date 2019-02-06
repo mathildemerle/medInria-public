@@ -50,6 +50,7 @@ bool vtkDataMeshReader::readInformation(const QString& path) {
 }
 
 bool vtkDataMeshReader::read(const QString& path) {
+    std::cout<<"### vtkDataMeshReader::read"<<std::endl;
     setProgress(0);
     readInformation(path);
     setProgress(50);

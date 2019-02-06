@@ -51,8 +51,8 @@ public:
     virtual QWidget* buildLayerWidget();
     virtual QWidget* buildToolBarWidget();
     virtual QWidget* buildToolBoxWidget();
-    virtual QList<medAbstractParameterL*> linkableParameters();
-    virtual QList<medBoolParameterL*> mouseInteractionParameters();
+    virtual QList<medAbstractParameter*> linkableParameters();
+    virtual QList<medBoolParameter*> mouseInteractionParameters();
 
 public slots:
     void setOpacity(double value);

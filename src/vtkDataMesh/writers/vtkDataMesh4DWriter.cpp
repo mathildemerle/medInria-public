@@ -15,8 +15,6 @@
 
 #include <medAbstractData.h>
 #include <medAbstractDataFactory.h>
-//#include <medCore/data/medAbstractData.h>
-//#include <medCore/data/medAbstractDataFactory.h>
 
 #include <vtkDataManager.h>
 #include <vtkDataManagerWriter.h>

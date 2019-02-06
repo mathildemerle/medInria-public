@@ -14,6 +14,8 @@ vtkDataMeshReaderBase::vtkDataMeshReaderBase() : dtkAbstractDataReader()
 
 bool vtkDataMeshReaderBase::canRead(const QStringList& paths)
 {
+    std::cout<<"### vtkDataMeshReaderBase::canRead"<<std::endl;
+
     if (paths.empty())
     {
         return false;
@@ -23,6 +25,8 @@ bool vtkDataMeshReaderBase::canRead(const QStringList& paths)
 
 bool vtkDataMeshReaderBase::readInformation(const QStringList& paths)
 {
+    std::cout<<"### vtkDataMeshReaderBase::readInformation"<<std::endl;
+
     if (paths.empty())
     {
         return false;
@@ -32,6 +36,8 @@ bool vtkDataMeshReaderBase::readInformation(const QStringList& paths)
 
 bool vtkDataMeshReaderBase::read(const QStringList& paths)
 {
+    std::cout<<"### vtkDataMeshReaderBase::read"<<std::endl;
+
     if (paths.empty())
     {
         return false;

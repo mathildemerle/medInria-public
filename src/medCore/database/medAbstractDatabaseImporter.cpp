@@ -120,7 +120,7 @@ medDataIndex medAbstractDatabaseImporter::index() const
 **/
 QString medAbstractDatabaseImporter::callerUuid()
 {
-    return d->uuid;
+    return d->uuid.toString();
 }
     
 /**
@@ -144,6 +144,7 @@ void medAbstractDatabaseImporter::internalRun ( void )
 
 void medAbstractDatabaseImporter::importFile ( void )
 {
+    std::cout<<"### medAbstractDatabaseImporter::importFile"<<std::endl;
     QMutexLocker locker ( &d->mutex );
 
     /* The idea of this algorithm can be summarized in 3 steps:
@@ -724,6 +725,8 @@ dtkSmartPointer<dtkAbstractDataReader> medAbstractDatabaseImporter::getSuitableR
     dtkSmartPointer<dtkAbstractDataReader> dataReader;
     for (int i=0; i<readers.size(); i++)
     {
+        std::cout<<"### medAbstractDatabaseImporter::getSuitableReader "<<readers[i].toStdString()<<std::endl;
+
         dataReader = medAbstractDataFactory::instance()->readerSmartPointer(readers[i]);
         dataReader->enableDeferredDeletion(false);
 
@@ -806,6 +809,7 @@ QStringList medAbstractDatabaseImporter::getAllFilesToBeProcessed ( QString file
 **/
 medAbstractData* medAbstractDatabaseImporter::tryReadImages ( const QStringList& filesPaths,const bool readOnlyImageInformation )
 {
+    std::cout<<"### medAbstractDatabaseImporter::tryReadImages"<<std::endl;
     medAbstractData *medData = NULL;
 
     dtkSmartPointer<dtkAbstractDataReader> dataReader;
