@@ -4,7 +4,7 @@
 
  Copyright (c) INRIA 2013 - 2014. All rights reserved.
  See LICENSE.txt for details.
- 
+
   This software is distributed WITHOUT ANY WARRANTY; without even
   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
   PURPOSE.
@@ -35,7 +35,7 @@ public:
 
 protected:
   vtkDataManagerReader();
-  ~vtkDataManagerReader();  
+  ~vtkDataManagerReader();
 
   // Get the name of the data set being read.
   virtual const char* GetDataSetName();
@@ -53,8 +53,8 @@ protected:
 
   vtkDataSet *FileToDataSet(const char* type, const std::string& filename);
 
-  virtual int RequestInformation(vtkInformation*, 
-                                 vtkInformationVector**, 
+  virtual int RequestInformation(vtkInformation*,
+                                 vtkInformationVector**,
                                  vtkInformationVector*);
 
 /*   virtual void ProvideDataManagerFromMultiGroup (vtkMultiGroupDataSet* group); */
@@ -63,8 +63,8 @@ protected:
   virtual void RestoreMetaDataSetInformation(vtkXMLDataElement* element);
 
   virtual vtkMetaDataSet* CreateMetaDataSetFromXMLElement (vtkXMLDataElement* element);
-  
-  
+
+
 private:
   vtkDataManagerReader(const vtkDataManagerReader&);  // Not implemented.
   void operator=(const vtkDataManagerReader&);  // Not implemented.
@@ -72,5 +72,3 @@ private:
   vtkDataManagerReaderInternals* Internal;
   vtkDataManager* Output;  //TODO Replace it by MetaDataSetSequence. Because it's an over architecture.
 };
-
-

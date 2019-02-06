@@ -35,8 +35,6 @@ public:
 
     medAbstractData *data;
     medAbstractImageView *view;
-    vtkImageView2D *view2d;
-    vtkImageView3D *view3d;
 
     vtkMetaDataSetSequence *sequence;
 
@@ -49,10 +47,6 @@ vtkDataMesh4DInteractor::vtkDataMesh4DInteractor(medAbstractView* parent): vtkDa
 {
     d->view = dynamic_cast<medAbstractImageView *>(parent);
     d->data = NULL;
-
-    medVtkViewBackend* backend = static_cast<medVtkViewBackend*>(parent->backend());
-    d->view2d = backend->view2D;
-    d->view3d = backend->view3D;
 
     d->textActor = nullptr;
 }
@@ -109,13 +103,13 @@ void vtkDataMesh4DInteractor::setInputData(medAbstractData *data)
         case vtkMetaDataSet::VTK_META_SURFACE_MESH:
         case vtkMetaDataSet::VTK_META_VOLUME_MESH:
             d->sequence = sequence;
-
-            d->data->setMetaData("SequenceDuration", QString::number(d->sequence->GetSequenceDuration()));
-            d->data->setMetaData("SequenceFrameRate", QString::number((double)d->sequence->GetNumberOfMetaDataSets() /
-                                                                      d->sequence->GetSequenceDuration()));
-
-            qDebug() << "SequenceDuration" << d->sequence->GetSequenceDuration();
-            qDebug() << "SequenceFrameRate" <<(double)d->sequence->GetNumberOfMetaDataSets() / d->sequence->GetSequenceDuration();
+            d->data->addMetaData("SequenceDuration", QString::number(d->sequence->GetMaxTime()));
+            d->data->addMetaData("SequenceFrameRate", QString::number((double)d->sequence->GetNumberOfMetaDataSets() /
+                                                                      (double)d->sequence->GetMaxTime()));
+            // TODO Mathilde check
+            //d->data->setMetaData("SequenceDuration", QString::number(d->sequence->GetSequenceDuration()));
+            //d->data->setMetaData("SequenceFrameRate", QString::number((double)d->sequence->GetNumberOfMetaDataSets() /
+            //                                                         d->sequence->GetSequenceDuration()));
 
             break;
         default:

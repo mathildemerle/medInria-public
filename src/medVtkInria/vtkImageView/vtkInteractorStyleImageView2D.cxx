@@ -4,7 +4,7 @@
 
  Copyright (c) INRIA 2013 - 2014. All rights reserved.
  See LICENSE.txt for details.
- 
+
   This software is distributed WITHOUT ANY WARRANTY; without even
   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
   PURPOSE.
@@ -27,6 +27,9 @@
 
 #include <vtkImageView2DCommand.h>
 
+
+
+
 vtkStandardNewMacro (vtkInteractorStyleImageView2D);
 
 
@@ -45,63 +48,63 @@ vtkInteractorStyleImageView2D::vtkInteractorStyleImageView2D()
 }
 
 
-vtkInteractorStyleImageView2D::~vtkInteractorStyleImageView2D() 
+vtkInteractorStyleImageView2D::~vtkInteractorStyleImageView2D()
 {
 }
 
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImageView2D::OnMouseMove() 
+void vtkInteractorStyleImageView2D::OnMouseMove()
 {
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
   this->FindPokedRenderer(x, y);
-  switch (this->State) 
+  switch (this->State)
   {
-	case VTKIS_SLICE_MOVE:
-	  this->SliceMove();
-	  this->InvokeEvent(vtkImageView2DCommand::SliceMoveEvent, this);
-	 break;
-	case VTKIS_TIME_CHANGE:
-	  this->TimeChange();
-	  this->InvokeEvent(vtkImageView2DCommand::TimeChangeEvent, this);
-	 break;
+    case VTKIS_SLICE_MOVE:
+      this->SliceMove();
+      this->InvokeEvent(vtkImageView2DCommand::SliceMoveEvent, this);
+     break;
+    case VTKIS_TIME_CHANGE:
+      this->TimeChange();
+      this->InvokeEvent(vtkImageView2DCommand::TimeChangeEvent, this);
+     break;
       case VTKIS_DOLLY:
       case VTKIS_ZOOM:
- 	this->Superclass::OnMouseMove();
-	this->InvokeEvent(vtkImageView2DCommand::CameraZoomEvent, this);
-	this->InvokeEvent(vtkImageView2DCommand::CameraMoveEvent, this);
-	break;
+    this->Superclass::OnMouseMove();
+    this->InvokeEvent(vtkImageView2DCommand::CameraZoomEvent, this);
+    this->InvokeEvent(vtkImageView2DCommand::CameraMoveEvent, this);
+    break;
       case VTKIS_PAN:
-	this->Superclass::OnMouseMove();
-	this->InvokeEvent(vtkImageView2DCommand::CameraPanEvent, this);
-	this->InvokeEvent(vtkImageView2DCommand::CameraMoveEvent, this);
-	break;
+    this->Superclass::OnMouseMove();
+    this->InvokeEvent(vtkImageView2DCommand::CameraPanEvent, this);
+    this->InvokeEvent(vtkImageView2DCommand::CameraMoveEvent, this);
+    break;
       case VTKIS_SPIN:
       case VTKIS_ROTATE:
       case VTKIS_FORWARDFLY:
       case VTKIS_REVERSEFLY:
-	this->Superclass::OnMouseMove();
-	this->InvokeEvent(vtkImageView2DCommand::CameraMoveEvent, this);
-	break;
+    this->Superclass::OnMouseMove();
+    this->InvokeEvent(vtkImageView2DCommand::CameraMoveEvent, this);
+    break;
       case VTKIS_NONE:
-	this->RequestedPosition[0] = x;
-	this->RequestedPosition[1] = y;
-	this->InvokeEvent (vtkImageView2DCommand::RequestedCursorInformationEvent, this);
+    this->RequestedPosition[0] = x;
+    this->RequestedPosition[1] = y;
+    this->InvokeEvent (vtkImageView2DCommand::RequestedCursorInformationEvent, this);
           break;
       default:
-	this->Superclass::OnMouseMove();
-	break;
+    this->Superclass::OnMouseMove();
+    break;
   }
 }
 
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImageView2D::OnLeftButtonDown() 
+void vtkInteractorStyleImageView2D::OnLeftButtonDown()
 {
 
   int x = this->Interactor->GetEventPosition()[0];
-  int y = this->Interactor->GetEventPosition()[1];  
+  int y = this->Interactor->GetEventPosition()[1];
   this->FindPokedRenderer(x, y);
 
   if (this->Interactor->GetRepeatCount())
@@ -110,11 +113,11 @@ void vtkInteractorStyleImageView2D::OnLeftButtonDown()
     this->RequestedPosition[1] = y;
     this->InvokeEvent (vtkImageView2DCommand::RequestedPositionEvent, this);
     return;
-  }  
-  
-	this->GrabFocus(this->EventCallbackCommand);
-	
-  if (this->Interactor->GetShiftKey() || this->Interactor->GetControlKey()) 
+  }
+
+    this->GrabFocus(this->EventCallbackCommand);
+
+  if (this->Interactor->GetShiftKey() || this->Interactor->GetControlKey())
   {
     if (this->GetLeftButtonInteraction() == InteractionTypeWindowLevel)
       this->StartSliceMove();
@@ -123,29 +126,29 @@ void vtkInteractorStyleImageView2D::OnLeftButtonDown()
   {
     switch(this->GetLeftButtonInteraction())
     {
-	case InteractionTypeSlice:
-	  this->RequestedPosition[0] = x;
-	  this->RequestedPosition[1] = y;
-	  this->InvokeEvent (vtkImageView2DCommand::RequestedPositionEvent, this);
-	  this->StartSliceMove();
-	  break;
-	case InteractionTypeTime:
-	  this->RequestedPosition[0] = x;
-	  this->RequestedPosition[1] = y;
-	  // this->InvokeEvent (vtkImageView2DCommand::RequestedPositionEvent, this);
-	  this->StartTimeChange();
-	  break;
-	case InteractionTypeWindowLevel:
-	  this->Superclass::OnLeftButtonDown();
-	  break;
-	case InteractionTypeZoom:
-	  this->Superclass::OnRightButtonDown();
-	  break;
-	case InteractionTypePan:
-	  this->Superclass::OnMiddleButtonDown();
-	  break;
-	default:
-	  break;
+    case InteractionTypeSlice:
+      this->RequestedPosition[0] = x;
+      this->RequestedPosition[1] = y;
+      this->InvokeEvent (vtkImageView2DCommand::RequestedPositionEvent, this);
+      this->StartSliceMove();
+      break;
+    case InteractionTypeTime:
+      this->RequestedPosition[0] = x;
+      this->RequestedPosition[1] = y;
+      // this->InvokeEvent (vtkImageView2DCommand::RequestedPositionEvent, this);
+      this->StartTimeChange();
+      break;
+    case InteractionTypeWindowLevel:
+      this->Superclass::OnLeftButtonDown();
+      break;
+    case InteractionTypeZoom:
+      this->Superclass::OnRightButtonDown();
+      break;
+    case InteractionTypePan:
+      this->Superclass::OnMiddleButtonDown();
+      break;
+    default:
+      break;
     }
   }
 }
@@ -154,45 +157,45 @@ void vtkInteractorStyleImageView2D::OnLeftButtonDown()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleImageView2D::OnLeftButtonUp()
 {
-  switch (this->State) 
+  switch (this->State)
   {
       case VTKIS_SLICE_MOVE:
         this->EndSliceMove();
-		if ( this->Interactor )
-	    {
-	     this->ReleaseFocus();
-		}
-	  break;
-		  
-	  case VTKIS_TIME_CHANGE:
-		  this->EndTimeChange();
-		  if ( this->Interactor )
-		  {
-			  this->ReleaseFocus();
-		  }
-		  break;
-	
+        if ( this->Interactor )
+        {
+         this->ReleaseFocus();
+        }
+      break;
+
+      case VTKIS_TIME_CHANGE:
+          this->EndTimeChange();
+          if ( this->Interactor )
+          {
+              this->ReleaseFocus();
+          }
+          break;
+
       default:
-	break;
+    break;
   }
 
   switch (this->LeftButtonInteraction)
   {
       case InteractionTypeSlice :
-	break;
-	  case InteractionTypeTime :
-		  break;
+    break;
+      case InteractionTypeTime :
+          break;
       case InteractionTypeZoom :
-	this->Superclass::OnRightButtonUp();
-	break;
+    this->Superclass::OnRightButtonUp();
+    break;
       case InteractionTypePan :
-	this->Superclass::OnMiddleButtonUp();
-	break;
+    this->Superclass::OnMiddleButtonUp();
+    break;
       case InteractionTypeWindowLevel :
       default:
-	this->Superclass::OnLeftButtonUp();
-	break;
-  }  
+    this->Superclass::OnLeftButtonUp();
+    break;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -207,26 +210,26 @@ void vtkInteractorStyleImageView2D::OnMiddleButtonDown()
 
 
 this->GrabFocus(this->EventCallbackCommand);
-	
+
   switch(this->GetMiddleButtonInteraction())
   {
       case InteractionTypeSlice:
-	this->StartSliceMove();
-	break;
-	  case InteractionTypeTime:
-		  this->StartTimeChange();
-		  break;		  
+    this->StartSliceMove();
+    break;
+      case InteractionTypeTime:
+          this->StartTimeChange();
+          break;
       case InteractionTypeWindowLevel:
-	this->Superclass::OnLeftButtonDown();
-	break;
+    this->Superclass::OnLeftButtonDown();
+    break;
       case InteractionTypeZoom:
-	this->Superclass::OnRightButtonDown();
-	break;
+    this->Superclass::OnRightButtonDown();
+    break;
       case InteractionTypePan:
-	this->Superclass::OnMiddleButtonDown();
-	break;
+    this->Superclass::OnMiddleButtonDown();
+    break;
       default:
-	break;
+    break;
   }
 }
 
@@ -237,122 +240,122 @@ void vtkInteractorStyleImageView2D::OnMiddleButtonUp()
   {
       case VTKIS_SLICE_MOVE:
         this->EndSliceMove();
-	if ( this->Interactor )
-	{
-	  this->ReleaseFocus();
-	}
-        break;    
-		  
-	  case VTKIS_TIME_CHANGE:
-		  this->EndTimeChange();
-		  if ( this->Interactor )
-		  {
-			  this->ReleaseFocus();
-		  }
-		  break;    
-		  
+    if ( this->Interactor )
+    {
+      this->ReleaseFocus();
+    }
+        break;
+
+      case VTKIS_TIME_CHANGE:
+          this->EndTimeChange();
+          if ( this->Interactor )
+          {
+              this->ReleaseFocus();
+          }
+          break;
+
       default:
-	break;
+    break;
   }
 
   switch (this->MiddleButtonInteraction)
   {
       case InteractionTypeSlice :
-	break;
+    break;
       case InteractionTypeTime :
-		  break;
+          break;
       case InteractionTypeZoom :
-	this->Superclass::OnRightButtonUp();
-	break;
+    this->Superclass::OnRightButtonUp();
+    break;
       case InteractionTypeWindowLevel :
-	this->Superclass::OnLeftButtonUp();
-	break;
+    this->Superclass::OnLeftButtonUp();
+    break;
       case InteractionTypePan :
       default:
-	this->Superclass::OnMiddleButtonUp();
-	break;
+    this->Superclass::OnMiddleButtonUp();
+    break;
   }
-  
+
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImageView2D::OnRightButtonDown() 
+void vtkInteractorStyleImageView2D::OnRightButtonDown()
 {
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
-  
+
   this->FindPokedRenderer(x, y);
   if ( !this->CurrentRenderer )
     return;
-  
+
   this->GrabFocus(this->EventCallbackCommand);
-  
+
   switch(this->GetRightButtonInteraction())
   {
       case InteractionTypeSlice:
-	this->StartSliceMove();
-	break;
+    this->StartSliceMove();
+    break;
       case InteractionTypeTime:
-		  this->StartTimeChange();
-		  break;		  
+          this->StartTimeChange();
+          break;
       case InteractionTypeWindowLevel:
-	this->Superclass::OnLeftButtonDown();
-	break;
+    this->Superclass::OnLeftButtonDown();
+    break;
       case InteractionTypeZoom:
-	this->Superclass::OnRightButtonDown();
-	break;
-	
+    this->Superclass::OnRightButtonDown();
+    break;
+
       case InteractionTypePan:
-	this->Superclass::OnMiddleButtonDown();
-	break;
+    this->Superclass::OnMiddleButtonDown();
+    break;
       default:
-	break;
+    break;
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImageView2D::OnRightButtonUp() 
+void vtkInteractorStyleImageView2D::OnRightButtonUp()
 {
-  switch (this->State) 
+  switch (this->State)
   {
       case VTKIS_SLICE_MOVE:
         this->EndSliceMove();
-	if ( this->Interactor )
-	{
-	  this->ReleaseFocus();
-	}
+    if ( this->Interactor )
+    {
+      this->ReleaseFocus();
+    }
         break;
       case VTKIS_TIME_CHANGE:
-		  this->EndTimeChange();
-		  if ( this->Interactor )
-		  {
-			  this->ReleaseFocus();
-		  }
-		  break;		  
+          this->EndTimeChange();
+          if ( this->Interactor )
+          {
+              this->ReleaseFocus();
+          }
+          break;
       default:
-	break;
+    break;
   }
 
   switch (this->RightButtonInteraction)
   {
       case InteractionTypeSlice :
-	break;
+    break;
       case InteractionTypeTime :
-		  break;
+          break;
       case InteractionTypePan :
-	this->Superclass::OnMiddleButtonUp();
-	break;
+    this->Superclass::OnMiddleButtonUp();
+    break;
       case InteractionTypeWindowLevel :
-	this->Superclass::OnLeftButtonUp();
-	break;
+    this->Superclass::OnLeftButtonUp();
+    break;
       case InteractionTypeZoom :
       default:
-	this->Superclass::OnRightButtonUp();
-	break;
+    this->Superclass::OnRightButtonUp();
+    break;
   }
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImageView2D::OnMouseWheelForward() 
+void vtkInteractorStyleImageView2D::OnMouseWheelForward()
 {
 
   int x = this->Interactor->GetEventPosition()[0];
@@ -365,29 +368,29 @@ void vtkInteractorStyleImageView2D::OnMouseWheelForward()
   switch(this->GetWheelButtonInteraction())
   {
       case InteractionTypeSlice:
-	this->SliceStep = 1;
-	this->InvokeEvent (vtkImageView2DCommand::SliceMoveEvent, this);
-	break;
+    this->SliceStep = 1;
+    this->InvokeEvent (vtkImageView2DCommand::SliceMoveEvent, this);
+    break;
       case InteractionTypeTime:
-		this->SliceStep = 1;
-		this->InvokeEvent (vtkImageView2DCommand::TimeChangeEvent, this);
-		break;		  
+        this->SliceStep = 1;
+        this->InvokeEvent (vtkImageView2DCommand::TimeChangeEvent, this);
+        break;
       case InteractionTypeWindowLevel:
-	this->Superclass::OnMouseWheelForward();
-	break;
+    this->Superclass::OnMouseWheelForward();
+    break;
       case InteractionTypeZoom:
-	this->Superclass::OnMouseWheelForward();
-	break;
+    this->Superclass::OnMouseWheelForward();
+    break;
       case InteractionTypePan:
-	this->Superclass::OnMouseWheelForward();
-	break;
+    this->Superclass::OnMouseWheelForward();
+    break;
       default:
-	break;
+    break;
   }
 
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImageView2D::OnMouseWheelBackward() 
+void vtkInteractorStyleImageView2D::OnMouseWheelBackward()
 {
 
   int x = this->Interactor->GetEventPosition()[0];
@@ -400,62 +403,62 @@ void vtkInteractorStyleImageView2D::OnMouseWheelBackward()
   switch(this->GetWheelButtonInteraction())
   {
       case InteractionTypeSlice:
-	this->SliceStep = -1;
-	this->InvokeEvent (vtkImageView2DCommand::SliceMoveEvent, this);
-	break;
+    this->SliceStep = -1;
+    this->InvokeEvent (vtkImageView2DCommand::SliceMoveEvent, this);
+    break;
       case InteractionTypeTime:
-		  this->SliceStep = -1;
-		  this->InvokeEvent (vtkImageView2DCommand::TimeChangeEvent, this);
-		  break;		  
+          this->SliceStep = -1;
+          this->InvokeEvent (vtkImageView2DCommand::TimeChangeEvent, this);
+          break;
       case InteractionTypeWindowLevel:
-	this->Superclass::OnMouseWheelBackward();
-	break;
+    this->Superclass::OnMouseWheelBackward();
+    break;
       case InteractionTypeZoom:
-	this->Superclass::OnMouseWheelBackward();
-	break;
+    this->Superclass::OnMouseWheelBackward();
+    break;
       case InteractionTypePan:
-	this->Superclass::OnMouseWheelBackward();
-	break;
+    this->Superclass::OnMouseWheelBackward();
+    break;
       default:
-	break;
-  }  
+    break;
+  }
 }
 
 
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImageView2D::OnChar() 
+void vtkInteractorStyleImageView2D::OnChar()
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
   if (strcmp (rwi->GetKeySym(),"Up")==0 || strcmp (rwi->GetKeySym(),"Down")==0)
   {
-	  if (strcmp (rwi->GetKeySym(),"Up")==0)
-		  this->SliceStep = 1;
-	  else
-		  this->SliceStep = -1;
+      if (strcmp (rwi->GetKeySym(),"Up")==0)
+          this->SliceStep = 1;
+      else
+          this->SliceStep = -1;
 
-	  switch (this->KeyboardInteraction) {
-		  case InteractionTypeSlice:
-			  this->InvokeEvent (vtkImageView2DCommand::SliceMoveEvent, this);
-			  break;
-		  case InteractionTypeTime:
-			  this->InvokeEvent (vtkImageView2DCommand::TimeChangeEvent, this);
-			  break;
-		  default:
-			  break;
-			  /*
-		  case InteractionTypeWindowLevel:
-			  //this->InvokeEvent (vtkImageView2DCommand::InteractionTypeWindowLevel, this);
-			  break;
-		  case InteractionTypeZoom:
-			  this->InvokeEvent (vtkImageView2DCommand::CameraZoomEvent, this);
-			  break;
-		  case InteractionTypePan:
-			  this->InvokeEvent (vtkImageView2DCommand::CameraPanEvent, this);
-			  break;
-			   */
-	  }
+      switch (this->KeyboardInteraction) {
+          case InteractionTypeSlice:
+              this->InvokeEvent (vtkImageView2DCommand::SliceMoveEvent, this);
+              break;
+          case InteractionTypeTime:
+              this->InvokeEvent (vtkImageView2DCommand::TimeChangeEvent, this);
+              break;
+          default:
+              break;
+              /*
+          case InteractionTypeWindowLevel:
+              //this->InvokeEvent (vtkImageView2DCommand::InteractionTypeWindowLevel, this);
+              break;
+          case InteractionTypeZoom:
+              this->InvokeEvent (vtkImageView2DCommand::CameraZoomEvent, this);
+              break;
+          case InteractionTypePan:
+              this->InvokeEvent (vtkImageView2DCommand::CameraPanEvent, this);
+              break;
+               */
+      }
 
   }
   else if ((rwi->GetKeyCode() == 'r') || (rwi->GetKeyCode() == 'R'))
@@ -501,7 +504,7 @@ void vtkInteractorStyleImageView2D::EndSliceMove()
   }
   this->StopState();
   this->InvokeEvent(vtkImageView2DCommand::EndSliceMoveEvent, this);
-  
+
 }
 
 //----------------------------------------------------------------------------
@@ -515,30 +518,30 @@ void vtkInteractorStyleImageView2D::SliceMove()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleImageView2D::StartTimeChange()
 {
-	if ((this->State != VTKIS_NONE) && (this->State != VTKIS_PICK)) {
-		return;
-	}
-	this->StartState(VTKIS_TIME_CHANGE);
-	this->InvokeEvent(vtkImageView2DCommand::StartTimeChangeEvent, this);
+    if ((this->State != VTKIS_NONE) && (this->State != VTKIS_PICK)) {
+        return;
+    }
+    this->StartState(VTKIS_TIME_CHANGE);
+    this->InvokeEvent(vtkImageView2DCommand::StartTimeChangeEvent, this);
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleImageView2D::EndTimeChange()
 {
-	if (this->State != VTKIS_TIME_CHANGE) {
-		return;
-	}
-	this->StopState();
-	this->InvokeEvent(vtkImageView2DCommand::EndTimeChangeEvent, this);
-	
+    if (this->State != VTKIS_TIME_CHANGE) {
+        return;
+    }
+    this->StopState();
+    this->InvokeEvent(vtkImageView2DCommand::EndTimeChangeEvent, this);
+
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleImageView2D::TimeChange()
 {
-	vtkRenderWindowInteractor *rwi = this->Interactor;
-	int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
-	this->SliceStep = dy;
+    vtkRenderWindowInteractor *rwi = this->Interactor;
+    int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
+    this->SliceStep = dy;
 }
 
 //----------------------------------------------------------------------------

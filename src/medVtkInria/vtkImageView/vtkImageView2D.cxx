@@ -4,14 +4,12 @@
 
  Copyright (c) INRIA 2013 - 2014. All rights reserved.
  See LICENSE.txt for details.
- 
+
   This software is distributed WITHOUT ANY WARRANTY; without even
   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
   PURPOSE.
 
 =========================================================================*/
-
-#include <QDebug>
 
 #include "vtkImageView2D.h"
 
@@ -70,8 +68,11 @@
 #include <vtkColorTransferFunction.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkImageReslice.h>
+#include <vtkInformation.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
 
 #include <vtkTextActor3D.h>
+#include <vtkImageMapper3D.h>
 
 #include <vector>
 #include <string>
@@ -84,8 +85,7 @@
 
 #include <vtkImageAlgorithm.h>
 #include <vtkAlgorithmOutput.h>
-#include <vtkInformation.h>
-#include <vtkStreamingDemandDrivenPipeline.h>
+
 
 vtkStandardNewMacro(vtkImageView2D);
 
@@ -251,51 +251,51 @@ vtkMTimeType vtkImageView2D::GetMTime()
         this->SlicePlane,
         this->OrientationAnnotation };
 
-    const int numObjects = sizeof(objectsToInclude) / sizeof(vtkObject *);
+        const int numObjects = sizeof(objectsToInclude) / sizeof(vtkObject *);
 
-    for ( int i(0); i<numObjects; ++i ) {
-        vtkObject * object = objectsToInclude[i];
-        if (object) {
-            const vtkMTimeType testMtime = object->GetMTime();
-            if ( testMtime > mTime )
-                mTime = testMtime;
+        for ( int i(0); i<numObjects; ++i ) {
+            vtkObject * object = objectsToInclude[i];
+            if (object) {
+                const vtkMTimeType testMtime = object->GetMTime();
+                if ( testMtime > mTime )
+                    mTime = testMtime;
+            }
         }
-    }
 
-    const int numLayer = this->GetNumberOfLayers();
-    for ( int i(0); i<numLayer; ++i ) {
-        vtkObject * object = this->GetImage2DDisplayForLayer(i)->GetImageActor();
-        if (object) {
-            const vtkMTimeType testMtime = object->GetMTime();
-            if ( testMtime > mTime )
-                mTime = testMtime;
+        const int numLayer = this->GetNumberOfLayers();
+        for ( int i(0); i<numLayer; ++i ) {
+            vtkObject * object = this->GetImage2DDisplayForLayer(i)->GetImageActor();
+            if (object) {
+                const vtkMTimeType testMtime = object->GetMTime();
+                if ( testMtime > mTime )
+                    mTime = testMtime;
+            }
         }
-    }
 
-    return mTime;
+        return mTime;
 }
 
 //----------------------------------------------------------------------------
 void vtkImageView2D::GetSliceRange(int &min, int &max) const
 {
-    if (this->GetMedVtkImageInfo()->initialized)
-    {
-        this->Get2DDisplayMapperInputAlgorithm()->UpdateInformation();
-        int* w_ext = this->Get2DDisplayMapperInputAlgorithm()->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-        min = w_ext[this->SliceOrientation * 2];
-        max = w_ext[this->SliceOrientation * 2 + 1];
-    }
+  if (this->GetMedVtkImageInfo()->initialized)
+  {
+      this->Get2DDisplayMapperInputAlgorithm()->UpdateInformation();
+      int* w_ext = this->Get2DDisplayMapperInputAlgorithm()->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+      min = w_ext[this->SliceOrientation * 2];
+      max = w_ext[this->SliceOrientation * 2 + 1];
+  }
 }
 
 //----------------------------------------------------------------------------
 int* vtkImageView2D::GetSliceRange() const
 {
-    if (this->GetMedVtkImageInfo() && this->GetMedVtkImageInfo()->initialized)
-    {
-        int* w_ext = this->GetMedVtkImageInfo()->extent;
-        return w_ext + this->SliceOrientation * 2;
-    }
-    return NULL;
+  if (this->GetMedVtkImageInfo() && this->GetMedVtkImageInfo()->initialized)
+  {
+      int* w_ext = this->GetMedVtkImageInfo()->extent;
+      return w_ext + this->SliceOrientation * 2;
+  }
+  return NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -459,6 +459,7 @@ void vtkImageView2D::UpdateDisplayExtent()
   {
     return;
   }
+
 
   int* w_ext = this->GetMedVtkImageInfo()->extent;
 
@@ -674,8 +675,11 @@ void vtkImageView2D::SetOrientationMatrix (vtkMatrix4x4* matrix)
 /**
 This method is called each time the orientation changes (SetViewOrientation())
 and sets the appropriate color to the slice plane.
+
 Red: R-L direction --> sagittal orientation
+
 Green: A-P direction --> coronal orientation
+
 Blue: I-S direction --> axial orientation
 */
 void vtkImageView2D::InitializeSlicePlane()
@@ -768,7 +772,7 @@ int vtkImageView2D::GetViewOrientationFromSliceOrientation(int sliceorientation,
   double origin[3] = {0,0,0};
 
   if (this->GetMedVtkImageInfo() && this->GetMedVtkImageInfo()->initialized)
-      this->GetMedVtkImageInfo()->GetOrigin(origin);
+    this->GetMedVtkImageInfo()->GetOrigin(origin);
 
   // At first, we initialize the cam focal point to {0,0,0}, so nothing to do
   // (after re-orientation, it will become the origin of the image)
@@ -1117,6 +1121,7 @@ void vtkImageView2D::SetSlicePlaneFromOrientation()
 The SlicePlane instance (GetSlicePlane()) is the polygonal
 square corresponding to the slice plane,
 it is color-coded according to conventions.
+
 UpdateSlicePlane() is thus called each time we change slice
 or change orientation.
 */
@@ -1152,6 +1157,7 @@ void vtkImageView2D::UpdateSlicePlane()
 The ViewCenter instance follows the center of the view
 in world coordinates. It is updated UpdateCenter() each
 time the slice or the orientation changes.
+
 CAUTION: for the moment it is de-activated to speed up the
 visualization. (The ViewCenter is not used anywhere else).
 */
@@ -1345,7 +1351,6 @@ void vtkImageView2D::SetLeftButtonInteractionStyle (int arg)
     if (t)
         t->SetLeftButtonInteraction (arg);
 }
-
 int vtkImageView2D::GetLeftButtonInteractionStyle()
 {
     vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
@@ -1368,7 +1373,6 @@ void vtkImageView2D::SetKeyboardInteractionStyle (int arg)
     if (t)
         t->SetKeyboardInteraction (arg);
 }
-
 int vtkImageView2D::GetKeyboardInteractionStyle()
 {
     vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
@@ -1391,7 +1395,6 @@ void vtkImageView2D::SetRightButtonInteractionStyle (int arg)
     if (t)
         t->SetRightButtonInteraction (arg);
 }
-
 int vtkImageView2D::GetRightButtonInteractionStyle()
 {
     vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
@@ -1399,7 +1402,6 @@ int vtkImageView2D::GetRightButtonInteractionStyle()
         return t->GetRightButtonInteraction ();
     return -1;
 }
-
 /**
 Change the interaction triggered by the mouse buttons.
 Choices are listed in vtkInteractorStyleImageView2D class:
@@ -1414,7 +1416,6 @@ void vtkImageView2D::SetMiddleButtonInteractionStyle (int arg)
     if (t)
         t->SetMiddleButtonInteraction (arg);
 }
-
 int vtkImageView2D::GetMiddleButtonInteractionStyle()
 {
     vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
@@ -1422,7 +1423,6 @@ int vtkImageView2D::GetMiddleButtonInteractionStyle()
         return t->GetMiddleButtonInteraction ();
     return -1;
 }
-
 /**
 Change the interaction triggered by the mouse buttons.
 Choices are listed in vtkInteractorStyleImageView2D class:
@@ -1437,7 +1437,6 @@ void vtkImageView2D::SetWheelInteractionStyle (int arg)
     if (t)
         t->SetWheelButtonInteraction (arg);
 }
-
 int vtkImageView2D::GetWheelInteractionStyle()
 {
     vtkInteractorStyleImageView2D* t = vtkInteractorStyleImageView2D::SafeDownCast (this->InteractorStyle);
@@ -1461,7 +1460,6 @@ void vtkImageView2D::SetInteractionStyle (int arg)
     this->SetMiddleButtonInteractionStyle (arg);
     this->SetWheelInteractionStyle (arg);
 }
-
 /**
 Change the interaction triggered by the mouse buttons.
 Choices are listed in vtkInteractorStyleImageView2D class:
@@ -1772,7 +1770,7 @@ void vtkImageView2D::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4
 
   if ( layer == 0 || IsFirstLayer(layer))
   {
-      SetFirstLayer(pi_poVtkAlgoOutput, matrix, layer);
+      SetFirstLayer( pi_poVtkAlgoOutput, matrix, layer);
   }
   else // layer >0
   {
@@ -1790,6 +1788,14 @@ void vtkImageView2D::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4
           vtkErrorMacro (<< "Could not reslice image to input");
           return;
       }
+
+      // determine the scalar range. Copy the update extent to match the input's one
+      //double range[2];
+      //TODO GPR: to check
+      //reslicedImage->UpdateExtent (this->GetInput()->GetUpdateExtent());
+      //reslicedImage->PropagateUpdateExtent();
+      //reslicedImage->Update();
+      //reslicedImage->GetScalarRange(range);
 
       vtkImage2DDisplay * imageDisplay = this->GetImage2DDisplayForLayer(layer);
       imageDisplay->SetInput(reslicerOutputPort);
@@ -1866,12 +1872,12 @@ void vtkImageView2D::SetInput (vtkActor *actor, int layer, vtkMatrix4x4 *matrix,
 void vtkImageView2D::RemoveLayerActor(vtkActor *actor, int layer)
 {
     vtkRenderer *renderer = this->GetRendererForLayer(layer);
-    
+
     if (!renderer)
         return;
-    
+
     renderer->RemoveActor(actor);
-    
+
     this->SetCurrentLayer(layer);
     this->Slice = this->GetSliceForWorldCoordinates (this->CurrentPoint);
     this->UpdateDisplayExtent();
@@ -1879,6 +1885,7 @@ void vtkImageView2D::RemoveLayerActor(vtkActor *actor, int layer)
     this->UpdateSlicePlane();
     this->InvokeEvent (vtkImageView2D::SliceChangedEvent);
 }
+
 
 //----------------------------------------------------------------------------
 /**
@@ -1909,6 +1916,7 @@ medVtkImageInfo* vtkImageView2D::GetMedVtkImageInfo(int layer) const
     {
         psRes = this->GetImage2DDisplayForLayer(layer)->GetMedVtkImageInfo();
     }
+
     return psRes;
 }
 
@@ -2049,30 +2057,31 @@ vtkActor* vtkImageView2D::AddDataSet(vtkPointSet* arg, vtkProperty* prop)
   // If this is the first widget to be added, reset camera
   if ( (!this->GetMedVtkImageInfo() || !this->GetMedVtkImageInfo()->initialized) && (this->DataSetWidgets.size() == 1))
   {
+
       vtkBoundingBox box;
       typedef std::list<vtkDataSet2DWidget*> WidgetListType;
 
       // Find bounds of all input data.
       for ( WidgetListType::const_iterator it( this->DataSetWidgets.begin() );
-            it != this->DataSetWidgets.end();
-            ++it )
+          it != this->DataSetWidgets.end();
+          ++it )
       {
           box.AddBounds( widget->GetSource()->GetBounds() );
       }
 
-      double center[3];
-      box.GetCenter(center);
-      this->SetCurrentPoint(center);
-      double bounds[6];
-      box.GetBounds(bounds);
-      this->GetRenderer()->ResetCamera(bounds);
+    double center[3];
+    box.GetCenter(center);
+    this->SetCurrentPoint(center);
+    double bounds[6];
+    box.GetBounds(bounds);
+    this->GetRenderer()->ResetCamera(bounds);
+
   }
 
   return widget->GetActor();
 }
 
-void vtkImageView2D::UpdateBounds (const double bounds[6], int layer, const int imageSize[3], const double imageSpacing[3],
-                                   const double imageOrigin[3])
+void vtkImageView2D::UpdateBounds (const double bounds[6], int layer, const int imageSize[3], const double imageSpacing[3], const double imageOrigin[3])
 {
     bool isImageOutBounded = false;
     double imageBounds[6];
@@ -2324,6 +2333,7 @@ vtkImageAlgorithm* vtkImageView2D::GetInputAlgorithm(int layer) const
 
 ////----------------------------------------------------------------------------
 
+
 void vtkImageView2D::SetTransferFunctionRangeFromWindowSettings(int layer)
 {
   this->Superclass::SetTransferFunctionRangeFromWindowSettings(layer);
@@ -2331,7 +2341,6 @@ void vtkImageView2D::SetTransferFunctionRangeFromWindowSettings(int layer)
   imageDisplay->GetWindowLevel()->Modified();
 
 }
-
 double vtkImageView2D::GetColorLevel(int layer)const
 {
   vtkImage2DDisplay * imageDisplay = this->GetImage2DDisplayForLayer(layer);

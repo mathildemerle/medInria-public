@@ -151,7 +151,7 @@ void vtkDataMeshNavigator::enableDepthPeeling(bool enabled)
     {
         // Activate depth-peeling to have a proper opacity rendering
         d->view3d->GetRenderer()->SetUseDepthPeeling(1);
-        d->view3d->GetRenderer()->SetMaximumNumberOfPeels(10);
+        d->view3d->GetRenderer()->SetMaximumNumberOfPeels(10); // TODO Mathilde check if still needed with VTK7
         d->view3d->GetRenderer()->SetOcclusionRatio(0.03);
 
     }

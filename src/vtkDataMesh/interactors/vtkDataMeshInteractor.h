@@ -4,7 +4,7 @@
 
  Copyright (c) INRIA 2013 - 2014. All rights reserved.
  See LICENSE.txt for details.
- 
+
   This software is distributed WITHOUT ANY WARRANTY; without even
   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
   PURPOSE.
@@ -35,7 +35,6 @@ public:
     virtual ~vtkDataMeshInteractor();
 
     virtual QString description() const;
-    virtual QString name() const;
     virtual QString identifier() const;
     virtual QStringList handled() const;
 
@@ -52,16 +51,14 @@ public:
     virtual QWidget* buildLayerWidget();
     virtual QWidget* buildToolBarWidget();
     virtual QWidget* buildToolBoxWidget();
-    virtual QList<medAbstractParameter*> linkableParameters();
-    virtual QList<medBoolParameter*> mouseInteractionParameters();
+    virtual QList<medAbstractParameterL*> linkableParameters();
+    virtual QList<medBoolParameterL*> mouseInteractionParameters();
 
 public slots:
     void setOpacity(double value);
     void setWindowLevel (QHash<QString,QVariant>);
     void setColor(const QString &color);
     void setColor(QColor color);
-    void setMaxRange(double max);
-    void setMinRange(double min);
     void setVisibility(bool visible);
     void setEdgeVisibility(bool visible);
     void setRenderingType(const QString &type);
@@ -74,21 +71,19 @@ public slots:
 
 
     virtual void updateWidgets();
-    
+
+
 protected:
     void updatePipeline ();
     void setLut(vtkLookupTable * lut);
 
     void setupParameters();
-    void restoreParameters(QHash<QString, QString> parameters);
 
 private:
     static QStringList dataHandled();
 
 private slots:
     void updateSlicingParam();
-    void updateRange();
-    void showRangeWidgets(bool);
 
 private:
     vtkDataMeshInteractorPrivate * d;

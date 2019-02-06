@@ -4,7 +4,7 @@
 
  Copyright (c) INRIA 2013 - 2014. All rights reserved.
  See LICENSE.txt for details.
- 
+
   This software is distributed WITHOUT ANY WARRANTY; without even
   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
   PURPOSE.
@@ -75,9 +75,10 @@ medVtkViewItkDataImageNavigator::medVtkViewItkDataImageNavigator(medAbstractView
 
     d->renderer3DParameter = new medStringListParameter("Renderer", this);
     d->renderer3DParameter->addItem("GPU");
-    d->renderer3DParameter->addItem("Ray Cast / Texture");
+#ifdef MED_USE_OSPRAY_4_VR_BY_CPU
+    d->renderer3DParameter->addItem("OSPRay / CPU");
+#endif //MED_USE_OSPRAY_4_VR_BY_CPU
     d->renderer3DParameter->addItem("Ray Cast");
-    d->renderer3DParameter->addItem("Texture");
     d->renderer3DParameter->addItem("Default");
     connect(d->renderer3DParameter, SIGNAL(valueChanged(QString)), this, SLOT(setRenderer(QString)));
 
@@ -120,7 +121,7 @@ QStringList medVtkViewItkDataImageNavigator::handled(void) const
 
 QString medVtkViewItkDataImageNavigator::description() const
 {
-    return "Navigator to interact with itk image";
+    return "Navigator to interact with itk images in a medVtkView";
 }
 
 QList<medAbstractParameter*> medVtkViewItkDataImageNavigator::linkableParameters()
@@ -222,10 +223,10 @@ void medVtkViewItkDataImageNavigator::setRenderer(QString renderer)
 {
     if ( renderer=="GPU" )
         d->view3d->SetVolumeMapperToGPU();
-
-    else if ( renderer=="Ray Cast / Texture" )
-        d->view3d->SetVolumeMapperToRayCastAndTexture();
-
+#ifdef MED_USE_OSPRAY_4_VR_BY_CPU
+    else if ( renderer=="OSPRay / CPU" )
+        d->view3d->SetVolumeMapperToOSPRayRenderMode();
+#endif
     else if ( renderer=="Ray Cast" )
         d->view3d->SetVolumeMapperToRayCast();
 
@@ -268,20 +269,10 @@ void medVtkViewItkDataImageNavigator::enableCropping(bool enabled)
 
 QWidget *  medVtkViewItkDataImageNavigator::buildToolBoxWidget()
 {
-    // Build layout for Data orientation (not-mesh) parameters
     QWidget *toolBoxWidget = new QWidget;
     QFormLayout *layout = new QFormLayout(toolBoxWidget);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(5);
-
     foreach(medAbstractParameter *parameter, d->parameters)
-    {
-        if (parameter->getWidget() && parameter->getLabel())
-        {
-            layout->addRow(parameter->getLabel(), parameter->getWidget());
-        }
-    }
-
+        layout->addRow(parameter->getLabel(), parameter->getWidget());
     toolBoxWidget->hide();
     return toolBoxWidget;
 }
@@ -292,26 +283,3 @@ QWidget *medVtkViewItkDataImageNavigator::buildToolBarWidget()
     toolBarWidget->hide();
     return toolBarWidget;
 }
-
-QString medVtkViewItkDataImageNavigator::name() const
-{
-    return "medVtkViewItkDataImageNavigator";
-}
-
-QString medVtkViewItkDataImageNavigator::version() const
-{
-    return "0.0.1";
-}
-
-void medVtkViewItkDataImageNavigator::restoreParameters(QHash<QString, QString> parameters)
-{
-    qDebug()<<parameters;
-    if(parameters.contains("3D Mode"))
-        setMode3D(parameters["3D Mode"]);
-    if(parameters.contains("Cropping"))
-        enableCropping(medBoolParameter::fromString(parameters["Cropping"]));
-    if(parameters.contains("Renderer"))
-        setRenderer(parameters["Renderer"]);
-
-}
-
