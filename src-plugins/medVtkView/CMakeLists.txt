@@ -84,7 +84,6 @@ target_link_libraries(${PROJECT_NAME}
   ${VTK_LIBRARIES}
   medCore
   medVtkInria
-  vtkDataMesh
   )
 
 

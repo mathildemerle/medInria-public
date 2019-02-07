@@ -14,8 +14,10 @@
 #include "medVtkViewNavigator.h"
 
 #include <vtkCamera.h>
+#include <vtkImageActor.h>
 #include <vtkImageView2D.h>
 #include <vtkImageView3D.h>
+#include <vtkMetaDataSet.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkTransform.h>
@@ -32,9 +34,6 @@
 #include <medVector3DParameter.h>
 #include <medViewFactory.h>
 #include <medVtkViewBackend.h>
-
-#include <vtkDataMesh/vtkMetaDataSet.h>
-#include <vtkImageActor.h>
 
 /*=========================================================================
 
@@ -687,14 +686,14 @@ void medVtkViewNavigator::changeOrientation(medImageView::Orientation orientatio
             d->view3d->GetActorX()->SetOpacity(0.0);
             d->view3d->GetActorY()->SetOpacity(0.0);
             d->view3d->GetActorZ()->SetOpacity(0.0);
-            d->currentView->SetInput(d->view2d->GetInputAlgorithm(0)->GetInputConnection(0,0));
-            //d->currentView->SetInput(d->view2d->Get2DDisplayMapperInputAlgorithm(0)->GetInputConnection(0,0));
+            d->currentView->SetInput(d->view2d->Get2DDisplayMapperInputAlgorithm(0)->GetInputConnection(0,0));
             d->currentView->ResetCamera();
         }
     }
 
     d->currentView->SetRenderWindow(renWin);
     d->currentView->SetCurrentPoint(pos);
+    d->currentView->GlobalWarningDisplayOff();
     d->currentView->Render();
 
     d->orientation = orientation;

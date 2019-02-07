@@ -43,6 +43,7 @@ option(BUILD_COMPOSITEDATASET_PLUGIN
 set(PLUGIN_LIST
   medVtkFibersData                          ON
   itkDataImage                              ON
+  vtkDataMesh                               ON
   itkDataDiffusionGradientList              ON
   itkDataTensorImage                        ON
   medSegmentation                           ON

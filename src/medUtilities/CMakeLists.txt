@@ -68,7 +68,6 @@ target_link_libraries(${PROJECT_NAME}
   ${ITK_LIBRARIES}
   ${VTK_LIBRARIES}
   medCore
-  vtkDataMesh
   )
 
 

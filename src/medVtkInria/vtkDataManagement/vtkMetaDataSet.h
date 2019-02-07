@@ -14,7 +14,7 @@
 #pragma once
 
 #include <vtkDataObject.h>
-#include "vtkDataMeshPluginExport.h"
+#include "medVtkInriaExport.h"
 #include <string>
 #include <vector>
 
@@ -52,7 +52,7 @@ class vtkPolyData;
 class vtkLookupTable;
 
 
-class VTKDATAMESHPLUGIN_EXPORT vtkMetaDataSet: public vtkDataObject
+class MEDVTKINRIA_EXPORT vtkMetaDataSet: public vtkDataObject
 {
  public:
 

@@ -44,6 +44,7 @@ list_source_files(${PROJECT_NAME}
   vtkVisuManagement/lut
   HWShading
   vtkItkWrap
+  vtkDataManagement
   )
 
 

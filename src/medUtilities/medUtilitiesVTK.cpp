@@ -8,7 +8,7 @@
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
 #include <vtkFieldData.h>
-#include <vtkDataMesh/vtkMetaDataSet.h>
+#include <vtkMetaDataSet.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkRenderer.h>

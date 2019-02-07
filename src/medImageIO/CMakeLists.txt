@@ -96,8 +96,6 @@ target_link_libraries(${PROJECT_NAME}
   ITKVTK
   vtkIOImage
   ${ITKIOPhilipsREC_LIBRARIES}
-  #ItkVtkGlue
-  #vtkItkWrap
   )
 
 if(APPLE)
