@@ -10,8 +10,7 @@ PURPOSE.
 #include <medImageIOExport.h>
 
 #include <itkImage.h>
-//#include <itkImageToVTKImageFilter.h>
-#include <medVtkInria/vtkItkWrap/itkImageToVTKImageFilter.h>
+#include <itkImageToVTKImageFilter.h>
 #include <itkExtractImageFilter.h>
 
 #include <vtkAlgorithmOutput.h>
