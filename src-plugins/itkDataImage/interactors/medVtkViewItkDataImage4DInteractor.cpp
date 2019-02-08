@@ -41,7 +41,7 @@ public:
 
     medAbstractImageData *imageData;
 
-    //vtkSmartPointer<vtkTextActor> textActor;
+    vtkSmartPointer<vtkTextActor> textActor;
 };
 
 medVtkViewItkDataImage4DInteractor::medVtkViewItkDataImage4DInteractor(medAbstractView *parent):
@@ -53,7 +53,7 @@ medVtkViewItkDataImage4DInteractor::medVtkViewItkDataImage4DInteractor(medAbstra
     d->view2d = backend->view2D;
     d->view3d = backend->view3D;
 
-    //d->textActor = nullptr;
+    d->textActor = nullptr;
 }
 
 medVtkViewItkDataImage4DInteractor::~medVtkViewItkDataImage4DInteractor()
@@ -231,6 +231,44 @@ void medVtkViewItkDataImage4DInteractor::setCurrentTime(double time)
     if (m_poConv->getTimeIndex() * m_poConv->getTotalTime() / m_poConv->getNumberOfVolumes() != time)
     {
         m_poConv->setTimeIndex(static_cast<unsigned int>(round(time * m_poConv->getNumberOfVolumes() / m_poConv->getTotalTime())) - 1);
+    }
+
+    // Set the current time on the view if needed
+    QString displayedTime = d->view->timeLineParameter()->getDisplayedTime();
+    if (displayedTime != "")
+    {
+        // Refresh view size in case of resize
+        QSize size = d->view->viewWidget()->size();
+        int newSizeX = (int)((double)size.width()/90.0);
+        int newSizeY = (int)((double)size.height()/1.5);
+
+        // Display Time + Shift
+        if (d->textActor == nullptr)
+        {
+            d->textActor = vtkSmartPointer<vtkTextActor>::New();
+            d->textActor->SetInput(displayedTime.toStdString().c_str());
+            d->textActor->SetDisplayPosition(newSizeX, newSizeY);
+            d->textActor->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
+            d->textActor->GetTextProperty()->SetFontSize(20);
+
+            d->view3d->GetRenderer()->AddViewProp(d->textActor);
+            d->view2d->GetRenderer()->AddViewProp(d->textActor);
+        }
+        else
+        {
+            d->textActor->SetInput(displayedTime.toStdString().c_str());
+            d->textActor->SetDisplayPosition(newSizeX, newSizeY);
+        }
+        d->view->render();
+    }
+    else
+    {
+        if (d->textActor != nullptr)
+        {
+            d->view3d->GetRenderer()->RemoveViewProp(d->textActor);
+            d->view2d->GetRenderer()->RemoveViewProp(d->textActor);
+            d->textActor = nullptr;
+        }
     }
 }
 

@@ -725,8 +725,6 @@ dtkSmartPointer<dtkAbstractDataReader> medAbstractDatabaseImporter::getSuitableR
     dtkSmartPointer<dtkAbstractDataReader> dataReader;
     for (int i=0; i<readers.size(); i++)
     {
-        std::cout<<"### medAbstractDatabaseImporter::getSuitableReader "<<readers[i].toStdString()<<std::endl;
-
         dataReader = medAbstractDataFactory::instance()->readerSmartPointer(readers[i]);
         dataReader->enableDeferredDeletion(false);
 
