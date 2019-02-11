@@ -1789,14 +1789,6 @@ void vtkImageView2D::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4
           return;
       }
 
-      // determine the scalar range. Copy the update extent to match the input's one
-      //double range[2];
-      //TODO GPR: to check
-      //reslicedImage->UpdateExtent (this->GetInput()->GetUpdateExtent());
-      //reslicedImage->PropagateUpdateExtent();
-      //reslicedImage->Update();
-      //reslicedImage->GetScalarRange(range);
-
       vtkImage2DDisplay * imageDisplay = this->GetImage2DDisplayForLayer(layer);
       imageDisplay->SetInput(reslicerOutputPort);
       imageDisplay->GetImageActor()->SetUserMatrix (this->OrientationMatrix);

@@ -93,6 +93,7 @@ medHomepageArea::medHomepageArea ( QWidget * parent ) : QWidget ( parent ), d ( 
     pluginButton->setToolTip(tr("Information on loaded plugins"));
     pluginButton->setFocusPolicy ( Qt::NoFocus );
     pluginButton->setIcon ( QIcon ( ":icons/medInriaPlugin.png" ) );
+    pluginButton->setIconSize(QSize(16,16));
     pluginButton->setToolButtonStyle ( Qt::ToolButtonTextBesideIcon );
     QObject::connect ( pluginButton,SIGNAL ( clicked() ),this, SLOT ( onShowPlugin() ) );
 

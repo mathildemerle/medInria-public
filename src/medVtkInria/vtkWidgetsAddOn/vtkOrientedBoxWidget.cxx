@@ -92,13 +92,13 @@ void vtkOrientedBoxWidget::SetOrientationMatrix(vtkMatrix4x4* matrix)
     {
       if (vtkPolyData *input = vtkPolyData::SafeDownCast (this->Handle[i]->GetMapper()->GetInput()))
       {
-	vtkReverseSense *reverse = vtkReverseSense::New();
-    reverse->SetInputData(input);
-	reverse->ReverseNormalsOn();
-	reverse->ReverseCellsOff();
-	reverse->Update();
-    vtkPolyDataMapper::SafeDownCast (this->Handle[i]->GetMapper())->SetInputData(reverse->GetOutput());
-	reverse->Delete();
+          vtkReverseSense *reverse = vtkReverseSense::New();
+          reverse->SetInputData(input);
+          reverse->ReverseNormalsOn();
+          reverse->ReverseCellsOff();
+          reverse->Update();
+          vtkPolyDataMapper::SafeDownCast (this->Handle[i]->GetMapper())->SetInputData(reverse->GetOutput());
+          reverse->Delete();
       }
     }
   }

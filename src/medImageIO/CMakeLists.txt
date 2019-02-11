@@ -72,30 +72,6 @@ target_link_libraries(${PROJECT_NAME}
   ${VTK_LIBRARIES}
   medCore
   medVtkInria
-  ITKCommon
-  ITKIOImageBase
-  ITKIOBMP
-  ITKIOBruker
-  ITKIOLSM
-  ITKIOJPEG
-  ITKIOPNG
-  ITKIOVTK
-  ITKIOGDCM
-  ITKNrrdIO
-  ITKIONRRD
-  ITKIOMeta
-  ITKIOMINC
-  ITKIONIFTI
-  ITKIOGIPL
-  ITKIOGE
-  ITKIOHDF5
-  ITKIOBioRad
-  ITKIOStimulate
-  ITKIOMRC
-  ITKIOTIFF
-  ITKVTK
-  vtkIOImage
-  ${ITKIOPhilipsREC_LIBRARIES}
   ITKVtkGlue
   )
 

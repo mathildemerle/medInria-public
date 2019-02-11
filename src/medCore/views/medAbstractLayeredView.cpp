@@ -256,6 +256,7 @@ void medAbstractLayeredView::setDataList(QList<medDataIndex> dataList)
             }
         }
     }
+
     foreach(medDataIndex index, dataList)
     {
         medAbstractData *data = medDataManager::instance()->retrieveData(index);

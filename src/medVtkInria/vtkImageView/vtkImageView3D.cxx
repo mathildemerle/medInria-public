@@ -12,67 +12,34 @@
 =========================================================================*/
 
 #include "vtkImageView3D.h"
+#include "vtkImage3DDisplay.h"
 
 #ifndef VTK_MAJOR_VERSION
 #  include "vtkVersion.h"
 #endif
 
-#include <vtkBoundingBox.h>
-#include <vtkInteractorStyleTrackball.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRendererCollection.h>
-#include <vtkImageData.h>
-#include <vtkPiecewiseFunction.h>
-#include <vtkColorTransferFunction.h>
-#include <vtkFiniteDifferenceGradientEstimator.h>
-#include <vtkProperty.h>
-#include <vtkVolume.h>
-#include <vtkImageMapToWindowLevelColors.h>
-#include <vtkImageDataGeometryFilter.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkImageActor.h>
-#include <vtkAxes.h>
-#include <vtkMatrix4x4.h>
-#include <vtkTubeFilter.h>
-#include <vtkLookupTable.h>
 #include <vtkAnnotatedCubeActor.h>
-#include <vtkPropAssembly.h>
-#include <vtkAxesActor.h>
-#include <vtkTextProperty.h>
-#include <vtkCaptionActor2D.h>
-#include <vtkPointData.h>
-#include <vtkImageReslice.h>
-#include "vtkRenderWindow.h"
-#include "vtkScalarsToColors.h"
-#include <vtkCamera.h>
-#include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkPlane.h>
-#include <vtkPlaneCollection.h>
-#include <vtkGeometryFilter.h>
-#include <vtkDataSetSurfaceFilter.h>
-#include <vtkPolyDataNormals.h>
-#include <vtkCellData.h>
-#include <vtkMath.h>
-#include <vtkOrientedBoxWidget.h>
-#include <vtkPlaneWidget.h>
-#include <vtkOrientationMarkerWidget.h>
-#include <vtkVolumeProperty.h>
-#include <vtkImageMapToColors.h>
-#include "vtkScalarBarActor.h"
-#include "vtkSmartVolumeMapper.h"
-#include <vtkImageAppendComponents.h>
-#include <vtkImageAppend.h>
-#include <vtkImageCast.h>
-#include <vtkSmartPointer.h>
+#include <vtkBoundingBox.h>
+#include <vtkColorTransferFunction.h>
 #include <vtkDataSetCollection.h>
-#include <vtkProp3DCollection.h>
+#include <vtkDataSetSurfaceFilter.h>
+#include <vtkImageActor.h>
+#include <vtkImageAppendComponents.h>
+#include <vtkImageCast.h>
 #include <vtkImageMapper3D.h>
-
-#include <vtkAlgorithmOutput.h>
-#include <vtkImageAlgorithm.h>
-#include "vtkImage3DDisplay.h"
-
+#include <vtkImageMapToColors.h>
+#include <vtkInteractorStyleTrackball.h>
+#include <vtkPiecewiseFunction.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkPolyDataNormals.h>
+#include <vtkProp3DCollection.h>
+#include <vtkProperty.h>
+#include <vtkRenderer.h>
+#include <vtkRendererCollection.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkSmartVolumeMapper.h>
+#include <vtkTextProperty.h>
 
 vtkStandardNewMacro(vtkImageView3D);
 
@@ -965,7 +932,7 @@ unsigned int vtkImageView3D::GetCroppingMode()
 
 //----------------------------------------------------------------------------
 /**
- The wolrd is not always what we think it is ...
+ The world is not always what we think it is ...
 
  Use this method to move the viewer slice such that the position
  (in world coordinates) given by the arguments is contained by

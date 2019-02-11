@@ -754,19 +754,19 @@ void medVtkViewNavigator::enableMeasuring(bool enable)
 void medVtkViewNavigator::restoreParameters(QHash<QString,QString> parameters)
 {
     if(parameters.contains("Axes"))
-	d->showAxesParameter->setValue(medBoolParameter::fromString(parameters["Axes"]));
+        d->showAxesParameter->setValue(medBoolParameter::fromString(parameters["Axes"]));
     if(parameters.contains("Ruler"))
-	d->showRulerParameter->setValue(medBoolParameter::fromString(parameters["Ruler"]));
+        d->showRulerParameter->setValue(medBoolParameter::fromString(parameters["Ruler"]));
     if(parameters.contains("Annotations"))
-	d->showAnnotationParameter->setValue(medBoolParameter::fromString(parameters["Annotations"]));
+        d->showAnnotationParameter->setValue(medBoolParameter::fromString(parameters["Annotations"]));
     if(parameters.contains("Scalar Bar"))
-	d->showScalarBarParameter->setValue(medBoolParameter::fromString(parameters["Scalar Bar"]));
+        d->showScalarBarParameter->setValue(medBoolParameter::fromString(parameters["Scalar Bar"]));
     if(parameters.contains("Annotated Cube"))
         d->showAnnotatedCubeParameter->setValue(medBoolParameter::fromString(parameters["Annotated Cube"]));
     if(parameters.contains("Pan"))
-	setPan(medVector2DParameter::fromString(parameters["Pan"]));
+        setPan(medVector2DParameter::fromString(parameters["Pan"]));
     if(parameters.contains("Position"))
-	setCameraPosition(medVector3DParameter::fromString(parameters["Position"]));
+        setCameraPosition(medVector3DParameter::fromString(parameters["Position"]));
     if(parameters.contains("axial") && medBoolParameter::fromString(parameters["axial"]))
         setAxial(true);
     if(parameters.contains("coronal") && medBoolParameter::fromString(parameters["coronal"]))
@@ -778,7 +778,7 @@ void medVtkViewNavigator::restoreParameters(QHash<QString,QString> parameters)
 
     QHash<QString,QVariant> cameraOptions;
     if(parameters.contains("Camera Up") && parameters.contains("Camera Focal")
-       && parameters.contains("Parallel Scale") && parameters.contains("Camera Position"))
+            && parameters.contains("Parallel Scale") && parameters.contains("Camera Position"))
     {
         cameraOptions["Camera Up"]=QVariant(medVector3DParameter::fromString(parameters["Camera Up"]));
         cameraOptions["Camera Focal"]=QVariant(medVector3DParameter::fromString(parameters["Camera Focal"]));

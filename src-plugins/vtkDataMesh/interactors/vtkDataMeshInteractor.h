@@ -59,6 +59,8 @@ public slots:
     void setWindowLevel (QHash<QString,QVariant>);
     void setColor(const QString &color);
     void setColor(QColor color);
+    void setMaxRange(double max);
+    void setMinRange(double min);
     void setVisibility(bool visible);
     void setEdgeVisibility(bool visible);
     void setRenderingType(const QString &type);
@@ -69,9 +71,7 @@ public slots:
     virtual void setUpViewForThumbnail();
     virtual void moveToSlice  (int slice);
 
-
     virtual void updateWidgets();
-
 
 protected:
     void updatePipeline ();
@@ -84,6 +84,8 @@ private:
 
 private slots:
     void updateSlicingParam();
+    void updateRange();
+    void showRangeWidgets(bool);
 
 private:
     vtkDataMeshInteractorPrivate * d;

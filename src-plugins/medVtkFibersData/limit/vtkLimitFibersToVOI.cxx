@@ -133,8 +133,8 @@ int vtkLimitFibersToVOI::RequestData (vtkInformation *vtkNotUsed(request),
 	  cellColors->InsertNextValue (fiberColor[1]);
 	  cellColors->InsertNextValue (fiberColor[2]);
 	*/
-    allColors->GetTypedTuple (cellId, fiberColor);
-    cellColors->InsertNextTypedTuple( fiberColor );
+          allColors->GetTypedTuple (cellId, fiberColor);
+          cellColors->InsertNextTypedTuple( fiberColor );
       }
       
     }

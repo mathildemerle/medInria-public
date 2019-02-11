@@ -354,9 +354,6 @@ class MEDVTKINRIA_EXPORT vtkMetaDataSet: public vtkDataObject
   }
 
   virtual double* GetCurrentScalarRange();
-
-  //virtual double* GetScalarRange(QString attributeName = QString());
-  
   
   /**
      Description:
