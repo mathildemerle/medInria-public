@@ -113,23 +113,8 @@ void medVtkViewItkDataImage4DInteractor::setInputData(medAbstractData *data)
 
         if (SetViewInput(data, layer) )
         {
-            /*double maxTime = 1.0;
-            if (data->hasMetaData(medMetaDataKeys::SeriesTime.key()))
-            {
-                maxTime = data->metadata(medMetaDataKeys::SeriesTime.key()).toDouble();
-            }
-
-            double frameRate = (double)d->sequence->GetNumberOfMetaDataSets() / maxTime;
-            d->imageData->setMetaData("SequenceDuration", QString::number(maxTime));
-            d->imageData->setMetaData("SequenceFrameRate", QString::number(frameRate));
-
-            qDebug() << "SequenceDuration" << maxTime;
-            qDebug() << "SequenceFrameRate" << frameRate;*/
-
-            // TODO Mathilde check this part
             d->imageData->addMetaData("SequenceDuration", QString::number(m_poConv->getTotalTime()));
             d->imageData->addMetaData("SequenceFrameRate", QString::number((double)m_poConv->getNumberOfVolumes() / (double)m_poConv->getTotalTime()));
-
 
             qDebug() << "SequenceDuration" << m_poConv->getTotalTime();
             qDebug() << "SequenceFrameRate" <<(double)(m_poConv->getNumberOfVolumes() -1)/ m_poConv->getTotalTime();

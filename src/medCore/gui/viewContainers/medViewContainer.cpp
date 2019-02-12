@@ -251,16 +251,16 @@ medViewContainer::medViewContainer(medViewContainerSplitter *parent): QFrame(par
 medViewContainer::~medViewContainer()
 {
     removeInternView();
-
-    // Trick to 'inform' a parented splitter
-    // "you're not my dad anymore!"
-    // There is no  'takeItem()' or 'removeWidget()' or wathever methode to remove a widget from a QSplitter.
-    // this is used to remove the ownership of the container, If the parent splitter end up with no child it will be deleted.
-    // see medViewContainerSplitter::~medViewContainerSplitter() and medViewContainerSplitter::checkIfStillDeserveToLive()
-    this->setParent(NULL);
-
     medViewContainerManager::instance()->unregisterContainer(this);
+
     delete d;
+    d = nullptr;
+}
+
+void medViewContainer::checkIfStillDeserveToLiveContainer()
+{
+    this->setParent(NULL);
+    this->close();
 }
 
 void medViewContainer::popupMenu()
@@ -292,7 +292,7 @@ void medViewContainer::setDefaultWidget(QWidget *defaultWidget)
     {
         d->mainLayout->removeWidget(d->defaultWidget);
         delete d->defaultWidget;
-        d->mainLayout->addWidget(defaultWidget, 0, 0, 0, 0/*, Qt::AlignCenter*/); //otherwise defaultWidget doesn't use all the available space
+        d->mainLayout->addWidget(defaultWidget, 0, 0, 0, 0, Qt::AlignCenter);
     }
     d->defaultWidget = defaultWidget;
 }
@@ -386,16 +386,16 @@ void medViewContainer::setClosingMode(medViewContainer::ClosingMode mode)
     case medViewContainer::CLOSE_CONTAINER:
         d->closeContainerButton->show();
         d->closeContainerButton->disconnect(this, SLOT(removeView()));
-        connect(d->closeContainerButton, SIGNAL(clicked()), this, SLOT(close()));
+        connect(d->closeContainerButton, SIGNAL(clicked()), this, SLOT(checkIfStillDeserveToLiveContainer()));
         break;
     case medViewContainer::CLOSE_VIEW:
         d->closeContainerButton->show();
-        d->closeContainerButton->disconnect(this, SLOT(close()));
+        d->closeContainerButton->disconnect(this, SLOT(checkIfStillDeserveToLiveContainer()));
         connect(d->closeContainerButton, SIGNAL(clicked()), this, SLOT(removeView()));
         break;
     case medViewContainer::CLOSE_BUTTON_HIDDEN:
         d->closeContainerButton->hide();
-        d->closeContainerButton->disconnect(this, SLOT(close()));
+        d->closeContainerButton->disconnect(this, SLOT(checkIfStillDeserveToLiveContainer()));
         connect(d->closeContainerButton, SIGNAL(clicked()), this, SLOT(removeView()));
         break;
     }

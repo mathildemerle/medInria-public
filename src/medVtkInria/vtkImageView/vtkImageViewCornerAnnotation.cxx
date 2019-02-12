@@ -123,11 +123,15 @@ void vtkImageViewCornerAnnotation::TextReplace(vtkImageActor *ia,
             for (unsigned int i=0; i<3; i++)
             {
                 if (dotX <= std::fabs (Xaxis[i]))
-                { dotX = std::fabs (Xaxis[i]);
-                  idX = i; }
+                {
+                    dotX = std::fabs (Xaxis[i]);
+                  idX = i;
+                }
                 if (dotY <= std::fabs (Yaxis[i]))
-                { dotY = std::fabs (Yaxis[i]);
-                  idY = i; }
+                {
+                    dotY = std::fabs (Yaxis[i]);
+                    idY = i;
+                }
             }
             if (view2d)
                 idZ = view2d->GetSliceOrientation();
@@ -154,10 +158,22 @@ void vtkImageViewCornerAnnotation::TextReplace(vtkImageActor *ia,
     }
 
 
-    if (ia)
+    if (view2d && ia)
     {
-        slice = ia->GetSliceNumber() - ia->GetSliceNumberMin() + 1;
-        slice_max = ia->GetSliceNumberMax() - ia->GetSliceNumberMin() + 1;
+        // Update slice number and location on corner annotation
+        int min, max, orientation;
+        double position[3]={0.0, 0.0, 0.0};
+
+        view2d->GetSliceRange(min,max);
+        slice = view2d->GetSlice() - min +1;
+        slice_max = max - min + 1;
+
+        orientation = view2d->GetSliceOrientation();
+        coord[orientation]=slice-1;
+
+        this->ImageView->GetWorldCoordinatesFromImageCoordinates(coord, position);
+        pos_z = position[orientation];
+
         ia_input = ia->GetInput();
         if (!wl_input && ia_input)
         {
