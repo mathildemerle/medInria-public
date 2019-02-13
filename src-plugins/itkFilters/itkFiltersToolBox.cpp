@@ -766,9 +766,6 @@ void itkFiltersToolBox::updateClutEditorValue(int label)
     if ( d->clutEditor != nullptr )
     {
         QList<medClutEditorVertex*>& vertices = d->clutEditor->getScene()->table()->vertices();
-        medClutEditorVertex* vertex;
-        QPointF value, coord;
-        QColor color;
         double amount;
         switch (label)
         {
