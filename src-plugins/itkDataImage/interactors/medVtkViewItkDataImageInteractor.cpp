@@ -11,36 +11,24 @@
 
 =========================================================================*/
 
-#include <medVtkViewItkDataImageInteractor.h>
-
-#include <QVTKWidget.h>
+#include "medVtkViewItkDataImageInteractor.h"
 
 #include <vtkColorTransferFunction.h>
-#include <vtkPiecewiseFunction.h>
-
 #include <vtkImageView2D.h>
 #include <vtkImageView3D.h>
-#include <vtkItkConversion.h>
-#include <vtkTransferFunctionPresets.h>
 #include <vtkLookupTableManager.h>
-#include <vtkRenderWindow.h>
-#include <vtkImageData.h>
-#include <vtkImageActor.h>
-#include <vtkImageProperty.h>
+#include <vtkPiecewiseFunction.h>
+#include <vtkTransferFunctionPresets.h>
 
-#include <medVtkViewBackend.h>
-#include <medAbstractData.h>
-#include <medViewFactory.h>
-#include <medAbstractImageView.h>
-#include <medStringListParameter.h>
-#include <medIntParameter.h>
-#include <medBoolParameter.h>
-#include <medDoubleParameter.h>
-#include <medVector3DParameter.h>
 #include <medAbstractImageData.h>
+#include <medAbstractImageView.h>
+#include <medBoolParameter.h>
 #include <medCompositeParameter.h>
-
-#include <QFormLayout>
+#include <medDoubleParameter.h>
+#include <medIntParameter.h>
+#include <medStringListParameter.h>
+#include <medViewFactory.h>
+#include <medVtkViewBackend.h>
 
 class medVtkViewItkDataImageInteractorPrivate
 {
@@ -373,10 +361,6 @@ QString medVtkViewItkDataImageInteractor::lut() const
 
 void medVtkViewItkDataImageInteractor::setLut(QString value)
 {
-    //for(int i=0;i<d->lutParam->getComboBox()->count();i++)
-    //	if(this->d->lutParam->getComboBox()->itemText(i)==value)
-    //		d->lutParam->getComboBox()->setCurrentIndex(i);
-
     typedef vtkTransferFunctionPresets Presets;
     vtkColorTransferFunction * rgb   = vtkColorTransferFunction::New();
     vtkPiecewiseFunction     * alpha = vtkPiecewiseFunction::New();
@@ -408,12 +392,6 @@ void medVtkViewItkDataImageInteractor::setPreset(QString preset)
       d->lutParam->setValue(d->presetToLut[preset]);
 
     QHash <QString, QVariant> wl;
-    /*for(int i=0;i<d->presetParam->getComboBox()->count();i++)
-		if(this->d->presetParam->getComboBox()->itemText(i)==preset)
-			d->presetParam->getComboBox()->setCurrentIndex(i);
-    for(int i=0;i<d->presetParam->getComboBox()->count();i++)
-		if(this->d->presetParam->getComboBox()->itemText(i)==preset)
-            d->presetParam->getComboBox()->setCurrentIndex(i);*/
 
     if ( preset == "None" )
     {
@@ -465,7 +443,7 @@ void medVtkViewItkDataImageInteractor::setPreset(QString preset)
         setWindowLevel(wl);
     }
 
-    update();
+    this->update();
 }
 
 QString medVtkViewItkDataImageInteractor::preset() const
@@ -540,40 +518,29 @@ void medVtkViewItkDataImageInteractor::setWindowLevelFromMinMax()
     double level = 0.5 * (d->maxIntensityParameter->value() - d->minIntensityParameter->value()) + d->minIntensityParameter->value();
     double window = d->maxIntensityParameter->value() - d->minIntensityParameter->value();
 
-    bool needsUpdate = false;
-
     this->windowLevelParameter()->blockSignals(true);
 
     if(d->view2d->GetColorWindow(d->view->layer(d->imageData)) != window)
     {
         d->view2d->SetColorWindow(window, d->view->layer(d->imageData));
-        if (d->view->is2D())
-            needsUpdate = true;
     }
     if(d->view3d->GetColorWindow(d->view->layer(d->imageData)) != window)
     {
         d->view3d->SetColorWindow(window, d->view->layer(d->imageData));
-        if (!d->view->is2D())
-            needsUpdate = true;
     }
 
     if(d->view2d->GetColorLevel(d->view->layer(d->imageData)) != level)
     {
         d->view2d->SetColorLevel(level, d->view->layer(d->imageData));
-        if (d->view->is2D())
-            needsUpdate = true;
     }
     if(d->view3d->GetColorLevel(d->view->layer(d->imageData)) != level)
     {
         d->view3d->SetColorLevel(level, d->view->layer(d->imageData));
-        if (!d->view->is2D())
-            needsUpdate = true;
     }
 
     this->windowLevelParameter()->blockSignals(false);
 
-    if (needsUpdate)
-        this->update();
+    this->update();
 }
 
 void medVtkViewItkDataImageInteractor::setWindowLevel(QHash<QString,QVariant> values)
@@ -584,8 +551,6 @@ void medVtkViewItkDataImageInteractor::setWindowLevel(QHash<QString,QVariant> va
         return;
     }
 
-    bool needUpdate = false;
-
     double w = values["Window"].toDouble();
     double l = values["Level"].toDouble();
     if(w != w || l != l) // NaN values
@@ -594,37 +559,24 @@ void medVtkViewItkDataImageInteractor::setWindowLevel(QHash<QString,QVariant> va
     if (d->view2d->GetColorWindow(d->view->layer(d->imageData)) != w)
     {
         d->view2d->SetColorWindow(w, d->view->layer(d->imageData));
-
-        if (d->view->is2D())
-            needUpdate = true;
     }
 
     if (d->view3d->GetColorWindow(d->view->layer(d->imageData)) != w)
     {
         d->view3d->SetColorWindow(w, d->view->layer(d->imageData));
-
-        if (!d->view->is2D())
-            needUpdate = true;
     }
 
     if (d->view2d->GetColorLevel(d->view->layer(d->imageData)) != l)
     {
         d->view2d->SetColorLevel(l, d->view->layer(d->imageData));
-
-        if (d->view->is2D())
-            needUpdate = true;
     }
 
     if (d->view3d->GetColorLevel(d->view->layer(d->imageData)) != l)
     {
         d->view3d->SetColorLevel(l, d->view->layer(d->imageData));
-
-        if (!d->view->is2D())
-            needUpdate = true;
     }
 
-    if(needUpdate)
-        this->update();
+    this->update();
 
     d->minIntensityParameter->blockSignals(true);
     d->maxIntensityParameter->blockSignals(true);
