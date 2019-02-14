@@ -575,22 +575,36 @@ void vtkMetaDataSet::CopyInformation (vtkMetaDataSet* metadataset)
 
 //----------------------------------------------------------------------------
 
-double* vtkMetaDataSet::GetCurrentScalarRange()
+double* vtkMetaDataSet::GetCurrentScalarRange(QString attributeName)
 {
     double* val = new double[2];
     val[0] = VTK_DOUBLE_MAX;
     val[1] = VTK_DOUBLE_MIN;
 
-    if (this->GetCurrentScalarArray())
+    if (attributeName.trimmed().isEmpty())
     {
-        double* range2 = this->GetCurrentScalarArray()->GetRange ();
-        val[0] = range2[0];
-        val[1] = range2[1];
+        QString temp (this->GetCurrentScalarArray()->GetName());
+        attributeName = temp;
     }
 
-    else if (this->GetDataSet() && ( val[0] == VTK_DOUBLE_MAX ) )
-        val = this->GetDataSet()->GetScalarRange();
+    if (this->GetDataSet())
+    {
+        if (this->GetDataSet()->GetPointData()->HasArray(qPrintable(attributeName)))
+        {
+            this->GetDataSet()->GetPointData()->GetArray(qPrintable(attributeName))->GetRange(val);
+        }
+        else if (this->GetDataSet()->GetCellData()->HasArray(qPrintable(attributeName)))
+        {
+            this->GetDataSet()->GetCellData()->GetArray(qPrintable(attributeName))->GetRange(val);
+        }
+    }
 
+    // if all values are null values, or if we don't have a current scalar array
+    if ( val[0] == VTK_DOUBLE_MAX || val[1] == VTK_DOUBLE_MIN )
+    {
+        val[0] = 0;
+        val[1] = 1;
+    }
 
     return val;
 }

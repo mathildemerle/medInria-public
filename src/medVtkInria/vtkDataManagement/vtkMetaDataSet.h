@@ -353,7 +353,7 @@ class MEDVTKINRIA_EXPORT vtkMetaDataSet: public vtkDataObject
     this->CurrentScalarArray = array;
   }
 
-  virtual double* GetCurrentScalarRange();
+  virtual double* GetCurrentScalarRange(QString attributeName = QString());
   
   /**
      Description:

@@ -426,7 +426,7 @@ void vtkDataMeshInteractor::setAttribute(const QString & attributeName)
         mapper3d->SelectColorArray(qPrintable(attributeName));
 
         d->range_button->show();
-        double * range = d->metaDataSet->GetCurrentScalarRange();
+        double * range = d->metaDataSet->GetCurrentScalarRange(attributeName);
         d->minRange->setRange(range[0],range[1]);
         d->maxRange->setRange(range[0],range[1]);
         d->minRange->setValue(range[0]);
@@ -532,7 +532,7 @@ void vtkDataMeshInteractor::setLut(vtkLookupTable * lut)
     vtkLookupTableManager::removeLUTAlphaChannel(lut);
     if (lut)
     {
-        lut->SetRange(d->metaDataSet->GetCurrentScalarRange());
+        lut->SetRange(d->metaDataSet->GetCurrentScalarRange(d->attributesParam->value()));
     }
 
     vtkMapper * mapper2d = d->actor2d->GetMapper();

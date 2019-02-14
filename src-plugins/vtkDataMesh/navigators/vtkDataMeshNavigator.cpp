@@ -225,7 +225,7 @@ QWidget *  vtkDataMeshNavigator::buildToolBoxWidget()
     // Build layout for Mesh orientation parameters
     QWidget *toolBoxWidget = new QWidget;
     QFormLayout *layout = new QFormLayout(toolBoxWidget);
-    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setContentsMargins(10, 0, 10, 0);
     layout->setLabelAlignment(Qt::AlignLeft);
 
     foreach(medAbstractParameter *parameter, d->parameters)

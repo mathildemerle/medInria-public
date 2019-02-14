@@ -396,7 +396,6 @@ QWidget* medVtkViewNavigator::buildToolBoxWidget()
     layout->addWidget(d->orientationParameter->getPushButtonGroup());
     layout->addWidget(d->showOptionsWidget);
     layout->addWidget(this->timeLineParameter()->getWidget());
-    layout->setContentsMargins(0, 0, 0, 0);
 
     return toolBoxWidget;
 }

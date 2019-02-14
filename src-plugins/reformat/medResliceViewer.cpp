@@ -118,7 +118,7 @@ medResliceViewer::medResliceViewer(medAbstractView * view,QWidget * parent): med
     vtkViewData = vtkSmartPointer<vtkImageData>::New();
     //vtkViewData->DeepCopy(view3d->GetInput());
     vtkViewData->DeepCopy(view3d->GetInputAlgorithm(view3d->GetCurrentLayer())->GetInput());
-    imageDims = vtkViewData->GetDimensions();
+    imageDims = view3d->GetMedVtkImageInfo()->dimensions;
 
     viewBody = new QWidget(parent);
     for (int i = 0; i < 3; i++)
@@ -176,7 +176,9 @@ medResliceViewer::medResliceViewer(medAbstractView * view,QWidget * parent): med
         riw[i]->SetResliceModeToOblique();
     }
 
-    vtkViewData->GetSpacing(outputSpacing);
+    outputSpacing[0] = view3d->GetMedVtkImageInfo()->spacing[0];
+    outputSpacing[1] = view3d->GetMedVtkImageInfo()->spacing[1];
+    outputSpacing[2] = view3d->GetMedVtkImageInfo()->spacing[2];
 
     vtkSmartPointer<vtkCellPicker> picker = vtkSmartPointer<vtkCellPicker>::New();
     picker->SetTolerance(0.005);

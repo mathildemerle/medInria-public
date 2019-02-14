@@ -479,7 +479,7 @@ void vtkMetaDataSetSequence::UpdateToIndex (unsigned int id)
 }
 
 //----------------------------------------------------------------------------
-double*vtkMetaDataSetSequence::GetCurrentScalarRange()
+double* vtkMetaDataSetSequence::GetCurrentScalarRange(QString attributeName)
 {
     static double *val = new double[2];
     val[0] = VTK_DOUBLE_MAX;
@@ -487,7 +487,7 @@ double*vtkMetaDataSetSequence::GetCurrentScalarRange()
 
     for (unsigned int i=0; i<this->MetaDataSetList.size(); i++)
     {
-        double *range = this->MetaDataSetList[i]->GetCurrentScalarRange();
+        double *range = this->MetaDataSetList[i]->GetCurrentScalarRange(attributeName);
 
         if (val[0] > range[0])
             val[0] = range[0];
