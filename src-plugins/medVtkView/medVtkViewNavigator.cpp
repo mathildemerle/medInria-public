@@ -682,9 +682,9 @@ void medVtkViewNavigator::changeOrientation(medImageView::Orientation orientatio
     {
         if (d->view2d->GetMedVtkImageInfo() && d->view2d->GetMedVtkImageInfo()->initialized)
         {
-            d->view3d->GetActorX()->SetOpacity(0.0);
-            d->view3d->GetActorY()->SetOpacity(0.0);
-            d->view3d->GetActorZ()->SetOpacity(0.0);
+            d->view3d->GetActorX()->SetVisibility(false);
+            d->view3d->GetActorY()->SetVisibility(false);
+            d->view3d->GetActorZ()->SetVisibility(false);
             d->currentView->SetInput(d->view2d->Get2DDisplayMapperInputAlgorithm(0)->GetInputConnection(0,0));
             d->currentView->ResetCamera();
         }
