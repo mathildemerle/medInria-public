@@ -336,10 +336,10 @@ void medClutEditorVertex::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
             table->constrainMoveSelection( this, withShift );
             table->triggerVertexMoving();
     }
+
     d->setValueSpinBox->setValue((double)this->value().x());
-    // this->updateValue();
-    // qDebug() << "[" << (long int) this << "] value: " << d->value;
-    // qDebug() << "[" << (long int) this << "] coord: " << this->pos();
+
+    this->updateValue();
 }
 
 void medClutEditorVertex::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)

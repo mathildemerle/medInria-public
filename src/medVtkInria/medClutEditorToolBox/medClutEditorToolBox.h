@@ -51,6 +51,7 @@ public:
     void reset();
     void deleteTable();
     void invertLUT(bool);
+    void updateSavedTables();
 
 public slots:
     void setDiscreteMode(bool);
