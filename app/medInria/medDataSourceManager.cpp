@@ -129,9 +129,9 @@ void medDataSourceManager::importData(medAbstractData *data)
 
 void medDataSourceManager::exportData(const medDataIndex &index)
 {
-    //TODO did it all from the medDataManager ? - RDE
-    dtkSmartPointer<medAbstractData> data = medDataManager::instance()->retrieveData(index);
-    medDataManager::instance()->exportData(data);
+    qDebug()<<"### medDataSourceManager::exportData "<<index;
+    //dtkSmartPointer<medAbstractData> data = medDataManager::instance()->retrieveData(index);
+    //medDataManager::instance()->exportData(data);
 }
 
 void medDataSourceManager::importFile(QString path)

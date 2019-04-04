@@ -75,10 +75,12 @@ void medDatabaseExporter::internalRun(void)
     dtkAbstractDataWriter * dataWriter = medAbstractDataFactory::instance()->writer(d->writer);
     if(!d->saveMultipleData)
     {
+        qDebug()<<"### medDatabaseExporter::internalRun non MULTIPLE";
         dataWriter->setData(d->data);
     }
     else
     {
+        qDebug()<<"### medDatabaseExporter::internalRun MULTIPLE";
         medAbstractDataWriter* medDataWriter = dynamic_cast<medAbstractDataWriter*>(dataWriter);
         Q_ASSERT(medDataWriter != NULL);
         medDataWriter->setData(d->dataList);

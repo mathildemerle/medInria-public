@@ -166,14 +166,61 @@ QHash<QString, dtkAbstractDataWriter*> medDataManager::getPossibleWriters(medAbs
     return possibleWriters;
 }
 
+void medDataManager::exportData(QList<medAbstractData*> dataList)
+{
+    qDebug()<<"### medDataManager::exportData LIST";
+    if (dataList.count() > 0)
+    {
+        QList<QPair<int, QHash<QString, dtkAbstractDataWriter*>>> allPossibleDataWriters;
+
+        // Get every possible writers for each data
+        int cpt = 0;
+        foreach (medAbstractData* data, dataList)
+        {
+            QHash<QString, dtkAbstractDataWriter*> possibleWriters = getPossibleWriters(data);
+
+            QPair<int, QHash<QString, dtkAbstractDataWriter*>> currentPair;
+            currentPair.first = cpt;
+            currentPair.second = possibleWriters;
+            allPossibleDataWriters.push_back(currentPair);
+            cpt++;
+        }
+
+        // Sort according to possibleWriters
+        while(allPossibleDataWriters.count() > 0)
+        {
+            qDebug()<<"### medDataManager::exportData LIST - LOOP";
+            auto currentPairItem = allPossibleDataWriters.takeAt(0);
+            QList<int> listOfSameWriters;
+
+            for(int i=0; i<allPossibleDataWriters.count(); ++i)
+            {
+                // Take from the list every other identical possibleWriters
+                if (allPossibleDataWriters.at(i).second.keys() == currentPairItem.second.keys())
+                {
+                    listOfSameWriters.push_back(allPossibleDataWriters.takeAt(i).first);
+                }
+            }
+
+            // Display a Dialog box for the currentWriters
+        }
+    }
+}
+
+void medDataManager::dialogBoxCurrentWriters()
+{
+
+}
+
 void medDataManager::exportData(medAbstractData* data)
 {
+    qDebug()<<"### medDataManager::exportData";
     if (!data)
         return;
 
     Q_D(medDataManager);
     QList<QString> allWriters = medAbstractDataFactory::instance()->writers();
-    QHash<QString, dtkAbstractDataWriter*> possibleWriters=getPossibleWriters(data);
+    QHash<QString, dtkAbstractDataWriter*> possibleWriters = getPossibleWriters(data);
 
     QFileDialog * exportDialog = new QFileDialog(0, tr("Exporting: please choose a file name and directory"));
     exportDialog->setOption(QFileDialog::DontUseNativeDialog);

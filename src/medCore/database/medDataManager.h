@@ -43,6 +43,7 @@ public:
     QUuid importData(medAbstractData* data, bool persistent = false);
     QUuid importPath(const QString& dataPath, bool indexWithoutCopying, bool persistent = false);
 
+    void exportData(QList<medAbstractData *> dataList);
     void exportData(medAbstractData* data);
     void exportDataToPath(medAbstractData* data, const QString& path, const QString& format = "");
     void exportDataToPath(QList<medAbstractData *> dataList, const QString& path, const QString& format = "");

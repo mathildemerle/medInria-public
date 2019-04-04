@@ -301,6 +301,8 @@ void medDatabaseView::onViewSelectedItemRequested(void)
 /** Exports the currently selected item. */
 void medDatabaseView::onExportSelectedItemRequested(void)
 {
+    qDebug()<<"### medDatabaseView::onExportSelectedItemRequested";
+
     if(!this->selectedIndexes().count())
         return;
 
@@ -316,27 +318,43 @@ void medDatabaseView::onExportSelectedItemRequested(void)
 
     if(item)
     {
+        // SERIES
         if(item->dataIndex().isValidForSeries())
         {
-            emit exportData(item->dataIndex());
-        }
+            qDebug()<<"### medDatabaseView::onExportSelectedItemRequested SERIES";
 
+            dtkSmartPointer<medAbstractData> data = medDataManager::instance()->retrieveData(item->dataIndex());
+            medDataManager::instance()->exportData(data);
+        }
+        // STUDY
         else if(item->dataIndex().isValidForStudy())
         {
-            for (int i = 0; i<item->childCount(); i++)
-                emit exportData(item->child(i)->dataIndex());
-        }
+            qDebug()<<"### medDatabaseView::onExportSelectedItemRequested STUDY";
 
-        if(item->dataIndex().isValidForPatient())
+            QList<medAbstractData*> dataList;
+            for (int i = 0; i<item->childCount(); i++)
+            {
+                dtkSmartPointer<medAbstractData> data = medDataManager::instance()->retrieveData(item->child(i)->dataIndex());
+                dataList.push_back(data);
+            }
+            medDataManager::instance()->exportData(dataList);
+        }
+        // PATIENT
+        else if(item->dataIndex().isValidForPatient())
         {
+            qDebug()<<"### medDatabaseView::onExportSelectedItemRequested PATIENT";
+
+            QList<medAbstractData*> dataList;
             for (int i = 0; i<item->childCount(); i++)
             {
                 medAbstractDatabaseItem *study = item->child(i);
                 for (int j = 0; j<study->childCount(); j++)
                 {
-                    emit exportData(study->child(j)->dataIndex());
+                    dtkSmartPointer<medAbstractData> data = medDataManager::instance()->retrieveData(study->child(j)->dataIndex());
+                    dataList.push_back(data);
                 }
             }
+            medDataManager::instance()->exportData(dataList);
         }
     }
 }
