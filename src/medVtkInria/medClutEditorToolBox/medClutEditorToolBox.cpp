@@ -53,6 +53,7 @@ public:
     medAbstractData *dtk_data;
     medAbstractView *med_view;
     QList <medClutEditorTable *> * tables;
+    QString toolboxName;
 };
 
 medClutEditorToolBox::medClutEditorToolBox(QWidget *parent) : medToolBox(parent)
@@ -63,6 +64,7 @@ medClutEditorToolBox::medClutEditorToolBox(QWidget *parent) : medToolBox(parent)
     d->view->setScene(d->scene);
     d->histogram = NULL;
     d->med_view = NULL;
+    d->toolboxName = "Colormap Editor";
 
     d->newAction                = new QAction("New table",    this);
     d->loadTableAction          = new QAction("Load table",   this);
@@ -101,7 +103,7 @@ medClutEditorToolBox::medClutEditorToolBox(QWidget *parent) : medToolBox(parent)
     widget->setLayout(layout);
     this->addWidget(widget);
     
-    this->setTitle("Colormap Editor");
+    this->setTitle(d->toolboxName);
     widget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Minimum);
     this->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Minimum);
     
@@ -565,7 +567,7 @@ void medClutEditorToolBox::forceLayer(int layer)
 void medClutEditorToolBox::showInfo()
 {
     QDialog *messageBox = new QDialog(this);
-    messageBox->setWindowTitle(tr("Histogram Editor"));
+    messageBox->setWindowTitle(d->toolboxName);
     QString description = "This histogram allows you to interactively apply a LUT to your image.<br>";
     description += "This LUT can be either discrete or linear.";
     QTextBrowser* descriptionWidget = new QTextBrowser;
