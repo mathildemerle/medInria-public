@@ -102,7 +102,7 @@ medClutEditorToolBox::medClutEditorToolBox(QWidget *parent) : medToolBox(parent)
     widget->setLayout(layout);
     this->addWidget(widget);
     
-    this->setTitle("Histogram Editor");
+    this->setTitle("Colormap Editor");
     widget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Minimum);
     this->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Minimum);
     
