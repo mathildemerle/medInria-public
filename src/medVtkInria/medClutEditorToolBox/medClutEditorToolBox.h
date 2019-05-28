@@ -64,13 +64,13 @@ protected:
     void mousePressEvent(QMouseEvent *event);
 
 protected slots:
+    /**
+     * @brief onNewTableAction delete every point on this histogram
+     */
     void onNewTableAction();
     void onLoadTableAction();
     void onSaveTableAction();
-    // void onDeleteTableAction();
     void onApplyTablesAction();
-    // void onColorAction();
-    // void onDeleteAction();
     void onVertexMoved();
     void onToggleDirectUpdateAction();
 private:

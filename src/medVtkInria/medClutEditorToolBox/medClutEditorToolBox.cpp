@@ -95,7 +95,6 @@ medClutEditorToolBox::medClutEditorToolBox(QWidget *parent) : medToolBox(parent)
 
     d->discreteModeAction->setChecked( false );
 
-
     QWidget* widget = new QWidget(this);
     QHBoxLayout *layout = new QHBoxLayout;
     layout->addWidget(d->view);
@@ -119,6 +118,9 @@ medClutEditorToolBox::medClutEditorToolBox(QWidget *parent) : medToolBox(parent)
 
 medClutEditorToolBox::~medClutEditorToolBox(void)
 {
+    delete d->tables;
+    delete d->scene;
+    delete d->view;
     delete d;
 }
 
@@ -157,7 +159,7 @@ void medClutEditorToolBox::setData(medAbstractData *data)
             delete d->histogram;
 
         d->histogram = new medClutEditorHistogram();
-        d->scene->addItem( d->histogram );
+        this->getScene()->addItem( d->histogram );
         int min_range = image->minRangeValue();
         int max_range = image->maxRangeValue();
         QMap<qreal, qreal> bins;
@@ -206,7 +208,7 @@ void medClutEditorToolBox::setView(medAbstractView *view)
         // Allows to modif medClutTbx when windowing with dragging on the view
         // AND used to initialize tbx with the image LUT
         this->getTransferFunctions( scalars, colors );
-        medClutEditorTable * table = d->scene->table();
+        medClutEditorTable * table = this->getScene()->table();
         table->setTransferFunction( scalars, colors );
     }
 }
@@ -216,11 +218,12 @@ void medClutEditorToolBox::initializeTable(void)
     this->deleteTable();
 
     medClutEditorTable *lut = new medClutEditorTable("Unknown");
-    d->scene->addItem( lut );
+    this->getScene()->addItem( lut );
     connect (lut, SIGNAL(vertexMoving()), this, SLOT(onVertexMoved()));
     connect (lut, SIGNAL(vertexSet()), this, SLOT(onVertexMoved()));
     connect (lut, SIGNAL(vertexAdded()),   this, SLOT(onVertexMoved()));
     connect (lut, SIGNAL(vertexRemoved()), this, SLOT(onVertexMoved()));
+
     if(d->discreteMode)
     {
         lut->setDiscreteMode(true);
@@ -231,10 +234,10 @@ void medClutEditorToolBox::initializeTable(void)
 void medClutEditorToolBox::deleteTable(void)
 {
     medClutEditorTable * table;
-    if(!d->scene->table())
+    if(!this->getScene()->table())
         return;
-    while ( (table = d->scene->table()) ) {
-        d->scene->removeItem( table );
+    while ( (table = this->getScene()->table()) ) {
+        this->getScene()->removeItem( table );
         delete table;
     }
 }
@@ -245,7 +248,7 @@ void medClutEditorToolBox::applyTable(medAbstractView* view)
     {
         QList<double> scalars;
         QList<QColor> colors;
-        medClutEditorTable * clutTable = d->scene->table();
+        medClutEditorTable * clutTable = this->getScene()->table();
         clutTable->getTransferFunction(scalars, colors);
         this->setColorLookupTable(view, scalars, colors);
         view->viewWidget()->update();
@@ -281,14 +284,12 @@ void medClutEditorToolBox::mousePressEvent(QMouseEvent *event)
 
 void medClutEditorToolBox::onNewTableAction(void)
 {
-    this->initializeTable();
-    if ( medClutEditorTable * table = d->scene->table() )
-        table->triggerVertexSet();
+    this->getScene()->table()->deleteAllVertices();
 }
 
 void medClutEditorToolBox::onVertexMoved(void)
 {
-    if ( d->scene->table() )
+    if ( this->getScene()->table() )
     {
         if ( d->toggleDirectUpdateAction->isChecked() )
             this->applyTable(d->med_view);
@@ -342,10 +343,10 @@ void medClutEditorToolBox::onLoadTableAction(void)
         {
             if ( table->title() == dialog.textValue())
             {
-                d->scene->table()->deleteAllVertices();
-                d->scene->removeItem(d->scene->table());
-                d->scene->addItem(table);
-                d->scene->update();
+                this->getScene()->table()->deleteAllVertices();
+                this->getScene()->removeItem(this->getScene()->table());
+                this->getScene()->addItem(table);
+                this->getScene()->update();
             }
         }
     }
@@ -353,7 +354,7 @@ void medClutEditorToolBox::onLoadTableAction(void)
 
 void medClutEditorToolBox::onSaveTableAction(void)
 {
-    if ( medClutEditorTable * table = d->scene->table() )
+    if ( medClutEditorTable * table = this->getScene()->table() )
     {
         medSaveLUTDialog dialog (table->title(),this);
 
@@ -419,7 +420,7 @@ void medClutEditorToolBox::onSaveTableAction(void)
 void medClutEditorToolBox::updateSavedTables()
 {
     d->tables = new QList<medClutEditorTable *>();
-    medXMLToLUTReader reader = medXMLToLUTReader(d->tables, d->scene);
+    medXMLToLUTReader reader = medXMLToLUTReader(d->tables, this->getScene());
     QString lutFileName = medStorage::dataLocation();
     lutFileName.append("/LUTs.xml");
     QFile file(lutFileName);
