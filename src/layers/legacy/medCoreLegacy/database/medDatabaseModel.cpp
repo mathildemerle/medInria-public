@@ -60,7 +60,7 @@ public:
 
     QHash<medDataIndex, QModelIndex> medIndexMap;
 
-    enum { DataCount = 12 };
+    enum { DataCount = 13 };
 };
 
 medAbstractDatabaseItem *medDatabaseModelPrivate::item(const QModelIndex& index) const
@@ -131,6 +131,10 @@ medDatabaseModel::medDatabaseModel(QObject *parent, bool justBringStudies) : QAb
     d->seAttributes[i++] = medMetaDataKeys::Institution.key();
     d->seAttributes[i++] = medMetaDataKeys::Report.key();
 
+    // Add the thumbnail location of a data to its attributes.
+    // When a data is moved to an other patient/series/etc,
+    // the location has to be updated in order to find it at the data removal.
+    d->seAttributes[i++] = medMetaDataKeys::ThumbnailPath.key();
 
     d->ptDefaultData =  d->data;
     d->ptDefaultData[0] = tr("[No Patient Name]");
@@ -179,10 +183,15 @@ bool medDatabaseModel::hasChildren ( const QModelIndex & parent ) const
 
 int medDatabaseModel::columnCount(const QModelIndex& parent) const
 {
+    //-1: do not take into account Thumbnail for columns display
     if (parent.isValid())
-        return static_cast<medAbstractDatabaseItem *>(parent.internalPointer())->columnCount();
+    {
+        return static_cast<medAbstractDatabaseItem *>(parent.internalPointer())->columnCount()-1;
+    }
     else
-        return d->root->columnCount();
+    {
+        return d->root->columnCount()-1;
+    }
 }
 
 int medDatabaseModel::columnIndex(const QString& title) const

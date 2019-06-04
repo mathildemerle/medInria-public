@@ -14,6 +14,7 @@
 #pragma once
 
 #include <QtCore/QObject>
+#include <QSqlQuery>
 
 #include <medDataIndex.h>
 #include <medJobItemL.h>
@@ -60,7 +61,7 @@ protected:
     void removePatient( int patientId );
 
     void removeFile( const QString & filename );
-
+    void removeThumbnailIfNeeded(QSqlQuery query);
     void removeDataFile( const medDataIndex &index, const QString & filename );
     bool removeTableRow( const QString &table, int id );
 
