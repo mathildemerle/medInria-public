@@ -35,6 +35,7 @@
 #include <vtkPlaneSource.h>
 #include <vtkProperty.h>
 #include <vtkRenderer.h>
+#include <vtkRenderWindowInteractor.h>
 #include <vtkResliceCursor.h>
 #include <vtkResliceCursorActor.h>
 #include <vtkResliceCursorPolyDataAlgorithm.h>
@@ -200,7 +201,7 @@ medResliceViewer::medResliceViewer(medAbstractView *view, QWidget *parent): medA
 
         rep->GetResliceCursorActor()->GetCursorAlgorithm()->SetReslicePlaneNormal(i);
 
-        riw[i]->SetInputConnection(view3d->GetInputAlgorithm(view3d->GetCurrentLayer())->GetOutputPort());
+        riw[i]->SetInputData(view3d->GetInputAlgorithm(view3d->GetCurrentLayer())->GetOutput());
         riw[i]->SetSliceOrientation(i);
         riw[i]->SetResliceModeToOblique();
     }
