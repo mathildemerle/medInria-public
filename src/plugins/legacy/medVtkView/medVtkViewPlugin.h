@@ -13,13 +13,13 @@
 
 #pragma once
 
-#include <dtkCoreSupport/dtkPlugin.h>
+#include <medPluginLegacy.h>
 
 #include <medVtkViewPluginExport.h>
 
 class medVtkViewPluginPrivate;
 
-class MEDVTKVIEWPLUGIN_EXPORT medVtkViewPlugin : public dtkPlugin
+class MEDVTKVIEWPLUGIN_EXPORT medVtkViewPlugin : public medPluginLegacy
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "fr.inria.medVtkViewPlugin" FILE "medVtkViewPlugin.json")

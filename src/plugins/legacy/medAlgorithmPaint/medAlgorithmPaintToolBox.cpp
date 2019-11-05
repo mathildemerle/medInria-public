@@ -1503,10 +1503,10 @@ void AlgorithmPaintToolBox::updateMouseInteraction()
     }
 }
 
-dtkPlugin* AlgorithmPaintToolBox::plugin()
+medPluginLegacy* AlgorithmPaintToolBox::plugin()
 {
     medPluginManager* pm = medPluginManager::instance();
-    dtkPlugin* plugin = pm->plugin ( "Algorithm Paint" );
+    medPluginLegacy* plugin = pm->plugin ( "Algorithm Paint" );
     return plugin;
 }
 

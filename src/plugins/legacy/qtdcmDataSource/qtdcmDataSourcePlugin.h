@@ -13,13 +13,13 @@
 
 #pragma once
 
-#include <dtkCoreSupport/dtkPlugin.h>
+#include <medPluginLegacy.h>
 
 #include <qtdcmDataSourcePluginExport.h>
 
 class QTDCMDATASOURCEPLUGIN_EXPORT qtdcmDataSourcePluginPrivate;
 
-class QTDCMDATASOURCEPLUGIN_EXPORT qtdcmDataSourcePlugin : public dtkPlugin
+class QTDCMDATASOURCEPLUGIN_EXPORT qtdcmDataSourcePlugin : public medPluginLegacy
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "fr.inria.qtdcmDataSourcePlugin" FILE "qtdcmDataSourcePlugin.json")

@@ -30,7 +30,7 @@ public:
 // qtdcmDataSourcePlugin
 // /////////////////////////////////////////////////////////////////
 
-qtdcmDataSourcePlugin::qtdcmDataSourcePlugin ( QObject *parent ) : dtkPlugin ( parent ), d ( new qtdcmDataSourcePluginPrivate )
+qtdcmDataSourcePlugin::qtdcmDataSourcePlugin ( QObject *parent ) : medPluginLegacy( parent ), d ( new qtdcmDataSourcePluginPrivate )
 {
 
 }

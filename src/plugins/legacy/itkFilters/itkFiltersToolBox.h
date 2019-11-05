@@ -52,7 +52,7 @@ public:
 public:
     static bool registered();
     medAbstractData* processOutput();
-    dtkPlugin* plugin();
+    medPluginLegacy* plugin();
 
 public slots:
     void onFiltersActivated(int index);

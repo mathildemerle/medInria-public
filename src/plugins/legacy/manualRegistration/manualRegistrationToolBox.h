@@ -42,7 +42,7 @@ public:
     medAbstractData* processOutput();
     
     static bool registered();
-    dtkPlugin * plugin() override;
+    medPluginLegacy * plugin() override;
 
     void updateGUI(int left,int right);
 
