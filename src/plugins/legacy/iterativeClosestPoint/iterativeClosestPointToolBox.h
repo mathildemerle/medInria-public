@@ -35,7 +35,7 @@ public:
 
     static bool registered();
     medAbstractData* processOutput();
-    dtkPlugin* plugin();
+    medPluginLegacy* plugin();
     void addLayer(unsigned int layer);
     
 public slots:

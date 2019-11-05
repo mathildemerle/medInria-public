@@ -42,7 +42,7 @@ public:
 public:
     static bool registered();
     medAbstractData* processOutput();
-    dtkPlugin* plugin();
+    medPluginLegacy* plugin();
 
 signals:
     void success();

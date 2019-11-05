@@ -141,10 +141,10 @@ bool diffeomorphicDemonsToolBox::registered()
             registerToolBox<diffeomorphicDemonsToolBox>();
 }
 
-dtkPlugin* diffeomorphicDemonsToolBox::plugin()
+medPluginLegacy* diffeomorphicDemonsToolBox::plugin()
 {
     medPluginManager* pm = medPluginManager::instance();
-    dtkPlugin* plugin = pm->plugin ( "Diffeomorphic Demons" );
+    medPluginLegacy* plugin = pm->plugin ( "Diffeomorphic Demons" );
     return plugin;
 }
 

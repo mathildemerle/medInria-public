@@ -29,7 +29,7 @@ public:
     medAbstractSelectableToolBox(QWidget *parent = nullptr);
     ~medAbstractSelectableToolBox() override;
 
-    virtual dtkPlugin* plugin() = 0;
+    virtual medPluginLegacy* plugin() = 0;
 
     virtual medAbstractData *processOutput() = 0;
 

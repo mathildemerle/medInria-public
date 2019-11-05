@@ -36,7 +36,7 @@ public:
     medAbstractData *processOutput() override;
     
     static bool registered();
-    dtkPlugin * plugin();
+    medPluginLegacy * plugin();
     
 signals:
     void success();
