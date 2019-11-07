@@ -163,7 +163,7 @@ bool medDatabaseController::createConnection(void)
     }
     else
     {
-        qDebug() << "Database opened at: " << m_database.databaseName();
+        qDebug() << "Database opened at: " << qPrintable(m_database.databaseName());
         d->isConnected = true;
     }
 
