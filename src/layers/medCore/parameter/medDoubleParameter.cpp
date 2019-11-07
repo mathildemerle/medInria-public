@@ -61,7 +61,7 @@ void medDoubleParameter::setRange(double min, double max)
 {
     if(min >= max)
     {
-        dtkDebug() << "attemp to set invalid range to "
+        dtkDebug() << "attempt to set invalid range to "
                    << this->caption() << this->id() << this;
     }
     else
