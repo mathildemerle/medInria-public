@@ -44,8 +44,6 @@ public:
 
     void loadPluginFromDirectories(QStringList pluginDirs);
 
-    void setValidFileExtensions(QStringList const &pi_roExts);
-
     void initialize();
     void uninitialize();
 
@@ -83,7 +81,6 @@ private:
     static medPluginManager *s_instance;
     QStringList loadErrorsList;
     QString pathSettings;
-    QStringList m_oExtensions;
     QList<std::tuple<int, QString, QPluginLoader*, QString, medPluginLegacy*> > m_lPlugins;
 
     int getCategoryFromTuple(std::tuple<int, QString, QPluginLoader*, QString, medPluginLegacy*> tuple);
