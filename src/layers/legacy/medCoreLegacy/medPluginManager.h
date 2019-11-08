@@ -20,9 +20,8 @@
 #include <tuple>
 
 class medPluginLegacy;
-class medPluginManagerPrivate;
 
-using eCategory = enum
+enum eCategory
 {
     CAT_IODATA = 1,
     CAT_DB,
@@ -33,7 +32,7 @@ using eCategory = enum
 };
 
 /**
- * @brief Load and unload plugins for medInria.
+ * @brief Load and unload plugins for the application
  *
 */
 class MEDCORELEGACY_EXPORT medPluginManager : public QObject
@@ -44,65 +43,14 @@ public:
     static medPluginManager *instance();
 
     void loadPluginFromDirectories(QStringList pluginDirs);//scanPlugins scanForPlugins scanPluginsDirs
-   // void loadPlugin(QString const & pi_roPluginPath); //createPluginLoader
-
-
 
     void setValidFileExtensions(QStringList const &pi_roExts);
-private:
 
-    QStringList m_oExtensions;
-    std::list<std::tuple<int, QString, QPluginLoader*, QString, medPluginLegacy*> > m_lPlugins;
-
-
-    int getCategoryFromTuple(std::tuple<int, QString, QPluginLoader*, QString, medPluginLegacy*> tuple);
-    QString getPathFromTuple(std::tuple<int, QString, QPluginLoader*, QString, medPluginLegacy*> tuple);
-    QPluginLoader* getPluginLoaderFromTuple(std::tuple<int, QString, QPluginLoader*, QString, medPluginLegacy*> tuple);
-    QString getNameFromTuple(std::tuple<int, QString, QPluginLoader*, QString, medPluginLegacy*> tuple);
-    medPluginLegacy* getMedPluginFromTuple(std::tuple<int, QString, QPluginLoader*, QString, medPluginLegacy*> tuple);
-
-
-    //void registerPlugins();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-public:
     void initializeApplication();
     void initialize();
     void uninitialize();
     void uninitializeApplication();
 
-
-    //void   scan(const QString& path);
-    //void   load(const QString& name);
     void unload(const QString& name);
 
     void  readSettings();
@@ -118,35 +66,36 @@ public:
 
     void setPath(const QString& path);
 
-    //QStringList handlers(const QString& category);
-
     QStringList loadErrors();
 
 public slots:
-    //void   loadPlugin(const QString& path);
     void unloadPlugin(const QString& path);
     void onPluginLoaded(const QString& name);
 
 protected:
      medPluginManager();
-    ~medPluginManager();
-
-    QString path() const;
+     QString path() const;
 
 protected slots:
      void onLoadError(const QString& errorMessage);
 
 signals:
      void allPluginsLoaded();
-     void   loaded(const QString& plugin);
+     void loaded(const QString& plugin);
      void unloaded(const QString& plugin);
-     void   loadError(const QString& errorMessage);
+     void loadError(const QString& errorMessage);
 
 private:
     static medPluginManager *s_instance;
+    QStringList loadErrorsList;
+    QString pathSettings;
+    bool bVerboseLoading;
+    QStringList m_oExtensions;
+    QList<std::tuple<int, QString, QPluginLoader*, QString, medPluginLegacy*> > m_lPlugins;
 
-private:
-    medPluginManagerPrivate *d;
+    int getCategoryFromTuple(std::tuple<int, QString, QPluginLoader*, QString, medPluginLegacy*> tuple);
+    QString getPathFromTuple(std::tuple<int, QString, QPluginLoader*, QString, medPluginLegacy*> tuple);
+    QPluginLoader* getPluginLoaderFromTuple(std::tuple<int, QString, QPluginLoader*, QString, medPluginLegacy*> tuple);
+    QString getNameFromTuple(std::tuple<int, QString, QPluginLoader*, QString, medPluginLegacy*> tuple);
+    medPluginLegacy* getMedPluginFromTuple(std::tuple<int, QString, QPluginLoader*, QString, medPluginLegacy*> tuple);
 };
-
-
