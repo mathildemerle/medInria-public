@@ -1737,7 +1737,7 @@ void vtkImageView2D::SetFirstLayer(vtkAlgorithmOutput *pi_poInputAlgoImg, vtkMat
 {
     if(pi_poInputAlgoImg)
     {
-        // If the image is not the first one --> verif
+        // First layer is not necessarily the layer '0', due to removal/addition of data
         if( layer > 0 )
         {
             this->AddLayer(layer);
