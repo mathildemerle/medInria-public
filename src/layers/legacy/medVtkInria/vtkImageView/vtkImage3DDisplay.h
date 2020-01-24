@@ -15,12 +15,9 @@ public:
 
     vtkTypeMacro (vtkImage3DDisplay, vtkObject);
 
-    //vtkSetObjectMacro(InputConnection, vtkAlgorithmOutput);
-
-    //virtual void SetInputConnection(vtkAlgorithmOutput*  pi_poVtkAlgoPort);
     virtual void SetInputData(vtkImageData *pi_poVtkImage);
     void SetInputProducer(vtkAlgorithmOutput *pi_poAlgorithmOutput);
-    virtual medVtkImageInfo* GetVtkImageInfo();
+    virtual medVtkImageInfo* GetMedVtkImageInfo();
 
     virtual bool isInputSet();
 
@@ -42,7 +39,6 @@ public:
     vtkSetMacro(ColorLevel, double);
     vtkGetMacro(ColorLevel, double);
 
-    //vtkAlgorithmOutput* GetOutputPort();
     virtual vtkImageAlgorithm* GetInputProducer() const { return this->InputProducer; }
 
 protected:
@@ -50,9 +46,7 @@ protected:
     ~vtkImage3DDisplay();
 
 private:
-    //vtkSmartPointer<vtkImageData>               InputImageOld;
-    //vtkSmartPointer<vtkAlgorithmOutput>         InputConnection;
-    vtkSmartPointer<vtkImageAlgorithm>            InputProducer;
+    vtkSmartPointer<vtkImageAlgorithm> InputProducer;
     double Opacity;
     int Visibility;
     double ColorWindow;

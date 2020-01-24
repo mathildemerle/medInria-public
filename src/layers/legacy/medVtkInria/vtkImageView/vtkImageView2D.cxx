@@ -1718,12 +1718,6 @@ int vtkImageView2D::GetInterpolate(int layer) const
   return iRes;
 }
 
-////----------------------------------------------------------------------------
-//void vtkImageView2D::SetTransferFunctions(vtkColorTransferFunction* color, vtkPiecewiseFunction *opacity)
-//{
-//    this->SetTransferFunctions (color, opacity, CurrentLayer);
-//}
-
 //----------------------------------------------------------------------------
 void vtkImageView2D::ApplyColorTransferFunction(vtkScalarsToColors * colors, int layer)
 {
@@ -1735,23 +1729,22 @@ void vtkImageView2D::ApplyColorTransferFunction(vtkScalarsToColors * colors, int
 
 void vtkImageView2D::SetFirstLayer(vtkAlgorithmOutput *pi_poInputAlgoImg, vtkMatrix4x4 *matrix, int layer)
 {
-    if(pi_poInputAlgoImg)
+    // TODO: not used, even if we remove/add data
+    if( layer > 0 )
     {
-        // If the image is not the first one --> verif
-        if( layer > 0 )
-        {
-            this->AddLayer(layer);
-        }
-        
-        this->GetImage2DDisplayForLayer(layer)->SetInputProducer(pi_poInputAlgoImg);
-
-        this->Superclass::SetInput (pi_poInputAlgoImg, matrix, 0);
-        this->GetImage2DDisplayForLayer(layer)->SetInputData(m_poInternalImageFromInput);
-        this->GetWindowLevel(layer)->SetInputConnection(pi_poInputAlgoImg);
-        double *range = this->GetImage2DDisplayForLayer(layer)->GetMedVtkImageInfo()->scalarRange;
-        this->SetColorRange(range,layer);
-        this->Reset();
+        this->AddLayer(layer);
     }
+
+    this->GetImage2DDisplayForLayer(layer)->SetInputProducer(pi_poInputAlgoImg);
+    this->Superclass::SetInput (pi_poInputAlgoImg, matrix, 0);
+
+    this->GetImage2DDisplayForLayer(layer)->SetInputData(m_poInternalImageFromInput);
+
+    // TODO: Not useful, and take time
+    //this->GetWindowLevel(layer)->SetInputConnection(pi_poInputAlgoImg);
+    //double *range = this->GetImage2DDisplayForLayer(layer)->GetMedVtkImageInfo()->scalarRange;
+    //this->SetColorRange(range, layer);
+    //this->Reset();
 }
 
 /**
@@ -1789,60 +1782,64 @@ int vtkImageView2D::GetFirstLayer() const
 /** Set/Get the input image to the viewer. */
 void vtkImageView2D::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4x4 *matrix /*= 0*/, int layer /*= 0*/)
 {
-  vtkRenderer *renderer = 0;
+    if (pi_poVtkAlgoOutput)
+    {
+        if (layer == 0 || IsFirstLayer(layer))
+        {
+            SetFirstLayer(pi_poVtkAlgoOutput, matrix, layer);
+        }
+        else // layer > 0
+        {
+            this->AddLayer(layer);
 
-  if ( layer == 0 || IsFirstLayer(layer))
-  {
-      SetFirstLayer( pi_poVtkAlgoOutput, matrix, layer);
-  }
-  else // layer > 0
-  {
-      this->AddLayer(layer);
+            if (!this->GetMedVtkImageInfo() || !this->GetMedVtkImageInfo()->initialized)
+            {
+                vtkErrorMacro (<< "Set input prior to adding layers");
+                return;
+            }
 
-      if (!this->GetMedVtkImageInfo() || !this->GetMedVtkImageInfo()->initialized)
-      {
-          vtkErrorMacro (<< "Set input prior to adding layers");
-          return;
-      }
+            vtkAlgorithmOutput *reslicerOutputPort = this->ResliceImageToInput(pi_poVtkAlgoOutput, matrix);
+            if (!reslicerOutputPort)
+            {
+                vtkErrorMacro (<< "Could not reslice image to input");
+                return;
+            }
 
-      vtkAlgorithmOutput *reslicerOutputPort = this->ResliceImageToInput(pi_poVtkAlgoOutput, matrix);
-      if (!reslicerOutputPort)
-      {
-          vtkErrorMacro (<< "Could not reslice image to input");
-          return;
-      }
+            vtkImage2DDisplay * imageDisplay = this->GetImage2DDisplayForLayer(layer);
+            imageDisplay->SetInputData(static_cast<vtkImageAlgorithm*>(reslicerOutputPort->GetProducer())->GetOutput());
+            imageDisplay->GetImageActor()->SetUserMatrix (this->OrientationMatrix);
+            this->SetColorRange(imageDisplay->GetMedVtkImageInfo()->scalarRange, layer);
+        }
 
-      vtkImage2DDisplay * imageDisplay = this->GetImage2DDisplayForLayer(layer);
-      imageDisplay->SetInputData(((vtkImageAlgorithm*)reslicerOutputPort->GetProducer())->GetOutput());
-      imageDisplay->GetImageActor()->SetUserMatrix (this->OrientationMatrix);
-      this->SetColorRange(imageDisplay->GetMedVtkImageInfo()->scalarRange, layer);
-  }
+        this->LayerInfoVec[layer].ImageAlgo = static_cast<vtkImageAlgorithm*>(pi_poVtkAlgoOutput->GetProducer());
 
-  renderer = this->GetRendererForLayer(layer);
-  this->LayerInfoVec[layer].ImageAlgo = (vtkImageAlgorithm*)pi_poVtkAlgoOutput->GetProducer();
-  if (!renderer)
-    return;
+        vtkRenderer *renderer = this->GetRendererForLayer(layer);
+        if (renderer)
+        {
+            if ( this->GetImage2DDisplayForLayer(layer) )
+            {
+                renderer->AddViewProp (this->GetImage2DDisplayForLayer(layer)->GetImageActor());
+            }
 
-  if ( this->GetImage2DDisplayForLayer(layer) )
-    renderer->AddViewProp (this->GetImage2DDisplayForLayer(layer)->GetImageActor());
+            this->SetCurrentLayer(layer);
+            this->Slice = this->GetSliceForWorldCoordinates (this->CurrentPoint);
+            this->UpdateDisplayExtent();
+            this->UpdateSlicePlane();
+            this->InvokeEvent (vtkImageView2D::SliceChangedEvent);
 
-  this->SetCurrentLayer(layer);
-  this->Slice = this->GetSliceForWorldCoordinates (this->CurrentPoint);
-  this->UpdateDisplayExtent();
-  this->UpdateSlicePlane();
-  this->InvokeEvent (vtkImageView2D::SliceChangedEvent);
+            // So ugly to do it, for each new layer,
+            // but it 's the only way i found so far to get the annotation correctly rendered ... - RDE
+            renderer->AddViewProp(this->CornerAnnotation);
+            renderer->AddViewProp(this->ScalarBar);
+            renderer->AddViewProp(this->OrientationAnnotation);
 
-  // So ugly to do it, for each new layer,
-  // but it 's the only way i found so far to get the annotation correctly rendered ... - RDE
-  renderer->AddViewProp(this->CornerAnnotation);
-  renderer->AddViewProp(this->ScalarBar);
-  renderer->AddViewProp(this->OrientationAnnotation);
-
-  if(this->ShowRulerWidget)
-  {
-    this->ShowRulerWidgetOff();
-    this->ShowRulerWidgetOn();
-  }
+            if(this->ShowRulerWidget)
+            {
+                this->ShowRulerWidgetOff();
+                this->ShowRulerWidgetOn();
+            }
+        }
+    }
 }
 
 void vtkImageView2D::SetInput (vtkActor *actor, int layer, vtkMatrix4x4 *matrix, const int imageSize[], const double imageSpacing[], const double imageOrigin[])
@@ -1921,7 +1918,7 @@ vtkImageActor *vtkImageView2D::GetImageActor(int layer) const
 //----------------------------------------------------------------------------
 medVtkImageInfo* vtkImageView2D::GetMedVtkImageInfo(int layer) const
 {
-    medVtkImageInfo* psRes = nullptr;
+    medVtkImageInfo *imageInfo = nullptr;
 
     if (layer == 0)
     {
@@ -1929,10 +1926,10 @@ medVtkImageInfo* vtkImageView2D::GetMedVtkImageInfo(int layer) const
     }
     if (this->HasLayer(layer))
     {
-        psRes = this->GetImage2DDisplayForLayer(layer)->GetMedVtkImageInfo();
+        imageInfo = this->GetImage2DDisplayForLayer(layer)->GetMedVtkImageInfo();
     }
 
-    return psRes;
+    return imageInfo;
 }
 
 //----------------------------------------------------------------------------

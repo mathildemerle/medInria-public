@@ -148,7 +148,8 @@ public:
     virtual unsigned int GetCroppingMode ();
 
     virtual void SetInput (vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4x4 *matrix = 0, int layer = 0);
-    //virtual void AddInput (vtkImageData* input, vtkMatrix4x4 *matrix = 0);
+    void SetFirstLayer(vtkAlgorithmOutput *pi_poInputAlgoImg, vtkMatrix4x4 *matrix, int layer);
+
     virtual void SetOrientationMatrix (vtkMatrix4x4* matrix);
 
     using vtkImageView::SetColorWindow;
@@ -169,7 +170,6 @@ public:
 
     virtual void SetVisibility(int visibility, int layer);
     virtual int  GetVisibility(int layer) const;
-
 
     virtual void SetShowActorX (unsigned int);
     vtkGetMacro (ShowActorX, unsigned int);

@@ -15,8 +15,6 @@ public:
   static vtkImage2DDisplay * New();
   vtkTypeMacro (vtkImage2DDisplay, vtkObject);
 
-  //virtual void SetInput(vtkAlgorithmOutput*  pi_poVtkAlgoPort);
-
   virtual void SetInputData(vtkImageData *pi_poVtkImage);
 
   void SetInputProducer(vtkAlgorithmOutput *pi_poAlgorithmOutput);
@@ -47,7 +45,7 @@ public:
 
 protected:
   vtkImage2DDisplay();
-  ~vtkImage2DDisplay();
+  ~vtkImage2DDisplay() = default;
 
 private:
   vtkSmartPointer<vtkImageMapToColors>        WindowLevel;
