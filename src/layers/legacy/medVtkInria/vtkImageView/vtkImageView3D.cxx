@@ -2,7 +2,7 @@
 
  medInria
 
- Copyright (c) INRIA 2013 - 2018. All rights reserved.
+ Copyright (c) INRIA 2013 - 2020. All rights reserved.
  See LICENSE.txt for details.
  
   This software is distributed WITHOUT ANY WARRANTY; without even
@@ -11,71 +11,38 @@
 
 =========================================================================*/
 
+#include "vtkImage3DDisplay.h"
 #include "vtkImageView3D.h"
 
 #ifndef VTK_MAJOR_VERSION
 #  include "vtkVersion.h"
 #endif
 
-#include <medVtkImageInfo.h>
-
-#include <vtkBoundingBox.h>
+#include <vtkActor.h>
+#include <vtkAnnotatedCubeActor.h>
+#include <vtkColorTransferFunction.h>
+#include <vtkDataSetCollection.h>
+#include <vtkDataSetSurfaceFilter.h>
+#include <vtkImageActor.h>
+#include <vtkImageAppendComponents.h>
+#include <vtkImageCast.h>
+#include <vtkImageMapper3D.h>
+#include <vtkImageMapToColors.h>
 #include <vtkInteractorStyleTrackball.h>
+#include <vtkPiecewiseFunction.h>
+#include <vtkPointSet.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkPolyDataNormals.h>
+#include <vtkProp3DCollection.h>
+#include <vtkProperty.h>
+#include <vtkRenderer.h>
+#include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRendererCollection.h>
-#include <vtkImageData.h>
-#include <vtkPiecewiseFunction.h>
-#include <vtkColorTransferFunction.h>
-#include <vtkFiniteDifferenceGradientEstimator.h>
-#include <vtkProperty.h>
-#include <vtkVolume.h>
-#include <vtkImageMapToWindowLevelColors.h>
-#include <vtkImageDataGeometryFilter.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkImageActor.h>
-#include <vtkAxes.h>
-#include <vtkMatrix4x4.h>
-#include <vtkTubeFilter.h>
-#include <vtkLookupTable.h>
-#include <vtkAnnotatedCubeActor.h>
-#include <vtkPropAssembly.h>
-#include <vtkAxesActor.h>
+#include <vtkSmartVolumeMapper.h>
 #include <vtkTextProperty.h>
-#include <vtkCaptionActor2D.h>
-#include <vtkPointData.h>
-#include <vtkImageReslice.h>
-#include "vtkRenderWindow.h"
-#include "vtkScalarsToColors.h"
-#include <vtkCamera.h>
-#include <vtkDataSet.h>
-#include <vtkDataSetMapper.h>
-#include <vtkPlane.h>
-#include <vtkPlaneCollection.h>
-#include <vtkGeometryFilter.h>
-#include <vtkDataSetSurfaceFilter.h>
-#include <vtkPolyDataNormals.h>
-#include <vtkCellData.h>
-#include <vtkMath.h>
-#include <vtkOrientedBoxWidget.h>
-#include <vtkPlaneWidget.h>
-#include <vtkOrientationMarkerWidget.h>
-#include <vtkVolumeProperty.h>
-#include <vtkImageMapToColors.h>
-#include "vtkScalarBarActor.h"
-#include "vtkSmartVolumeMapper.h"
-#include <vtkImageAppendComponents.h>
-#include <vtkImageAppend.h>
-#include <vtkImageCast.h>
-#include <vtkSmartPointer.h>
-#include <vtkDataSetCollection.h>
-#include <vtkProp3DCollection.h>
-#include <vtkImageMapper3D.h>
 
-#include <vtkAlgorithmOutput.h>
-#include <vtkImageAlgorithm.h>
-#include "vtkImage3DDisplay.h"
-
-vtkStandardNewMacro(vtkImageView3D);
+vtkStandardNewMacro(vtkImageView3D)
 
 //----------------------------------------------------------------------------
 vtkImageView3D::vtkImageView3D()
@@ -466,19 +433,12 @@ void vtkImageView3D::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4
 {
     if(pi_poVtkAlgoOutput)
     {
-        if(layer ==0)
+        if(layer == 0)
         {
             SetFirstLayer( pi_poVtkAlgoOutput, matrix, layer);
         }
 
-        if (!this->GetMedVtkImageInfo() || !this->GetMedVtkImageInfo()->initialized)
-        {
-            vtkErrorMacro (<< "Set input prior to adding layers");
-            return;
-        }
-
         int * w_extent = this->GetMedVtkImageInfo()->extent;
-
         int size [3] = { w_extent [1] - w_extent[0], w_extent [3] - w_extent[2], w_extent [5] - w_extent[4] };
 
         if ( (size[0] < 2) ||(size[1] < 2) || (size[2] < 2) )
@@ -507,7 +467,8 @@ void vtkImageView3D::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4
 
             vtkAlgorithmOutput *poVtkAlgoOutputTmp = poReslicerOutput;
             // cast it if needed
-            if (static_cast<vtkImageAlgorithm*>(poReslicerOutput->GetProducer())->GetOutput()->GetScalarType()!=this->GetMedVtkImageInfo()->scalarType)
+            if (static_cast<vtkImageAlgorithm*>(poReslicerOutput->GetProducer())->GetOutput()->GetScalarType()
+                    != this->GetMedVtkImageInfo()->scalarType)
             {
                 vtkImageCast *cast = vtkImageCast::New();
                 cast->SetInputConnection(poReslicerOutput);
@@ -517,21 +478,8 @@ void vtkImageView3D::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4
                 poVtkAlgoOutputTmp = cast->GetOutputPort();
             }
 
-            this->AddLayer (layer);
-
+            this->AddLayer(layer);
             this->GetImage3DDisplayForLayer(layer)->SetInputProducer(poVtkAlgoOutputTmp);
-
-            // set default display properties
-            this->VolumeProperty->SetShade(layer, 1);
-            this->VolumeProperty->SetComponentWeight(layer, 1.0);
-
-            vtkColorTransferFunction *rgb   = this->GetDefaultColorTransferFunction();
-            vtkPiecewiseFunction     *alpha = this->GetDefaultOpacityTransferFunction();
-
-            this->SetTransferFunctions (rgb, alpha, layer);
-
-            rgb->Delete();
-            alpha->Delete();
         }
         else if (layer >= 4)
         {
@@ -545,25 +493,9 @@ void vtkImageView3D::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4
 
 void vtkImageView3D::SetFirstLayer(vtkAlgorithmOutput *pi_poInputAlgoImg, vtkMatrix4x4 *matrix, int layer)
 {
-    if (this->GetMedVtkImageInfo() && this->GetMedVtkImageInfo()->initialized)
-    {
-        this->RemoveAllLayers();
-    }
-
     this->GetImage3DDisplayForLayer(0)->SetInputProducer(pi_poInputAlgoImg);
     this->Superclass::SetInput (pi_poInputAlgoImg, matrix, layer);
     this->GetImage3DDisplayForLayer(0)->SetInputData(m_poInternalImageFromInput);
-
-    double *range = this->GetImage3DDisplayForLayer(layer)->GetMedVtkImageInfo()->scalarRange;
-    this->SetColorRange(range, 0);
-    this->VolumeProperty->SetShade(0, 1);
-    this->VolumeProperty->SetComponentWeight(0, 1.0);
-    vtkColorTransferFunction *rgb   = this->GetDefaultColorTransferFunction();
-    vtkPiecewiseFunction     *alpha = this->GetDefaultOpacityTransferFunction();
-
-    this->SetTransferFunctions (rgb, alpha, 0);
-    rgb->Delete();
-    alpha->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -623,17 +555,14 @@ void vtkImageView3D::InternalUpdate()
         this->VolumeProperty->IndependentComponentsOn();
         this->VolumeProperty->ShadeOn();
         this->PlanarWindowLevelX->SetInputConnection(this->m_poInputVtkAlgoOutput);
-        //this->PlanarWindowLevelX->SetInputData(this->m_poInternalImageFromInput);
         this->PlanarWindowLevelX->SetOutputFormatToRGB();
         this->PlanarWindowLevelX->UpdateInformation();
         this->PlanarWindowLevelX->Update();
         this->PlanarWindowLevelY->SetInputConnection(this->m_poInputVtkAlgoOutput);
-        //this->PlanarWindowLevelY->SetInputData(this->m_poInternalImageFromInput);
         this->PlanarWindowLevelY->SetOutputFormatToRGB();
         this->PlanarWindowLevelY->UpdateInformation();
         this->PlanarWindowLevelY->Update();
         this->PlanarWindowLevelZ->SetInputConnection(this->m_poInputVtkAlgoOutput);
-        //this->PlanarWindowLevelZ->SetInputData(this->m_poInternalImageFromInput);
         this->PlanarWindowLevelZ->SetOutputFormatToRGB();
         this->PlanarWindowLevelZ->UpdateInformation();
         this->PlanarWindowLevelZ->Update();

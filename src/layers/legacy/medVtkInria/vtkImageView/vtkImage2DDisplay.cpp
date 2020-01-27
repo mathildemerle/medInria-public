@@ -1,10 +1,24 @@
+/*=========================================================================
+
+ medInria
+
+ Copyright (c) INRIA 2013 - 2020. All rights reserved.
+ See LICENSE.txt for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.
+
+=========================================================================*/
+
 #include "vtkImage2DDisplay.h"
+
+#include <vtkAlgorithmOutput.h>
+#include <vtkImageAlgorithm.h>
 #include <vtkImageMapper3D.h>
 #include <vtkImageProperty.h>
-#include <vtkImageAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
 
-vtkStandardNewMacro(vtkImage2DDisplay);
+vtkStandardNewMacro(vtkImage2DDisplay)
 
 vtkImage2DDisplay::vtkImage2DDisplay()
 {

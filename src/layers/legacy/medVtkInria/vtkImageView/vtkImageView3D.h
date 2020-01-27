@@ -2,7 +2,7 @@
 
  medInria
 
- Copyright (c) INRIA 2013 - 2018. All rights reserved.
+ Copyright (c) INRIA 2013 - 2020. All rights reserved.
  See LICENSE.txt for details.
  
   This software is distributed WITHOUT ANY WARRANTY; without even
@@ -15,18 +15,12 @@
 
 #include <medVtkInriaExport.h>
 
-#include <vector>
-
 #include <vtkImageView.h>
-#include <vtkOrientedBoxWidget.h>
-
-#include <vtkPlaneWidget.h>
-#include <vtkVolume.h>
 #include <vtkImageView3DCroppingBoxCallback.h>
 #include <vtkOrientationMarkerWidget.h>
+#include <vtkOrientedBoxWidget.h>
+#include <vtkPlaneWidget.h>
 #include <vtkVolumeProperty.h>
-#include <vtkSmartPointer.h>
-
 
 class vtkVolume;
 class vtkPiecewiseFunction;
@@ -52,7 +46,7 @@ class vtkProp3DCollection;
 
    This class allows to view 3D images. Images have to be
    vtkImageData.
-   volume rendering and mulptiplane reconstructions are provided
+   volume rendering and multiplane reconstructions are provided
    remote plan can also be used, so can be an orientation cube, ...
 */
 
@@ -65,7 +59,7 @@ public:
 
     vtkMTimeType GetMTime();
 
-    // Rendeing Modes available.
+    // Rendering Modes available.
     // PLANAR_RENDERING will render every vtkImageActor instance added with Add2DPhantom()
     // whereas VOLUME_RENDERING will render the volume added with SetInputData().
     //BTX
@@ -279,9 +273,9 @@ protected:
     unsigned int ShowActorY;
     unsigned int ShowActorZ;
 
-    int          LastNodeIndex;
+    int LastNodeIndex;
 
-    int          CroppingMode;
+    int  CroppingMode;
 
     double Opacity;
     int Visibility;

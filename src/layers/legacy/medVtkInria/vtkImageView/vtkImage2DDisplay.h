@@ -1,13 +1,25 @@
+/*=========================================================================
+
+ medInria
+
+ Copyright (c) INRIA 2013 - 2020. All rights reserved.
+ See LICENSE.txt for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.
+
+=========================================================================*/
 #pragma once
-#include <vtkImageData.h>
+
+#include <medVtkImageInfo.h>
+
+#include <vtkColorTransferFunction.h>
 #include <vtkImageActor.h>
+#include <vtkImageData.h>
 #include <vtkImageMapToColors.h>
 #include <vtkLookupTable.h>
-#include <vtkColorTransferFunction.h>
 #include <vtkPiecewiseFunction.h>
-#include <vtkSetGet.h>
-#include "medVtkImageInfo.h"
-
 
 class vtkImage2DDisplay : public vtkObject
 {

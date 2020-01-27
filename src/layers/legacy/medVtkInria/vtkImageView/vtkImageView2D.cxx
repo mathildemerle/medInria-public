@@ -2,7 +2,7 @@
 
  medInria
 
- Copyright (c) INRIA 2013 - 2018. All rights reserved.
+ Copyright (c) INRIA 2013 - 2020. All rights reserved.
  See LICENSE.txt for details.
 
   This software is distributed WITHOUT ANY WARRANTY; without even
@@ -11,83 +11,40 @@
 
 =========================================================================*/
 
+#include "vtkImage2DDisplay.h"
 #include "vtkImageView2D.h"
 
-#include "vtkBoundingBox.h"
-#include "vtkCamera.h"
-#include "vtkCommand.h"
-#include "vtkImageActor.h"
-#include "vtkImageData.h"
-#include "vtkImageMapToColors.h"
-#include "vtkObjectFactory.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
-#include "vtkMatrix4x4.h"
-#include "vtkTransform.h"
-#include "vtkScalarBarActor.h"
-#include "vtkCornerAnnotation.h"
-#include "vtkTextProperty.h"
-#include "vtkLookupTable.h"
-#include "vtkMath.h"
-#include "vtkPlane.h"
-#include "vtkCutter.h"
-#include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkProp3DCollection.h"
-#include "vtkDataSetCollection.h"
-#include "vtkPoints.h"
-#include "vtkIdList.h"
-#include "vtkOutlineSource.h"
-#include "vtkMatrixToLinearTransform.h"
-#include "vtkPointData.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkIntArray.h"
-#include "vtkImageAccumulate.h"
-#include "vtkCoordinate.h"
-#include "vtkTextActor.h"
-#include "vtkAxisActor2D.h"
-#include "vtkProperty.h"
-#include <vtkOrientationAnnotation.h>
-#include <vtkImageView2DCommand.h>
-#include <vtkProperty2D.h>
-#include <vtkSmartPointer.h>
-#include <vtkAxisActor2D.h>
-#include <vtkAxes2DWidget.h>
-#include <vtkRulerWidget.h>
-#include "vtkDistanceWidget.h"
-#include "vtkDistanceRepresentation2D.h"
-#include "vtkAngleWidget.h"
-#include "vtkAngleRepresentation2D.h"
-#include "vtkLeaderActor2D.h"
-#include "vtkProperty2D.h"
-#include <vtkPointHandleRepresentation2D.h>
-#include <vtkDataSet2DWidget.h>
-#include <vtkImageViewCornerAnnotation.h>
-#include <vtkImageCast.h>
-#include <vtkColorTransferFunction.h>
-#include <vtkPiecewiseFunction.h>
-#include <vtkImageReslice.h>
-#include <vtkInformation.h>
-#include <vtkStreamingDemandDrivenPipeline.h>
-
-#include <vtkTextActor3D.h>
-#include <vtkImageMapper3D.h>
-
-#include <vector>
-#include <string>
-#include <sstream>
-#include <cmath>
-
-#include <vtkImageFromBoundsSource.h>
-#include <vtkRendererCollection.h>
-#include "vtkImage2DDisplay.h"
-
-#include <vtkImageAlgorithm.h>
 #include <vtkAlgorithmOutput.h>
+#include <vtkAngleWidget.h>
+#include <vtkAngleRepresentation2D.h>
+#include <vtkAxes2DWidget.h>
+#include <vtkAxisActor2D.h>
+#include <vtkCamera.h>
+#include <vtkDataSet2DWidget.h>
+#include <vtkDataSetCollection.h>
+#include <vtkDistanceWidget.h>
+#include <vtkDistanceRepresentation2D.h>
+#include <vtkImageView2DCommand.h>
+#include <vtkImageViewCornerAnnotation.h>
+#include <vtkInformation.h>
+#include <vtkLeaderActor2D.h>
+#include <vtkMatrixToLinearTransform.h>
+#include <vtkOrientationAnnotation.h>
+#include <vtkPlane.h>
+#include <vtkPointData.h>
+#include <vtkPointSet.h>
+#include <vtkPolyData.h>
+#include <vtkProp3DCollection.h>
+#include <vtkProperty2D.h>
+#include <vtkRenderer.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRulerWidget.h>
+#include <vtkScalarBarActor.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkTransform.h>
 
-
-vtkStandardNewMacro(vtkImageView2D);
+vtkStandardNewMacro(vtkImageView2D)
 
 //----------------------------------------------------------------------------
 vtkImageView2D::vtkImageView2D()
@@ -1729,22 +1686,9 @@ void vtkImageView2D::ApplyColorTransferFunction(vtkScalarsToColors * colors, int
 
 void vtkImageView2D::SetFirstLayer(vtkAlgorithmOutput *pi_poInputAlgoImg, vtkMatrix4x4 *matrix, int layer)
 {
-    // TODO: not used, even if we remove/add data
-    if( layer > 0 )
-    {
-        this->AddLayer(layer);
-    }
-
     this->GetImage2DDisplayForLayer(layer)->SetInputProducer(pi_poInputAlgoImg);
     this->Superclass::SetInput (pi_poInputAlgoImg, matrix, 0);
-
     this->GetImage2DDisplayForLayer(layer)->SetInputData(m_poInternalImageFromInput);
-
-    // TODO: Not useful, and take time
-    //this->GetWindowLevel(layer)->SetInputConnection(pi_poInputAlgoImg);
-    //double *range = this->GetImage2DDisplayForLayer(layer)->GetMedVtkImageInfo()->scalarRange;
-    //this->SetColorRange(range, layer);
-    //this->Reset();
 }
 
 /**
@@ -1792,12 +1736,6 @@ void vtkImageView2D::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4
         {
             this->AddLayer(layer);
 
-            if (!this->GetMedVtkImageInfo() || !this->GetMedVtkImageInfo()->initialized)
-            {
-                vtkErrorMacro (<< "Set input prior to adding layers");
-                return;
-            }
-
             vtkAlgorithmOutput *reslicerOutputPort = this->ResliceImageToInput(pi_poVtkAlgoOutput, matrix);
             if (!reslicerOutputPort)
             {
@@ -1806,6 +1744,7 @@ void vtkImageView2D::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4
             }
 
             vtkImage2DDisplay * imageDisplay = this->GetImage2DDisplayForLayer(layer);
+            imageDisplay->SetInputProducer(reslicerOutputPort);
             imageDisplay->SetInputData(static_cast<vtkImageAlgorithm*>(reslicerOutputPort->GetProducer())->GetOutput());
             imageDisplay->GetImageActor()->SetUserMatrix (this->OrientationMatrix);
             this->SetColorRange(imageDisplay->GetMedVtkImageInfo()->scalarRange, layer);
@@ -1816,10 +1755,7 @@ void vtkImageView2D::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4
         vtkRenderer *renderer = this->GetRendererForLayer(layer);
         if (renderer)
         {
-            if ( this->GetImage2DDisplayForLayer(layer) )
-            {
-                renderer->AddViewProp (this->GetImage2DDisplayForLayer(layer)->GetImageActor());
-            }
+            renderer->AddViewProp (this->GetImage2DDisplayForLayer(layer)->GetImageActor());
 
             this->SetCurrentLayer(layer);
             this->Slice = this->GetSliceForWorldCoordinates (this->CurrentPoint);
@@ -1873,7 +1809,6 @@ void vtkImageView2D::SetInput (vtkActor *actor, int layer, vtkMatrix4x4 *matrix,
     this->SetCurrentLayer(layer);
     this->Slice = this->GetSliceForWorldCoordinates (this->CurrentPoint);
     this->UpdateDisplayExtent();
-    // this->UpdateCenter();
     this->UpdateSlicePlane();
     this->InvokeEvent (vtkImageView2D::SliceChangedEvent);
 

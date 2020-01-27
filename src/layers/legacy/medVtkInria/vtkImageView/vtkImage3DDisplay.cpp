@@ -1,8 +1,21 @@
-#include "vtkImage3DDisplay.h"
-#include <vtkImageData.h>
-#include <vtkImageAlgorithm.h>
+/*=========================================================================
 
-vtkStandardNewMacro(vtkImage3DDisplay);
+ medInria
+
+ Copyright (c) INRIA 2013 - 2020. All rights reserved.
+ See LICENSE.txt for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.
+
+=========================================================================*/
+#include "vtkImage3DDisplay.h"
+
+#include <vtkImageAlgorithm.h>
+#include <vtkImageData.h>
+
+vtkStandardNewMacro(vtkImage3DDisplay)
 
 vtkImage3DDisplay::vtkImage3DDisplay()
 {

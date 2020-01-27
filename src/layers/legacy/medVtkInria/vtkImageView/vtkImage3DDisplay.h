@@ -1,12 +1,24 @@
+/*=========================================================================
+
+ medInria
+
+ Copyright (c) INRIA 2013 - 2020. All rights reserved.
+ See LICENSE.txt for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.
+
+=========================================================================*/
 #pragma once
-#include "medVtkImageInfo.h"
+
+#include <medVtkImageInfo.h>
 
 #include <vtkAlgorithmOutput.h>
 #include <vtkImageAlgorithm.h>
 #include <vtkImageData.h>
 #include <vtkLookupTable.h>
 #include <vtkSetGet.h>
-
 
 class vtkImage3DDisplay : public vtkObject
 {
