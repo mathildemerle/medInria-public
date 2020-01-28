@@ -134,7 +134,7 @@ public:
                            const int imageSize[3] = nullptr, const double imageSpacing[] = nullptr, const double imageOrigin[] = nullptr);
 
     void RemoveLayerActor(vtkActor *actor, int layer = 0);
-    
+
     virtual vtkActor* AddDataSet (vtkPointSet* arg, vtkProperty* prop = nullptr);
     virtual void RemoveDataSet (vtkPointSet *arg);
 
