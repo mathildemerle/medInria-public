@@ -1,3 +1,5 @@
+#pragma once
+
 /*=========================================================================
 
  medInria
@@ -10,8 +12,6 @@
   PURPOSE.
 
 =========================================================================*/
-
-#pragma once
 
 #include <medVtkInriaExport.h>
 #include <medVtkImageInfo.h>
