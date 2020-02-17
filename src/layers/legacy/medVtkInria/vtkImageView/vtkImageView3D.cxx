@@ -465,8 +465,6 @@ void vtkImageView3D::test3D()
         this->VolumeMapper->SetInputConnection(nullptr);
         this->BoxWidget->SetInputConnection (nullptr);
         this->PlaneWidget->SetInputConnection(nullptr);
-
-        return;
     }
 }
 
