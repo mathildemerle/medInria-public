@@ -435,18 +435,18 @@ void vtkImageView3D::SetInput(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4
             SetFirstLayer(pi_poVtkAlgoOutput, matrix, layer);
         }
 
-        this->test3D();
+        test3D();
 
         if (layer > 0 && layer < 4)
         {
-            this->SetInputLayer(pi_poVtkAlgoOutput, matrix, layer);
+            SetInputLayer(pi_poVtkAlgoOutput, matrix, layer);
         }
         else if (layer >= 4)
         {
             vtkErrorMacro( <<"Only 4 layers are supported in 3D fusion" );
             return;
         }
-        this->InternalUpdate();
+        InternalUpdate();
     }
 }
 
