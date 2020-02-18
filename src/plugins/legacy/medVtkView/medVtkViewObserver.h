@@ -41,7 +41,7 @@ public:
         this->m_locked = false;
     }
 
-    void Execute (vtkObject *caller, unsigned long event, void *callData);
+    void Execute (vtkObject *caller, unsigned long event, void *);
 
 
 protected:

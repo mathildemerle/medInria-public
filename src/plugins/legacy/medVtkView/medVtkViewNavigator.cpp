@@ -335,12 +335,11 @@ void medVtkViewNavigator::setCamera(const QVector3D &position,
 
 void medVtkViewNavigator::setZoom(double zoom)
 {
-    if(zoom == d->currentView->GetZoom())
-        return;
-
-    d->currentView->SetZoom(zoom);
-    d->parent->render();
-
+    if(zoom != d->currentView->GetZoom())
+    {
+        d->currentView->SetZoom(zoom);
+        d->parent->render();
+    }
 }
 
 void medVtkViewNavigator::setPan(const QVector2D &pan)

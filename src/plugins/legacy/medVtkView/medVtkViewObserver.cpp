@@ -71,7 +71,7 @@ void medVtkViewObserver::setView (medVtkView *view)
     this->view3d = backend->view3D;
 }
 
-void medVtkViewObserver::Execute(vtkObject *caller, unsigned long event, void *callData)
+void medVtkViewObserver::Execute(vtkObject *caller, unsigned long event, void */*callData*/)
 {
     if(this->m_locked)
         return;
