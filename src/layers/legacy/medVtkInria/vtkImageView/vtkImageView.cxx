@@ -1168,53 +1168,59 @@ double* vtkImageView::GetBackground() const
 */
 void vtkImageView::SetZoom (double arg)
 {
-    if (!this->GetMedVtkImageInfo() || !this->GetMedVtkImageInfo()->initialized)
-        return;
+    if (this->GetMedVtkImageInfo() && this->GetMedVtkImageInfo()->initialized)
+    {
+        vtkCamera *cam = this->GetRenderer() ? this->GetRenderer()->GetActiveCamera() : nullptr;
+        if (cam)
+        {
+            int* extent = this->GetMedVtkImageInfo()->extent;
+            double* spacing = this->GetMedVtkImageInfo()->spacing;
+            double xyz[3] = {0,0,0};
 
-    vtkCamera *cam = this->GetRenderer() ? this->GetRenderer()->GetActiveCamera() : NULL;
-    if (!cam)
-        return;
+            for (unsigned int i=0; i<3; i++)
+            {
+                xyz[i] = (extent [2*i +1] - extent [2*i]) * spacing[i] / 2.0;
+            }
+            double val = std::max (std::max (xyz[0], xyz[1]), xyz[2]);
 
-    int* extent = this->GetMedVtkImageInfo()->extent;
+            // Just in case no data, avoid setting scale to zero.
+            val = ( val == 0. ) ? 1. : val;
 
-    double* spacing = this->GetMedVtkImageInfo()->spacing;
-    double xyz[3] = {0,0,0};
-    for (unsigned int i=0; i<3; i++)
-        xyz[i] = (extent [2*i +1] - extent [2*i]) * spacing[i] / 2.0;
-    double val = std::max (std::max (xyz[0], xyz[1]), xyz[2]);
+            cam->SetParallelScale (val / arg);
 
-    // Just in case no data, avoid setting scale to zero.
-    val = ( val == 0. ) ? 1. : val;
-
-    cam->SetParallelScale (val / arg);
-
-    this->InvokeEvent (vtkImageView::ZoomChangedEvent);
-    this->Modified();
+            this->InvokeEvent (vtkImageView::ZoomChangedEvent);
+            this->Modified();
+        }
+    }
 }
 
 //----------------------------------------------------------------------------
 double vtkImageView::GetZoom()
 {
-    if (!this->GetMedVtkImageInfo() || !this->GetMedVtkImageInfo()->initialized)
-        return 1.0;
-    if (!this->Get2DDisplayMapperInputAlgorithm() || !this->Get2DDisplayMapperInputAlgorithm()->GetOutputInformation(0))
-        return 1.0;
+    double currentZoom = 1.0;
 
-    vtkCamera *cam = this->GetRenderer() ? this->GetRenderer()->GetActiveCamera() : NULL;
-    if (!cam)
-        return 1.0;
+    if (this->GetMedVtkImageInfo() && this->GetMedVtkImageInfo()->initialized &&
+            this->Get2DDisplayMapperInputAlgorithm() && this->Get2DDisplayMapperInputAlgorithm()->GetOutputInformation(0))
+    {
+        vtkCamera *cam = this->GetRenderer() ? this->GetRenderer()->GetActiveCamera() : nullptr;
+        if (cam)
+        {
+            // Ensure that the spacing and dimensions are up-to-date.
+            int* extent = this->GetMedVtkImageInfo()->extent;
 
-    // Ensure that the spacing and dimensions are up-to-date.
-    int* extent = this->GetMedVtkImageInfo()->extent;
+            double* spacing = this->GetMedVtkImageInfo()->spacing;
+            double xyz[3] = {0,0,0};
+            for (unsigned int i=0; i<3; i++)
+            {
+                xyz[i] = (extent [2*i +1] - extent [2*i]) * spacing[i] / 2.0;
+            }
 
-    double* spacing = this->GetMedVtkImageInfo()->spacing;
-    double xyz[3] = {0,0,0};
-    for (unsigned int i=0; i<3; i++)
-        xyz[i] = (extent [2*i +1] - extent [2*i]) * spacing[i] / 2.0;
-    //xyz[i] = dimensions[i] * spacing[i] / 2.0;
-    double val = std::max (std::max (xyz[0], xyz[1]), xyz[2]);
+            double val = std::max (std::max (xyz[0], xyz[1]), xyz[2]);
 
-    return (val / cam->GetParallelScale());
+            currentZoom = val / cam->GetParallelScale();
+        }
+    }
+    return currentZoom;
 }
 
 //----------------------------------------------------------------------------
@@ -1225,9 +1231,6 @@ void vtkImageView::ResetCamera()
 {
     if (this->GetRenderer())
     {
-        //  ResetCamera calls ResetCameraClippingRange anyway...
-        //      this->GetRenderer()->ResetCameraClippingRange();
-
         if ( this->GetMedVtkImageInfo () )
         {
             double bounds [6];
@@ -1238,7 +1241,7 @@ void vtkImageView::ResetCamera()
             this->GetRenderer()->ResetCamera();
         }
     }
-    this->SetZoom (1.0);
+    this->SetZoom (1.0); //if at 2 ok
     this->InvokeEvent (vtkImageView2DCommand::CameraZoomEvent);
     this->InvokeEvent (vtkImageView2DCommand::CameraPanEvent);
 }
@@ -1358,9 +1361,7 @@ void vtkImageView::Reset()
 {
     this->ResetCurrentPoint();
     this->ResetWindowLevel();
-    // this->SetColorWindow (VTK_DOUBLE_MAX); // NT: ?? --> when i press reset I would like the windowlevels to be "reset" ?
     this->ResetCamera();
-
 }
 
 //----------------------------------------------------------------------------
