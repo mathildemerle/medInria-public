@@ -448,11 +448,10 @@ protected:
     bool IsFirstLayer(int layer) const;
     int GetFirstLayer() const;
 
-
     int ViewOrientation;
     int ViewConvention;
-    int    SliceOrientation;
-    double InitialParallelScale;
+    int SliceOrientation;
+
     int ShowRulerWidget;
     int ShowDistanceWidget;
     int ShowAngleWidget;

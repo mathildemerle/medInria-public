@@ -181,20 +181,15 @@ void vtkInteractorStyleImageView2D::OnLeftButtonUp()
 
   switch (this->LeftButtonInteraction)
   {
-      case InteractionTypeSlice :
-	break;
-	  case InteractionTypeTime :
-		  break;
       case InteractionTypeZoom :
-	this->Superclass::OnRightButtonUp();
-	break;
+          this->Superclass::OnRightButtonUp();
+          break;
       case InteractionTypePan :
-	this->Superclass::OnMiddleButtonUp();
-	break;
-      case InteractionTypeWindowLevel :
+          this->Superclass::OnMiddleButtonUp();
+          break;
       default:
-	this->Superclass::OnLeftButtonUp();
-	break;
+          this->Superclass::OnLeftButtonUp();
+          break;
   }  
 }
 
@@ -447,17 +442,6 @@ void vtkInteractorStyleImageView2D::OnChar()
 			  break;
 		  default:
 			  break;
-			  /*
-		  case InteractionTypeWindowLevel:
-			  //this->InvokeEvent (vtkImageView2DCommand::InteractionTypeWindowLevel, this);
-			  break;
-		  case InteractionTypeZoom:
-			  this->InvokeEvent (vtkImageView2DCommand::CameraZoomEvent, this);
-			  break;
-		  case InteractionTypePan:
-			  this->InvokeEvent (vtkImageView2DCommand::CameraPanEvent, this);
-			  break;
-			   */
 	  }
 
   }

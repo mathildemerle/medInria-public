@@ -147,8 +147,9 @@ vtkImageView::vtkImageView()
     this->LookupTable->SetValueRange (0, 1);
     this->LookupTable->SetAlphaRange (0, 1);
     this->LookupTable->Build();
-}
 
+    InitialParallelScale = 1.0; //if at 2 ok
+}
 
 vtkImageView::~vtkImageView()
 {
@@ -1162,29 +1163,40 @@ double* vtkImageView::GetBackground() const
     return NULL;
 }
 
+/**
+ * @brief vtkImageView::getZoomDefaultValue return the default zoom
+ * according to extent and spacing.
+ * @return double value
+ */
+double vtkImageView::getZoomDefaultValue()
+{
+    int* extent = this->GetMedVtkImageInfo()->extent;
+    double* spacing = this->GetMedVtkImageInfo()->spacing;
+
+    double xyz[3] = {0,0,0};
+    for (unsigned int i=0; i<3; i++)
+    {
+        xyz[i] = (extent [2*i +1] - extent [2*i]) * spacing[i] / 2.0; // 4.0 ok
+    }
+
+    return std::max (std::max (xyz[0], xyz[1]), xyz[2]);
+}
+
 //----------------------------------------------------------------------------
 /**
 * Get/Set the zoom factor of the view
 */
 void vtkImageView::SetZoom (double arg)
 {
-    if (this->GetMedVtkImageInfo() && this->GetMedVtkImageInfo()->initialized)
+    if (this->GetMedVtkImageInfo())
     {
         vtkCamera *cam = this->GetRenderer() ? this->GetRenderer()->GetActiveCamera() : nullptr;
         if (cam)
         {
-            int* extent = this->GetMedVtkImageInfo()->extent;
-            double* spacing = this->GetMedVtkImageInfo()->spacing;
-            double xyz[3] = {0,0,0};
-
-            for (unsigned int i=0; i<3; i++)
-            {
-                xyz[i] = (extent [2*i +1] - extent [2*i]) * spacing[i] / 2.0;
-            }
-            double val = std::max (std::max (xyz[0], xyz[1]), xyz[2]);
+            double val = getZoomDefaultValue();
 
             // Just in case no data, avoid setting scale to zero.
-            val = ( val == 0. ) ? 1. : val;
+            val = ( val == 0. ) ? InitialParallelScale : val;
 
             cam->SetParallelScale (val / arg);
 
@@ -1197,29 +1209,19 @@ void vtkImageView::SetZoom (double arg)
 //----------------------------------------------------------------------------
 double vtkImageView::GetZoom()
 {
-    double currentZoom = 1.0;
+    double currentZoom = InitialParallelScale;
 
-    if (this->GetMedVtkImageInfo() && this->GetMedVtkImageInfo()->initialized &&
-            this->Get2DDisplayMapperInputAlgorithm() && this->Get2DDisplayMapperInputAlgorithm()->GetOutputInformation(0))
+    if (this->GetMedVtkImageInfo())
     {
         vtkCamera *cam = this->GetRenderer() ? this->GetRenderer()->GetActiveCamera() : nullptr;
         if (cam)
         {
-            // Ensure that the spacing and dimensions are up-to-date.
-            int* extent = this->GetMedVtkImageInfo()->extent;
-
-            double* spacing = this->GetMedVtkImageInfo()->spacing;
-            double xyz[3] = {0,0,0};
-            for (unsigned int i=0; i<3; i++)
-            {
-                xyz[i] = (extent [2*i +1] - extent [2*i]) * spacing[i] / 2.0;
-            }
-
-            double val = std::max (std::max (xyz[0], xyz[1]), xyz[2]);
+            double val = getZoomDefaultValue();
 
             currentZoom = val / cam->GetParallelScale();
         }
     }
+
     return currentZoom;
 }
 
@@ -1231,17 +1233,20 @@ void vtkImageView::ResetCamera()
 {
     if (this->GetRenderer())
     {
-        if ( this->GetMedVtkImageInfo () )
+        if ( this->GetMedVtkImageInfo ())
         {
             double bounds [6];
             this->GetInputBoundsInWorldCoordinates (bounds);
             this->GetRenderer()->ResetCamera (bounds);
-        } else {
+        }
+        else
+        {
             // No op.
             this->GetRenderer()->ResetCamera();
         }
     }
-    this->SetZoom (1.0); //if at 2 ok
+
+    this->SetZoom (InitialParallelScale);
     this->InvokeEvent (vtkImageView2DCommand::CameraZoomEvent);
     this->InvokeEvent (vtkImageView2DCommand::CameraPanEvent);
 }
@@ -1347,10 +1352,15 @@ void vtkImageView::SetCameraParallelScale (double arg)
 //----------------------------------------------------------------------------
 double vtkImageView::GetCameraParallelScale() const
 {
+    double resultParallelScale = InitialParallelScale;
+
     vtkCamera *cam = this->GetRenderer() ? this->GetRenderer()->GetActiveCamera() : NULL;
-    if (!cam)
-        return 1.0;
-    return cam->GetParallelScale ();
+    if (cam)
+    {
+        resultParallelScale = cam->GetParallelScale();
+    }
+
+    return resultParallelScale;
 }
 
 //----------------------------------------------------------------------------

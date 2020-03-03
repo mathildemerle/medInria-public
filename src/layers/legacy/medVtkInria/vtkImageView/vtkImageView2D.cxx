@@ -83,7 +83,6 @@ vtkImageView2D::vtkImageView2D()
 
   this->ConventionMatrix->Zero();
 
-  this->InitialParallelScale = 1.0;
   this->ShowRulerWidget      = 1;
   this->ShowImageAxis        = 1;
   this->ShowDistanceWidget   = 0;
@@ -147,14 +146,12 @@ vtkImageView2D::~vtkImageView2D()
   this->Command->Delete();
   this->OrientationAnnotation->Delete();
 
-
-  for (std::list<vtkDataSet2DWidget*>::iterator it3 = this->DataSetWidgets.begin();
-      it3!=this->DataSetWidgets.end(); ++it3)
-  {
-    (*it3)->Off();
-    (*it3)->SetImageView (nullptr);
-    (*it3)->Delete();
-  }
+    for (auto it3 : DataSetWidgets)
+    {
+        it3->Off();
+        it3->SetImageView(nullptr);
+        it3->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -429,18 +426,14 @@ void vtkImageView2D::UpdateOrientation()
  */
 void vtkImageView2D::UpdateDisplayExtent()
 {
-  if (this->LayerInfoVec.empty())
-    return;
-
-  if (!this->GetImage2DDisplayForLayer(GetFirstLayer())->isInputSet())
+  if (this->LayerInfoVec.empty() || !this->GetImage2DDisplayForLayer(GetFirstLayer())->isInputSet())
   {
     return;
   }
 
-
   int* w_ext = this->GetMedVtkImageInfo()->extent;
-
   int slice = this->Slice;
+
   int *range = this->GetSliceRange();
   if (range)
   {
@@ -448,14 +441,9 @@ void vtkImageView2D::UpdateDisplayExtent()
     slice = std::min (slice, range[1]);
   }
 
-  if (slice != this->Slice)
+  for (auto it : LayerInfoVec)
   {
-    // vtkWarningMacro (<<"WARNING: asking to display an out of bound extent"<<endl);
-  }
-
-  for (LayerInfoVecType::iterator it = this->LayerInfoVec.begin(); it != this->LayerInfoVec.end(); it++)
-  {
-    vtkImage2DDisplay * imageDisplay = it->ImageDisplay;
+    vtkImage2DDisplay * imageDisplay = it.ImageDisplay;
     if (!imageDisplay->isInputSet())
     {
         continue;
@@ -476,7 +464,6 @@ void vtkImageView2D::UpdateDisplayExtent()
         imageDisplay->GetImageActor()->SetDisplayExtent(slice, slice, w_ext[2], w_ext[3], w_ext[4], w_ext[5]);
         break;
     }
-
   }
 
   // Figure out the correct clipping range
@@ -1292,7 +1279,6 @@ Reset the camera in a nice way for the 2D view
 void vtkImageView2D::ResetCamera()
 {
   this->Superclass::ResetCamera();
-  // this->SetZoom (1.0); // already called in Superclass method
   this->Pan[0] = this->Pan[1] = 0.0;
   this->SetPan (this->Pan); // not sure this is needed
 }
@@ -1861,7 +1847,7 @@ vtkImageActor *vtkImageView2D::GetImageActor(int layer) const
 }
 
 //----------------------------------------------------------------------------
-medVtkImageInfo* vtkImageView2D::GetMedVtkImageInfo(int layer) const
+medVtkImageInfo* vtkImageView2D::GetMedVtkImageInfo(int layer /*= 0*/) const
 {
     medVtkImageInfo *imageInfo = nullptr;
 
@@ -2207,7 +2193,7 @@ void vtkImageView2D::RemoveLayer(int layer)
   
         // ////////////////////////////////////////////////////////////////////////
         // Rebuild a layer if necessary
-        if (this->LayerInfoVec.size() == 0 )
+        if (this->LayerInfoVec.empty())
         {
             AddLayer(0);
             for (auto poWidget : this->DataSetWidgets)

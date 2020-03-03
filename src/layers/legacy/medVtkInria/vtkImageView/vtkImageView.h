@@ -605,10 +605,14 @@ protected:
 
     vtkSmartPointer<vtkImageFromBoundsSource> m_vtkImageFromBoundsSourceGenerator;
 
+    double InitialParallelScale;
+
 private:
 
     unsigned long InternalMTime;
 
     vtkImageView  (const vtkImageView&); // Not implemented.
     void operator=(const vtkImageView&); // Not implemented.
+
+    double getZoomDefaultValue();
 };
