@@ -85,6 +85,8 @@ QString medDatabaseNonPersistentImporter::getPatientID(QString patientName, QStr
 **/
 medDataIndex medDatabaseNonPersistentImporter::populateDatabaseAndGenerateThumbnails ( medAbstractData* data, QString pathToStoreThumbnails )
 {
+    Q_UNUSED(pathToStoreThumbnails)
+
     QPointer<medDatabaseNonPersistentController> npdc =
             medDatabaseNonPersistentController::instance();
 
@@ -108,13 +110,14 @@ medDataIndex medDatabaseNonPersistentImporter::populateDatabaseAndGenerateThumbn
     {
         // check if patient is already in the non persistent database
         for ( int i=0; i<items.count(); i++ )
-            //if ( items[i]->name() ==patientName )
+        {
             if ( medMetaDataKeys::PatientName.getFirstValue(items[i]->data()) == patientName )
             {
                 patientDbId = items[i]->index().patientId();
                 patientItem = items[i];
                 break;
             }
+        }
     }
 
     if ( patientDbId==-1 )
@@ -163,12 +166,14 @@ medDataIndex medDatabaseNonPersistentImporter::populateDatabaseAndGenerateThumbn
         else
         {
             for ( int i=0; i<items.count(); i++ )
+            {
                 if ( items[i]->name()==patientName && items[i]->studyName()==studyName )
                 {
                     studyDbId = items[i]->index().studyId();
                     studyItem = items[i];
                     break;
                 }
+            }
         }
 
         if ( studyDbId==-1 )
@@ -220,16 +225,23 @@ medDataIndex medDatabaseNonPersistentImporter::populateDatabaseAndGenerateThumbn
         medDatabaseNonPersistentItem *item = new medDatabaseNonPersistentItem;
 
         if ( !patientName.isEmpty() )
+        {
             item->d->name = patientName;
+        }
         else
+        {
             item->d->name = info.baseName();
+        }
 
         item->d->patientId = patientId;
         item->d->studyName = studyName;
         item->d->seriesName = seriesName;
         item->d->seriesId = seriesId;
         item->d->file = file();
+
+        // this function creates a crash at dicom import
         item->d->thumb = data->generateThumbnail(med::defaultThumbnailSize);
+
         item->d->index = index;
         item->d->data = data;
         item->d->orientation = orientation;

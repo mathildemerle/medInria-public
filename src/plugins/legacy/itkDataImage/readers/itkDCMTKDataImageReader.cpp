@@ -277,11 +277,16 @@ bool itkDCMTKDataImageReader::readInformation(const QString& path)
 bool itkDCMTKDataImageReader::readInformation(const QStringList& paths)
 {
     if (paths.size() == 0)
+    {
+        std::cout<<"### itkDCMTKDataImageReader::readInformation -- path size"<<std::endl;
         return false;
+    }
 
     std::vector< std::string > filenames;
     for (int i = 0; i < paths.size(); i++)
+    {
         filenames.push_back(paths[i].toUtf8().data());
+    }
 
     d->io->SetFileNames(filenames);
     try
@@ -298,6 +303,7 @@ bool itkDCMTKDataImageReader::readInformation(const QStringList& paths)
 
     if (!medData)
     {
+        std::cout<<"### itkDCMTKDataImageReader::readInformation -- no meddata"<<std::endl;
         std::ostringstream imagetypestring;
         imagetypestring << "itkDataImage";
 
@@ -336,6 +342,7 @@ bool itkDCMTKDataImageReader::readInformation(const QStringList& paths)
                 imagetypestring << "Double";
                 break;
             default:
+                    std::cout<<"### itkDCMTKDataImageReader::readInformation -- no type"<<std::endl;
                 qDebug() << "Unrecognized component type: " << d->io->GetComponentType();
                 return false;
             }
@@ -343,18 +350,23 @@ bool itkDCMTKDataImageReader::readInformation(const QStringList& paths)
             imagetypestring << d->io->GetNumberOfDimensions();
             medData = medAbstractDataFactory::instance()->create(imagetypestring.str().c_str());
             if (medData)
+            {
+                std::cout<<"### itkDCMTKDataImageReader::readInformation ok setdata"<<std::endl;
                 this->setData(medData);
+            }
         }
         else if (d->io->GetPixelType() == itk::ImageIOBase::RGB)
         {
-
             switch (d->io->GetComponentType())
             {
             case itk::ImageIOBase::UCHAR:
                 medData = medAbstractDataFactory::instance()->create("itkDataImageRGB3");
 
                 if (medData)
+                {
+                    std::cout<<"### itkDCMTKDataImageReader::readInformation ok setdata 2"<<std::endl;
                     this->setData(medData);
+                }
                 break;
 
             default:
@@ -371,6 +383,8 @@ bool itkDCMTKDataImageReader::readInformation(const QStringList& paths)
 
     if (medData)
     {
+        std::cout<<"### itkDCMTKDataImageReader::readInformation let's go"<<std::endl;
+
         // PATIENT
         //PatientId
         medData->setMetaData(medMetaDataKeys::PatientName.key(), QString::fromLatin1(d->io->GetPatientName().c_str()));

@@ -36,6 +36,8 @@ namespace itk
   
   void MultiThreadedImageIOBase::SetFileNames(FileNameVectorType filenames)
   {
+      //std::cout<<"### MultiThreadedImageIOBase::SetFileNames"<<std::endl;
+
       unsigned int fileCount = filenames.size();
       if (fileCount)
       {

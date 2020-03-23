@@ -61,19 +61,16 @@ DCMTKImageIO::DCMTKImageIO()
     DJDecoderRegistration::registerCodecs();
 }
 
-
 DCMTKImageIO::~DCMTKImageIO()
 {
     DcmRLEDecoderRegistration::cleanup();
     DJDecoderRegistration::cleanup();
 }
 
-
 void DCMTKImageIO::PrintSelf (std::ostream& os, Indent indent) const
 {
     Superclass::PrintSelf (os, indent);
 }
-
 
 bool DCMTKImageIO::CanReadFile(const char* filename)
 {
@@ -90,7 +87,8 @@ bool DCMTKImageIO::CanReadFile(const char* filename)
     if( xfer == EXS_JPEG2000LosslessOnly ||
         xfer == EXS_JPEG2000 ||
         xfer == EXS_JPEG2000MulticomponentLosslessOnly ||
-        xfer == EXS_JPEG2000Multicomponent ) {
+        xfer == EXS_JPEG2000Multicomponent )
+    {
         return false;
     }
 
@@ -105,6 +103,7 @@ bool DCMTKImageIO::CanReadFile(const char* filename)
     {
         return false;
     }
+
     group = 0x0028; // pixel type
     elem  = 0x0100; // pixel type
     searchKey.set(group, elem);
@@ -116,18 +115,19 @@ bool DCMTKImageIO::CanReadFile(const char* filename)
     return true;
 }
 
-
 void DCMTKImageIO::ReadImageInformation()
 {
     // Using a set, we remove any duplicate filename - should we do this?
     NameSetType fileNamesSet;
     FileNameVectorType fileNamesVector = this->GetFileNames();
-    for( unsigned int i=0; i<fileNamesVector.size(); i++ ) {
+    for( unsigned int i=0; i<fileNamesVector.size(); i++ )
+    {
         fileNamesSet.insert(fileNamesVector[i]);
     }
 
-    int fileCount = (int)( fileNamesSet.size() );
-    if( fileCount == 0 ) {
+    int fileCount = static_cast<int>(fileNamesSet.size());
+    if( fileCount == 0 )
+    {
         itkExceptionMacro (<<"Cannot find any dicom in directory or dicom is not valid");
     }
 
@@ -166,21 +166,28 @@ void DCMTKImageIO::ReadImageInformation()
     const StringVectorType &imagePositions = this->GetMetaDataValueVectorString("(0020,0032)");
     if (!imagePositions.empty())
     {
-        for (auto &elem : fileNamesSet)
+        for (NameSetType::const_iterator it = fileNamesSet.begin(); it!= fileNamesSet.end(); it++)
         {
             if (fileIndex == 0)
+            {
                 b = this->GetSliceLocation(imagePositions[fileIndex]);
+            }
             else
             {
                 double testLocation = this->GetSliceLocation(imagePositions[fileIndex]);
                 if (testLocation < b)
+                {
                     b = testLocation;
+                }
             }
 
             ++fileIndex;
         }
     }
-
+    else
+    {
+        // A problem could happen
+    }
 
     fileIndex = 0;
 
@@ -431,7 +438,6 @@ void DCMTKImageIO::DeterminePixelType()
         }
     }
 }
-
 
 void DCMTKImageIO::DetermineSpacing()
 {
@@ -1103,14 +1109,9 @@ void DCMTKImageIO::ReadHeader(const std::string& name, const int& fileIndex, con
     }
 }
 
-
 inline void DCMTKImageIO::ReadDicomElement(DcmElement* element, const int &fileIndex, const int &fileCount )
 {
-
     DcmTag &dicomTag = const_cast<DcmTag &>(element->getTag());
-
-    std::string tagName   = dicomTag.getTagName();
-    std::string tagVRName = dicomTag.getVRName();
 
     Uint16 tagGroup   = dicomTag.getGTag();
     Uint16 tagElement = dicomTag.getETag();
@@ -1120,9 +1121,7 @@ inline void DCMTKImageIO::ReadDicomElement(DcmElement* element, const int &fileI
         << std::hex << std::setw( 4 ) << std::setfill( '0' ) << tagElement << ")";
     std::string tagKey = oss.str();
 
-
     MetaDataDictionary& dicomDictionary = this->GetMetaDataDictionary();
-
 
     OFString ofstring;
     OFCondition cond = element->getOFStringArray (ofstring, 0);

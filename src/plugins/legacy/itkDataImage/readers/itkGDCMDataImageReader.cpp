@@ -128,7 +128,7 @@ class itkGDCMDataImageReaderPrivate
 {
 public:
     itkGDCMDataImageReaderPrivate();
-    ~itkGDCMDataImageReaderPrivate(){};
+    ~itkGDCMDataImageReaderPrivate(){}
 
     itk::GDCMImageIO::Pointer io;
 };
@@ -157,13 +157,11 @@ itkGDCMDataImageReader::itkGDCMDataImageReader() : dtkAbstractDataReader(), d(ne
 
 }
 
-
 itkGDCMDataImageReader::~itkGDCMDataImageReader()
 {
     delete d;
-    d = 0;
+    d = nullptr;
 }
-
 
 bool itkGDCMDataImageReader::registered()
 {
@@ -223,14 +221,21 @@ QString itkGDCMDataImageReader::description() const {
     return "itkGDCMDataImageReader";
 }
 
-bool itkGDCMDataImageReader::canRead(const QString &path) {
+bool itkGDCMDataImageReader::canRead(const QString &path)
+{
+    //std::cout<<"### itkGDCMDataImageReader::canRead"<<std::endl;
     return d->io->CanReadFile(path.toLatin1().constData());
 }
 
-bool itkGDCMDataImageReader::canRead(const QStringList &paths) {
+bool itkGDCMDataImageReader::canRead(const QStringList &paths)
+{
     for (int i=0; i<paths.size(); i++)
+    {
         if (!d->io->CanReadFile(paths[i].toLatin1().constData()))
+        {
             return false;
+        }
+    }
     return true;
 }
 
@@ -242,12 +247,20 @@ bool itkGDCMDataImageReader::readInformation(const QString &path) {
 
 bool itkGDCMDataImageReader::readInformation(const QStringList &paths)
 {
+    //ny passe pas
+   // std::cout<<"### itkGDCMDataImageReader::readInformation"<<std::endl;
+
     if (paths.size()==0)
+    {
+        std::cout<<"### itkGDCMDataImageReader::readInformation -- size 0"<<std::endl;
         return false;
+    }
 
     FileList filenames;
     for (int i=0; i<paths.size(); i++)
+    {
         filenames.push_back(paths[i].toLatin1().constData());
+    }
 
     FileListMapType map = this->sort(filenames);
 
@@ -260,7 +273,8 @@ bool itkGDCMDataImageReader::readInformation(const QStringList &paths)
     }
     catch(itk::ExceptionObject &e)
     {
-        dtkDebug() << e.GetDescription();
+        std::cout<<"### itkGDCMDataImageReader::readInformation -- exception"<<std::endl;
+        qDebug() << e.GetDescription();
         return false;
     }
 
@@ -281,7 +295,8 @@ bool itkGDCMDataImageReader::readInformation(const QStringList &paths)
 
         if (d->io->GetPixelType() != itk::ImageIOBase::SCALAR)
         {
-            dtkDebug() << "Unsupported pixel type";
+            std::cout<<"### itkGDCMDataImageReader::readInformation -- pixel type"<<std::endl;
+            qDebug() << "Unsupported pixel type";
             return false;
         }
 
@@ -328,19 +343,23 @@ bool itkGDCMDataImageReader::readInformation(const QStringList &paths)
                 imagetypestring << "Double";
             break;
         default:
-            dtkDebug() << "Unrecognized component type:\t " << d->io->GetComponentType();
+                std::cout<<"### itkGDCMDataImageReader::readInformation -- component"<<std::endl;
+            qDebug() << "Unrecognized component type:\t " << d->io->GetComponentType();
             return false;
         }
 
         imagetypestring << imagedimension;
         if (imagedimension == 4)
         {
-            dtkDebug() << "image type given :\t" << imagetypestring.str().c_str();
+            std::cout<<"### itkGDCMDataImageReader::readInformation -- dimansion 4"<<std::endl;
+            qDebug() << "image type given :\t" << imagetypestring.str().c_str();
         }
 
         medData = medAbstractDataFactory::instance()->createSmartPointer(imagetypestring.str().c_str());
         if (medData)
+        {
             this->setData(medData);
+        }
     }
 
     if (medData)
@@ -384,10 +403,16 @@ bool itkGDCMDataImageReader::readInformation(const QStringList &paths)
 
         FileList orderedfilelist = this->unfoldMap(map);
         for (unsigned int i=0; i<orderedfilelist.size(); i++)
+        {
             filePaths << orderedfilelist[i].c_str();
-
+        }
         medData->addMetaData(medMetaDataKeys::FilePaths.key(),filePaths);
 
+    }
+    else
+    {
+        std::cout<<"### itkGDCMDataImageReader::readInformation -- really no data"<<std::endl;
+        return false;
     }
 
     return true;

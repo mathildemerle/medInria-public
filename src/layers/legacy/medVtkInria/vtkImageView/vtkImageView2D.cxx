@@ -2313,8 +2313,8 @@ void vtkImageView2D::SetTransferFunctionRangeFromWindowSettings(int layer)
   this->Superclass::SetTransferFunctionRangeFromWindowSettings(layer);
   vtkImage2DDisplay * imageDisplay = this->GetImage2DDisplayForLayer(layer);
   imageDisplay->GetWindowLevel()->Modified();
-
 }
+
 double vtkImageView2D::GetColorLevel(int layer)const
 {
   vtkImage2DDisplay * imageDisplay = this->GetImage2DDisplayForLayer(layer);

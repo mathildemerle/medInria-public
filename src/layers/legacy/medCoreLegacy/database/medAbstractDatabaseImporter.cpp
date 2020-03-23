@@ -11,6 +11,8 @@
 
 =========================================================================*/
 
+#include <QStringList>
+
 #include <dtkCoreSupport/dtkAbstractDataReader.h>
 #include <dtkCoreSupport/dtkAbstractDataWriter.h>
 
@@ -132,10 +134,15 @@ void medAbstractDatabaseImporter::internalRun ( void )
         emit failure(this);
         return;
     }
+
     if(!d->file.isEmpty())
+    {
         importFile();
+    }
     else if ( d->data )
+    {
         importData();
+    }
 }
 
 
@@ -193,7 +200,9 @@ void medAbstractDatabaseImporter::importFile ( void )
     for( QString file: fileList )
     {
         if ( d->isCancelled ) // check if user canceled the process
+        {
             break;
+        }
 
         emit progress ( this, ( ( qreal ) currentFileNumber/ ( qreal ) fileList.count() ) * 50.0 ); //TODO: reading and filtering represents 50% of the importing process?
 
@@ -241,7 +250,9 @@ void medAbstractDatabaseImporter::importFile ( void )
                 currentSeriesId = medMetaDataKeys::SeriesID.getFirstValue(medData);
             }
             else
+            {
                 medData->setMetaData ( medMetaDataKeys::SeriesID.key(), QStringList() << currentSeriesId );
+            }
 
             // 2.3) Generate an unique id for each volume
             // all images of the same volume should share the same id
@@ -271,7 +282,8 @@ void medAbstractDatabaseImporter::importFile ( void )
             QString futureExtension  = determineFutureImageExtensionByDataType ( medData );
 
             // we care whether we can write the image or not if we are importing
-            if (!d->indexWithoutImporting && futureExtension.isEmpty()) {
+            if (!d->indexWithoutImporting && futureExtension.isEmpty())
+            {
                 emit showError(tr("Could not save file due to unhandled data type: ") + medData->identifier(), 5000);
                 continue;
             }
@@ -313,14 +325,15 @@ void medAbstractDatabaseImporter::importFile ( void )
     // maybe we had problems with all the files, or they were already in the database
     if ( it == imagesGroupedByVolume.end() )
     {
-        // TODO we know if it's either one or the other error, we can make this error better...
         emit showError (tr ( "No compatible image found or all of them had been already imported." ), 5000 );
         emit dataImported(medDataIndex(), d->uuid);
         emit failure ( this );
         return;
     }
     else
+    {
         qDebug() << "Chosen directory contains " << imagesGroupedByVolume.size() << " files";
+    }
 
     int imagesCount = imagesGroupedByVolume.count(); // used only to calculate progress
     int currentImageIndex = 0; // used only to calculate progress
@@ -390,22 +403,31 @@ void medAbstractDatabaseImporter::importFile ( void )
         // and finally we populate the database
         QFileInfo aggregatedFileNameFileInfo ( aggregatedFileName );
         QString pathToStoreThumbnails = aggregatedFileNameFileInfo.dir().path() + "/" + aggregatedFileNameFileInfo.completeBaseName() + "/";
-        index = this->populateDatabaseAndGenerateThumbnails ( imagemedData, pathToStoreThumbnails );
 
-        if(!d->uuid.isNull())
+        if (!pathToStoreThumbnails.isEmpty())
         {
-            emit dataImported(index, d->uuid);
-        }
-        else
-        {
-            emit dataImported(index);
+            if (imagemedData && !imagemedData.isNull() && imagemedData.data())
+            {
+                // imagemedData n'est pas valide pour je ne sais quelle raison
+                index = this->populateDatabaseAndGenerateThumbnails ( imagemedData, pathToStoreThumbnails );
+
+                if(!d->uuid.isNull())
+                {
+                    emit dataImported(index, d->uuid);
+                }
+                else
+                {
+                    emit dataImported(index);
+                }
+            }
         }
 
         itPat++;
         itSer++;
     } // end of the final loop
 
-    if ( ! atLeastOneImportSucceeded) {
+    if ( ! atLeastOneImportSucceeded)
+    {
         emit progress ( this,100 );
         emit dataImported(medDataIndex(), d->uuid);
         emit failure(this);
@@ -415,7 +437,7 @@ void medAbstractDatabaseImporter::importFile ( void )
     d->index = index;
 
     emit progress ( this,100 );
-    emit success ( this );
+    emit success(this);
 }
 
 void medAbstractDatabaseImporter::importData()
@@ -779,7 +801,9 @@ QStringList medAbstractDatabaseImporter::getAllFilesToBeProcessed ( QString file
         }
     }
     else
+    {
         fileList << file;
+    }
 
     fileList.sort();
 

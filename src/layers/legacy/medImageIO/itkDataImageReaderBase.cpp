@@ -307,12 +307,6 @@ bool itkDataImageReaderBase::read(const QString& path)
 
     this->setProgress(50);
 
-    /*
-    itk::DataImageReaderCommand::Pointer command = itk::DataImageReaderCommand::New();
-    command->SetDCMTKDataImageReader ( this );
-    this->io->AddObserver ( itk::ProgressEvent(), command);
-    */
-
     try
     {
         if (!(read_image<3,unsigned char>(path,"itkDataImageUChar3")   ||
