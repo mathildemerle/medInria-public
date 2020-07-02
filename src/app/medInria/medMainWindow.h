@@ -71,6 +71,7 @@ private slots:
     void showComposer();
 
     void captureScreenshot();
+    void captureVideo();
 
     void switchToBrowserArea();
     void switchToSearchArea();
