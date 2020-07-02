@@ -72,6 +72,7 @@ set(PLUGIN_LIST
   legacy/variationalSegmentation                                         ON
   legacy/voiCutter                                                       ON
   legacy/vtkDataMesh                                                     ON
+  legacy/medExportVideo                                                  ON
   process/arithmetic_operation                                           ON
   process/bias_correction                                                ON
   process/dwi_basic_thresholding                                         ON
