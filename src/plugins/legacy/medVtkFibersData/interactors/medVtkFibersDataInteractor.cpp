@@ -909,7 +909,7 @@ void medVtkFibersDataInteractor::bundleImageStatistics (const QString &bundleNam
             continue;
 
         vtkIdType  npts  = 0;
-        vtkIdType* ptids = 0;
+        vtkIdType const* ptids = 0;
         vtkIdType test = lines->GetNextCell (npts, ptids);
 
         double sumData = 0;
@@ -989,7 +989,7 @@ void medVtkFibersDataInteractor::computeBundleLengthStatistics (const QString &n
 
     lines->InitTraversal();
     vtkIdType  npts  = 0;
-    vtkIdType* ptids = 0;
+    vtkIdType const* ptids = 0;
     vtkIdType test = lines->GetNextCell (npts, ptids);
 
     double sumData = 0;

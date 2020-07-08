@@ -432,7 +432,7 @@ void polygonRoiToolBox::updateTableWidgetView(unsigned int row, unsigned int col
             handleDisplayError(medAbstractProcessLegacy::FAILURE);
             return;
         }
-        for (int i=0; i<mainView->layersCount(); i++)
+        for (unsigned int i=0; i<mainView->layersCount(); i++)
         {
             container->addData(mainView->layerData(i));
         }

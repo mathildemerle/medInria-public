@@ -37,8 +37,8 @@ include_directories(${dtk_INCLUDE_DIRS})
 find_package(ITK REQUIRED COMPONENTS ITKCommon ITKImageLabel ITKVtkGlue ITKIOImageBase ITKIOMeta)
 include(${ITK_USE_FILE})
 
-find_package(VTK REQUIRED COMPONENTS vtkGUISupportQt vtkCommonCore vtkIOLegacy)
-include(${VTK_USE_FILE})
+find_package(VTK REQUIRED COMPONENTS CommonCore IOLegacy)
+include_directories(${VTK_INCLUDE_DIRS})
 
 find_package(Qt5 REQUIRED COMPONENTS Gui)
 
@@ -90,7 +90,7 @@ target_link_libraries(${TARGET_NAME}
   medRegistration
   medVtkInria
   medUtilities
-  vtkCommonComputationalGeometry
+  VTK::CommonComputationalGeometry
   )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

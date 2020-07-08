@@ -34,9 +34,8 @@ include_directories(${dtk_INCLUDE_DIRS})
 find_package(ITK REQUIRED COMPONENTS ITKCommon)
 include(${ITK_USE_FILE})
 
-find_package(VTK REQUIRED COMPONENTS vtkCommonCore vtkImagingSources vtkIOFFMPEG)
-include(${VTK_USE_FILE})
-
+find_package(VTK REQUIRED COMPONENTS CommonCore ImagingSources IOImage IOMovie RenderingQt IOImage IOOggTheora)
+include_directories(${VTK_INCLUDE_DIRS})
 
 ## #############################################################################
 ## List Sources
@@ -76,8 +75,10 @@ target_link_libraries(${TARGET_NAME}
     ${ITK_LIBRARIES}
     medCore
     medVtkInria
-    QVTK
     medUtilities
+    VTK::ImagingSources
+    VTK::IOOggTheora
+    VTK::RenderingQt
     )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

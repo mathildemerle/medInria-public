@@ -12,8 +12,16 @@
 #ifdef _WIN32
 #include <vtkMPEG2Writer.h>
 #else // Linux and Mac
-#include <vtkFFMPEGWriter.h>
+//#include <vtkFFMPEGWriter.h>
+//#include <vtkMPEG2Writer.h>
 #endif
+
+// Qt
+#include <QComboBox>
+#include <QFileDialog>
+#include <QGridLayout>
+#include <QLabel>
+#include <QSpinBox>
 
 // /////////////////////////////////////////////////////////////////
 // ExportVideoPrivate
@@ -193,7 +201,7 @@ int ExportVideo::exportAsJPEG()
 
         vtkSmartPointer<vtkJPEGWriter> writerJPEG = vtkSmartPointer<vtkJPEGWriter>::New();
         writerJPEG->SetFileName(name.toStdString().c_str());
-        writerJPEG->SetInputConnection(vtkImage->GetProducerPort());
+        //writerJPEG->SetInputConnection(vtkImage->GetProducerPort());
         writerJPEG->Write();
 
         cpt++;
@@ -204,72 +212,77 @@ int ExportVideo::exportAsJPEG()
 
 int ExportVideo::exportAsVideo()
 {
-    vtkSmartPointer<vtkImageCanvasSource2D> source = vtkSmartPointer<vtkImageCanvasSource2D>::New();
-    source->SetScalarTypeToUnsignedChar();
-    source->SetNumberOfScalarComponents(3);
-    source->SetExtent(0, d->width-1, 0, d->height-1, 0, 0);
+//     vtkSmartPointer<vtkImageCanvasSource2D> source = vtkSmartPointer<vtkImageCanvasSource2D>::New();
+//     source->SetScalarTypeToUnsignedChar();
+//     source->SetNumberOfScalarComponents(3);
+//     source->SetExtent(0, d->width-1, 0, d->height-1, 0, 0);
 
-    vtkSmartPointer<vtkGenericMovieWriter> writerVideo;
+//     vtkSmartPointer<vtkGenericMovieWriter> writerVideo;
 
-    if (d->format == OGGVORBIS)
-    {
-        vtkSmartPointer<vtkOggTheoraWriter> writerVideoTmp = vtkSmartPointer<vtkOggTheoraWriter>::New();
-        writerVideoTmp->SetInputConnection(source->GetOutputPort());
-        writerVideoTmp->SetFileName(d->filename.toStdString().c_str());
-        writerVideoTmp->SetRate(d->frameRate);
-        writerVideoTmp->SetSubsampling(d->subsampling);
-        writerVideoTmp->SetQuality(d->quality);
+//     if (d->format == OGGVORBIS)
+//     {
+//         vtkSmartPointer<vtkOggTheoraWriter> writerVideoTmp = vtkSmartPointer<vtkOggTheoraWriter>::New();
+//         writerVideoTmp->SetInputConnection(source->GetOutputPort());
+//         writerVideoTmp->SetFileName(d->filename.toStdString().c_str());
+//         writerVideoTmp->SetRate(d->frameRate);
+//         writerVideoTmp->SetSubsampling(d->subsampling);
+//         writerVideoTmp->SetQuality(d->quality);
 
-        writerVideo = writerVideoTmp;
-    }
-    else
-    {
-#ifdef _WIN32
-        if (d->format == MPEG2)
-        {
-            vtkSmartPointer<vtkMPEG2Writer> writerVideoTmp = vtkSmartPointer<vtkMPEG2Writer>::New();
-            writerVideoTmp->SetInputConnection(source->GetOutputPort());
-            writerVideoTmp->SetFileName(d->filename.toStdString().c_str());
+//         writerVideo = writerVideoTmp;
+//     }
+//     else
+//     {
+// #ifdef _WIN32
+//         if (d->format == MPEG2)
+//         {
+//             vtkSmartPointer<vtkMPEG2Writer> writerVideoTmp = vtkSmartPointer<vtkMPEG2Writer>::New();
+//             writerVideoTmp->SetInputConnection(source->GetOutputPort());
+//             writerVideoTmp->SetFileName(d->filename.toStdString().c_str());
+//             writerVideo = writerVideoTmp;
+//         }
+//         else
+//         {
+//             return medAbstractProcessLegacy::FAILURE;
+//         }
+// #else
+//         if (d->format == FFMPEG)
+//         {
+//             // vtkSmartPointer<vtkFFMPEGWriter> writerVideoTmp = vtkSmartPointer<vtkFFMPEGWriter>::New();
+//             // writerVideoTmp->SetInputConnection(source->GetOutputPort());
+//             // writerVideoTmp->SetFileName(d->filename.toStdString().c_str());
+//             // writerVideoTmp->SetRate(d->frameRate);
+//             // writerVideo = writerVideoTmp;
 
-            writerVideo = writerVideoTmp;
-        }
-        else
-        {
-            return medAbstractProcessLegacy::FAILURE;
-        }
-#else
-        if (d->format == FFMPEG)
-        {
-            vtkSmartPointer<vtkFFMPEGWriter> writerVideoTmp = vtkSmartPointer<vtkFFMPEGWriter>::New();
-            writerVideoTmp->SetInputConnection(source->GetOutputPort());
-            writerVideoTmp->SetFileName(d->filename.toStdString().c_str());
-            writerVideoTmp->SetRate(d->frameRate);
-            writerVideo = writerVideoTmp;
-        }
-        else
-        {
-            return medAbstractProcessLegacy::FAILURE;
-        }
-#endif
-    }
+//             /*vtkSmartPointer<vtkMPEG2Writer> writerVideoTmp = vtkSmartPointer<vtkMPEG2Writer>::New();
+//             writerVideoTmp->SetInputConnection(source->GetOutputPort());
+//             writerVideoTmp->SetFileName(d->filename.toStdString().c_str());
+
+//             writerVideo = writerVideoTmp;*/
+//         }
+//         else
+//         {
+//             return medAbstractProcessLegacy::FAILURE;
+//         }
+// #endif
+//     }
 	
-    writerVideo->Start();
+//     writerVideo->Start();
 
-    foreach (QImage qimage, d->imagesArray)
-    {
-        // Qt to VTK images (vtkImageData)
-        vtkSmartPointer<vtkQImageToImageSource> qimageToImageSource = vtkSmartPointer<vtkQImageToImageSource>::New();
-        qimageToImageSource->SetQImage(&qimage);
-        qimageToImageSource->Update();
-        vtkImageData* vtkImage = qimageToImageSource->GetOutput();
+    // foreach (QImage qimage, d->imagesArray)
+    // {
+        // // Qt to VTK images (vtkImageData)
+        // vtkSmartPointer<vtkQImageToImageSource> qimageToImageSource = vtkSmartPointer<vtkQImageToImageSource>::New();
+        // qimageToImageSource->SetQImage(&qimage);
+        // qimageToImageSource->Update();
+        // vtkImageData* vtkImage = qimageToImageSource->GetOutput();
 
-        source->DrawImage(0, 0, vtkImage);
-        source->Update();
+        // source->DrawImage(0, 0, vtkImage);
+        // source->Update();
 
-        writerVideo->Write();
-    }
+        // writerVideo->Write();
+    //}
 
-    writerVideo->End();
+    //writerVideo->End();
 
     return medAbstractProcessLegacy::SUCCESS;
 }
