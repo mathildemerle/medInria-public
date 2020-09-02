@@ -76,6 +76,7 @@ endif()
 list(APPEND external_projects
      medInria
      music-plugins
+     medinria-private-plugins
      )
 
 if (USE_OSPRay)
