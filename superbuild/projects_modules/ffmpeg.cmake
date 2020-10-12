@@ -42,7 +42,7 @@ if (NOT USE_SYSTEM_${ep})
 if (NOT DEFINED ${ep}_SOURCE_DIR)
     if(UNIX) # is TRUE on all UNIX-like OS's, including Apple OS X and CygWin
         set(tag "release/4.3") # FFMPEG
-        set(location GIT_REPOSITORY "${GITHUB_PREFIX}FFmpeg/FFmpeg.git" GIT_TAG ${tag})
+        set(location GIT_REPOSITORY "https://github.com/FFmpeg/FFmpeg.git" GIT_TAG ${tag})
     endif()
 endif()
 

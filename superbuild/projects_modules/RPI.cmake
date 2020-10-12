@@ -40,7 +40,7 @@ if (NOT USE_SYSTEM_${ep})
 ## Set up versioning control.
 ## #############################################################################
 
-set(git_url ${GITHUB_PREFIX}Inria-Asclepios/RPI.git)
+set(git_url https://github.com/Inria-Asclepios/RPI.git)
 set(git_tag ITK5.0)
 
 ## #############################################################################

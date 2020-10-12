@@ -39,7 +39,7 @@ if (NOT USE_SYSTEM_${ep})
 ## Set up versioning control.
 ## #############################################################################
 
-set(git_url ${GITHUB_PREFIX}Inria-Asclepios/TTK-Public.git)
+set(git_url https://github.com/Inria-Asclepios/TTK-Public.git)
 set(git_tag master)
 
 
