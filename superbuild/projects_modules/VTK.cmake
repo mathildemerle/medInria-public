@@ -93,10 +93,10 @@ if(${USE_FFmpeg})
         # FFMPEG
         -DModule_vtkIOFFMPEG:BOOL=ON
         -DFFMPEG_INCLUDE_DIR:STRING=${EP_PATH_BUILD}/ffmpeg/include/
-        -DFFMPEG_avcodec_LIBRARY:STRING=${EP_PATH_BUILD}/ffmpeg/lib/libavcodec.${extention}
-        -DFFMPEG_avformat_LIBRARY:STRING=${EP_PATH_BUILD}/ffmpeg/lib/libavformat.${extention}
-        -DFFMPEG_avutil_LIBRARY:STRING=${EP_PATH_BUILD}/ffmpeg/lib/libavutil.${extention}
-        -DFFMPEG_swscale_LIBRARY:STRING=${EP_PATH_BUILD}/ffmpeg/lib/libswscale.${extention}
+        -DFFMPEG_LIBAVCODEC_LIBRARIES:STRING=${EP_PATH_BUILD}/ffmpeg/lib/libavcodec.${extention}
+        -DFFMPEG_LIBAVFORMAT_LIBRARIES:STRING=${EP_PATH_BUILD}/ffmpeg/lib/libavformat.${extention}
+        -DFFMPEG_LIBAVUTIL_LIBRARIES:STRING=${EP_PATH_BUILD}/ffmpeg/lib/libavutil.${extention}
+        -DFFMPEG_LIBSWSCALE_LIBRARIES:STRING=${EP_PATH_BUILD}/ffmpeg/lib/libswscale.${extention}
     )
 endif()
 
