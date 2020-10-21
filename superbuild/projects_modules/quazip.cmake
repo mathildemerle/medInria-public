@@ -53,11 +53,11 @@ set(cmake_args
 ## #############################################################################
 ## Add external-project
 ## #############################################################################
-if(APPLE)
-  set(SPEC -spec macx-clang)
-endif()
+#if(APPLE)
+#  set(SPEC -spec macx-clang)
+#endif()
 
-find_package(Qt5 REQUIRED Core)
+#find_package(Qt5 REQUIRED Core)
 
 epComputPath(${ep})
 
