@@ -72,10 +72,11 @@ if (UNIX)
         CONFIGURE_COMMAND ${EP_PATH_SOURCE}/${ep}/configure
                 # based on configuration used by ffmpeg apt package
                 --prefix=${EP_PATH_BUILD}/${ep} #/usr
-                --extra-version=0ubuntu0.2
+                #--extra-version=0ubuntu0.2
                 --toolchain=hardened 
                 --libdir=${EP_PATH_BUILD}/${ep}/lib #/usr/lib/x86_64-linux-gnu 
-                --incdir=${EP_PATH_BUILD}/${ep}/include #/usr/include/x86_64-linux-gnu 
+                --incdir=${EP_PATH_BUILD}/${ep}/include #/usr/include/x86_64-linux-gnu
+                --disable-static --enable-shared
                 #--enable-gpl --disable-stripping --enable-avresample 
                 #--enable-avisynth --enable-gnutls --enable-ladspa 
                 #--enable-libass --enable-libbluray --enable-libbs2b 

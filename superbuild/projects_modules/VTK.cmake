@@ -28,7 +28,7 @@ endif()
 
 EP_Initialisation(${ep} 
   USE_SYSTEM OFF 
-  BUILD_SHARED_LIBS ON
+  BUILD_SHARED_LIBS OFF
   REQUIRED_FOR_PLUGINS ON
   )
 
@@ -54,7 +54,7 @@ endif()
 
 # library extension
 if (UNIX AND NOT APPLE)
-    set(extention a) #so
+    set(extention so)
 elseif(APPLE)
     set(extention dylib)
 endif() # no WIN32 use of FFmpeg
