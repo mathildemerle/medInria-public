@@ -76,22 +76,37 @@ if (UNIX)
                 --toolchain=hardened 
                 --libdir=${EP_PATH_BUILD}/${ep}/lib #/usr/lib/x86_64-linux-gnu 
                 --incdir=${EP_PATH_BUILD}/${ep}/include #/usr/include/x86_64-linux-gnu 
-                --enable-gpl --disable-stripping --enable-avresample 
-                --enable-avisynth --enable-gnutls --enable-ladspa 
-                --enable-libass --enable-libbluray --enable-libbs2b 
-                --enable-libcaca --enable-libcdio --enable-libflite 
-                --enable-libfontconfig --enable-libfreetype --enable-libfribidi 
-                --enable-libgme --enable-libgsm --enable-libmp3lame 
-                --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt 
-                --enable-libopus --enable-libpulse --enable-librubberband 
-                --enable-librsvg --enable-libshine --enable-libsnappy 
-                --enable-libsoxr --enable-libspeex --enable-libssh --enable-libtheora 
-                --enable-libtwolame --enable-libvorbis --enable-libvpx 
-                --enable-libwavpack --enable-libwebp --enable-libx265 --enable-libxml2 
-                --enable-libxvid --enable-libzmq --enable-libzvbi --enable-omx 
-                --enable-openal --enable-opengl --enable-sdl2 --enable-libdc1394 
+                #--enable-gpl --disable-stripping --enable-avresample 
+                #--enable-avisynth --enable-gnutls --enable-ladspa 
+                #--enable-libass --enable-libbluray --enable-libbs2b 
+                #--enable-libcaca --enable-libcdio --enable-libflite 
+                #--enable-libfontconfig --enable-libfreetype --enable-libfribidi 
+                #--enable-libgme --enable-libgsm --enable-libmp3lame 
+                #--enable-libmysofa --enable-libopenjpeg --enable-libopenmpt 
+                #--enable-libopus --enable-libpulse --enable-librubberband 
+                #--enable-librsvg --enable-libshine --enable-libsnappy 
+                #--enable-libsoxr --enable-libspeex --enable-libssh --enable-libtheora 
+                #--enable-libtwolame --enable-libvorbis --enable-libvpx 
+                #--enable-libwavpack --enable-libwebp --enable-libx265 --enable-libxml2 
+                #--enable-libxvid --enable-libzmq --enable-libzvbi --enable-omx 
+                #--enable-openal --enable-opengl --enable-sdl2 --enable-libdc1394 
                 #--enable-libdrm --enable-libiec61883 --disable-chromaprint
                 #--enable-frei0r --enable-libopencv --enable-libx264 --enable-shared
+                # from https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu
+                --enable-gpl
+                --enable-gnutls
+                --enable-libaom
+                --enable-libass
+                --enable-libfdk-aac
+                --enable-libfreetype
+                --enable-libmp3lame
+                --enable-libopus
+                --enable-libsvtav1
+                --enable-libvorbis
+                --enable-libvpx
+                --enable-libx264
+                --enable-libx265
+                --enable-nonfree
 
         BUILD_COMMAND make install
         )
