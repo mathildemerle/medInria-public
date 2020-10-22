@@ -71,7 +71,7 @@ if (UNIX)
         ${location}
         CONFIGURE_COMMAND ${EP_PATH_SOURCE}/${ep}/configure
                 # based on configuration used by ffmpeg apt package
-                --prefix=/usr 
+                --prefix=${EP_PATH_BUILD}/${ep} #/usr
                 --extra-version=0ubuntu0.2
                 --toolchain=hardened 
                 --libdir=${EP_PATH_BUILD}/${ep}/lib #/usr/lib/x86_64-linux-gnu 
