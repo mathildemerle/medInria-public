@@ -90,9 +90,8 @@ if (UNIX)
                 --enable-libwavpack --enable-libwebp --enable-libx265 --enable-libxml2 
                 --enable-libxvid --enable-libzmq --enable-libzvbi --enable-omx 
                 --enable-openal --enable-opengl --enable-sdl2 --enable-libdc1394 
-                --enable-libdrm --enable-libiec61883
-                --enable-frei0r --enable-libopencv --enable-libx264 --enable-shared
-                --disable-chromaprint  #--enable-chromaprint 
+                #--enable-libdrm --enable-libiec61883 --disable-chromaprint
+                #--enable-frei0r --enable-libopencv --enable-libx264 --enable-shared
 
         BUILD_COMMAND make install
         )
