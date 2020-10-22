@@ -92,21 +92,6 @@ if (UNIX)
                 #--enable-openal --enable-opengl --enable-sdl2 --enable-libdc1394 
                 #--enable-libdrm --enable-libiec61883 --disable-chromaprint
                 #--enable-frei0r --enable-libopencv --enable-libx264 --enable-shared
-                # from https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu
-                --enable-gpl
-                --enable-gnutls
-                --enable-libaom
-                --enable-libass
-                --enable-libfdk-aac
-                --enable-libfreetype
-                --enable-libmp3lame
-                --enable-libopus
-                --enable-libsvtav1
-                --enable-libvorbis
-                --enable-libvpx
-                --enable-libx264
-                --enable-libx265
-                --enable-nonfree
 
         BUILD_COMMAND make install
         )
