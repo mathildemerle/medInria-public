@@ -54,7 +54,7 @@ endif()
 
 # library extension
 if (UNIX AND NOT APPLE)
-    set(extention so)
+    set(extention a) #so
 elseif(APPLE)
     set(extention dylib)
 endif() # no WIN32 use of FFmpeg
@@ -93,16 +93,18 @@ if(${USE_FFmpeg})
         # FFMPEG
         -DModule_vtkIOFFMPEG:BOOL=ON
 
+        -DVTK_FFMPEG_AVCODECID=ON
+
         -DFFMPEG_ROOT:STRING=${EP_PATH_BUILD}/ffmpeg
 
         -DFFMPEG_INCLUDE_DIR:STRING=${EP_PATH_BUILD}/ffmpeg/include/
 
-        -DFFMPEG_LIBAVCODEC_INCLUDE_DIRS:STRING=${EP_PATH_BUILD}/ffmpeg/include/libavcodec
-        -DFFMPEG_LIBAVDEVICE_INCLUDE_DIRS:STRING=${EP_PATH_BUILD}/ffmpeg/include/libavdevice
-        -DFFMPEG_LIBAVFORMAT_INCLUDE_DIRS:STRING=${EP_PATH_BUILD}/ffmpeg/include/libavformat
-        -DFFMPEG_LIBAVUTIL_INCLUDE_DIRS:STRING=${EP_PATH_BUILD}/ffmpeg/include/libavutil
-        -DFFMPEG_LIBSWRESAMPLE_INCLUDE_DIRS:STRING=${EP_PATH_BUILD}/ffmpeg/include/libswresample
-        -DFFMPEG_LIBSWSCALE_INCLUDE_DIRS:STRING=${EP_PATH_BUILD}/ffmpeg/include/libswscale
+        #-DFFMPEG_LIBAVCODEC_INCLUDE_DIRS:STRING=${EP_PATH_BUILD}/ffmpeg/include/libavcodec
+        #-DFFMPEG_LIBAVDEVICE_INCLUDE_DIRS:STRING=${EP_PATH_BUILD}/ffmpeg/include/libavdevice
+        #-DFFMPEG_LIBAVFORMAT_INCLUDE_DIRS:STRING=${EP_PATH_BUILD}/ffmpeg/include/libavformat
+        #-DFFMPEG_LIBAVUTIL_INCLUDE_DIRS:STRING=${EP_PATH_BUILD}/ffmpeg/include/libavutil
+        #-DFFMPEG_LIBSWRESAMPLE_INCLUDE_DIRS:STRING=${EP_PATH_BUILD}/ffmpeg/include/libswresample
+        #-DFFMPEG_LIBSWSCALE_INCLUDE_DIRS:STRING=${EP_PATH_BUILD}/ffmpeg/include/libswscale
 
         -DFFMPEG_LIBAVDEVICE_LIBRARIES:STRING=${EP_PATH_BUILD}/ffmpeg/lib/libavdevice.${extention}
         -DFFMPEG_LIBAVCODEC_LIBRARIES:STRING=${EP_PATH_BUILD}/ffmpeg/lib/libavcodec.${extention}
