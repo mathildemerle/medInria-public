@@ -77,7 +77,7 @@ if (UNIX)
                 #--libdir=${EP_PATH_BUILD}/${ep}/lib #/usr/lib/x86_64-linux-gnu 
                 #--incdir=${EP_PATH_BUILD}/${ep}/include #/usr/include/x86_64-linux-gnu
                 --disable-static --enable-shared
-                --disable-yasm --disable-network --disable-zlib --disable-doc --disable-ffplay --disable-decoders
+                --disable-yasm #--disable-network --disable-zlib --disable-doc --disable-ffplay --disable-decoders
                 #--enable-gpl --disable-stripping --enable-avresample 
                 #--enable-avisynth --enable-gnutls --enable-ladspa 
                 #--enable-libass --enable-libbluray --enable-libbs2b 
