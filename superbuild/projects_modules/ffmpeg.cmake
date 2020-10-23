@@ -29,7 +29,7 @@ list(APPEND ${ep}_dependencies)
 
 EP_Initialisation(${ep}
     USE_SYSTEM OFF
-    BUILD_SHARED_LIBS ON
+    BUILD_SHARED_LIBS OFF
     REQUIRED_FOR_PLUGINS OFF
     )
 
@@ -73,9 +73,9 @@ if (UNIX)
                 # based on configuration used by ffmpeg apt package
                 --prefix=${EP_PATH_BUILD}/${ep} #/usr
                 #--extra-version=0ubuntu0.2
-                --toolchain=hardened 
-                --libdir=${EP_PATH_BUILD}/${ep}/lib #/usr/lib/x86_64-linux-gnu 
-                --incdir=${EP_PATH_BUILD}/${ep}/include #/usr/include/x86_64-linux-gnu
+                #--toolchain=hardened 
+                #--libdir=${EP_PATH_BUILD}/${ep}/lib #/usr/lib/x86_64-linux-gnu 
+                #--incdir=${EP_PATH_BUILD}/${ep}/include #/usr/include/x86_64-linux-gnu
                 --disable-static --enable-shared
                 #--enable-gpl --disable-stripping --enable-avresample 
                 #--enable-avisynth --enable-gnutls --enable-ladspa 
