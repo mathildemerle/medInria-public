@@ -25,6 +25,8 @@ add_subdirectory(resources)
 find_package(dtk REQUIRED)
 include_directories(${dtk_INCLUDE_DIRS})
 
+find_package(Boost REQUIRED)
+
 list_source_files(${TARGET_NAME}
   ${CMAKE_CURRENT_SOURCE_DIR}
   areas/browser
@@ -42,6 +44,7 @@ list_source_files(${TARGET_NAME}
 ##  see cmake/module/list_header_directories_to_include.cmake
 list_header_directories_to_include(${TARGET_NAME}
   ${${TARGET_NAME}_HEADERS}
+  ${Boost_INCLUDE_DIR}
   )
 
 
@@ -75,7 +78,7 @@ string(TIMESTAMP BUILD_DATE "\"%d_%m_%Y\"")
 add_definitions(-DMEDINRIA_BUILD_DATE=${BUILD_DATE})
 
 ## #############################################################################
-## OS specificites
+## OS specificities
 ## #############################################################################
 
 if(WIN32)
@@ -115,16 +118,17 @@ if (APPLE)
 endif()
 
 ## #############################################################################
-## include directorie.
+## Include directories
 ## #############################################################################
 
 target_include_directories(${TARGET_NAME}
   PRIVATE ${${TARGET_NAME}_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIR}
   )
-# PRIVATE beacause application is not supposed to be used somewhere else
+# PRIVATE because application is not supposed to be used somewhere else
 
 ## #############################################################################
-## Links.
+## Links
 ## #############################################################################
 
 target_link_libraries(${TARGET_NAME}
@@ -145,7 +149,7 @@ target_link_libraries(${TARGET_NAME}
 
 
 ## #############################################################################
-## install
+## Install
 ## #############################################################################
 
 ## see cmake/module/set_lib_install_rules.Cmake
