@@ -20,6 +20,7 @@
 #include <medVtkViewBackend.h>
 
 #include <QApplication>
+#include <QDesktopWidget>
 #include <QLineEdit>
 #include <QInputDialog>
 #include <QGuiApplication>
