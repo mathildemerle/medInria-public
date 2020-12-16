@@ -28,8 +28,8 @@ function(music_plugins_project)
 
     if (NOT USE_SYSTEM_${external_project})
 
-        set(git_url ${GITHUB_PREFIX}Inria-Asclepios/music.git)
-        set(git_tag music3)
+        set(git_url ${GITHUB_PREFIX}mathildemerle/music.git)
+        set(git_tag plotSo)
 
         set(${external_project}_BUILD_TYPE RelWithDebInfo CACHE STRING "Build type for MUSICardio plugins: None Debug Release RelWithDebInfo MinSizeRel")
 
