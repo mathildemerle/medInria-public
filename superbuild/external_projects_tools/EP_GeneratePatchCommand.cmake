@@ -16,6 +16,7 @@ function(ep_GeneratePatchCommand ep OutVar)
     endforeach()
 
     set(PATCH_COMMAND "")
+
     if (NOT "${PATCHES_TO_APPLY}" STREQUAL "")
         set(PATCH_COMMAND ${GIT_BIN} apply --ignore-whitespace ${PATCHES_TO_APPLY})
     endif()
