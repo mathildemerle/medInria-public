@@ -38,6 +38,7 @@ set(ICON_PATH "${PROJECT_SOURCE_DIR}/src/app/medInria/resources/MUSICardio_logo_
 
 # Used on pinned on taskbar
 set(CPACK_PACKAGE_ICON ${ICON_PATH})
+string(REGEX REPLACE "/" "\\\\\\\\" CPACK_PACKAGE_ICON "${CPACK_PACKAGE_ICON}")
 
 # The icon to install the application.
 set(CPACK_NSIS_MUI_ICON ${ICON_PATH})
