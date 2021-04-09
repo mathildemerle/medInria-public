@@ -44,25 +44,10 @@ devName=`hdiutil attach -readwrite -noverify -noautoopen MedinriaPackage.sparsei
 diskutil rename "medInria base" "MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"
 \cp -rf @medInria_BINARY_DIR@/bin/TmpInstall/MUSICardio.app /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/
 
-# Change the icon of the dmg tool
-#DMB_ICON_IMAGE="@medInria_SOURCE_DIR@/app/medInria/resources/pixmaps/MUSICardio_dmg_mountedimage.icns"
-#\cp -f $DMB_ICON_IMAGE /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.VolumeIcon.icns
-
 # Change the background of the dmg tool
 DMG_BACKGROUND_IMAGE="@medInria_SOURCE_DIR@/app/medInria/resources/pixmaps/MUSICardio-logo-dmg.png"
+\rm -fr /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.background/*
 \cp -f $DMG_BACKGROUND_IMAGE /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.background
-# echo '
-#    tell application "Finder"
-#      tell disk "'${title}'"
-#            open
-#            set background picture of theViewOptions to file ".background:'${DMG_BACKGROUND_IMAGE}'"
-#            update without registering applications
-#            delay 5
-#            close
-#      end tell
-#    end tell
-# ' | osascript
-
 
 sync
 hdiutil detach $devName
