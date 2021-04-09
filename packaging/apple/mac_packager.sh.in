@@ -46,8 +46,10 @@ diskutil rename "medInria base" "MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"
 
 # Change the background of the dmg tool
 DMG_BACKGROUND_IMAGE="@medInria_SOURCE_DIR@/app/medInria/resources/pixmaps/MUSICardio-logo-dmg.png"
-\rm -fr /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.background/*
-\cp -f $DMG_BACKGROUND_IMAGE /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.background
+DMG_BACKGROUND_DIR=/Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.background
+\rm -fr $DMG_BACKGROUND_DIR/*
+\cp -f $DMG_BACKGROUND_IMAGE $DMG_BACKGROUND_DIR
+\mv $DMG_BACKGROUND_DIR/MUSICardio-logo-dmg.png $DMG_BACKGROUND_DIR/medInria-logo-dmg.png
 
 sync
 hdiutil detach $devName
