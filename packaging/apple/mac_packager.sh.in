@@ -41,8 +41,8 @@ gunzip -f MedinriaPackage.sparseimage.gz
 hdiutil resize -size 2g MedinriaPackage.sparseimage
 
 devName=`hdiutil attach -readwrite -noverify -noautoopen MedinriaPackage.sparseimage | egrep '^/dev/' | sed 1q | awk '{print $1}'`
-#diskutil rename "BaseMedinriaPackage" "MUSICardio"
-\cp -rf @medInria_BINARY_DIR@/bin/TmpInstall/MUSICardio.app /Volumes/"MUSICardio"/
+diskutil rename "BaseMedinriaPackage" "MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"
+\cp -rf @medInria_BINARY_DIR@/bin/TmpInstall/MUSICardio.app /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/
 
 # Change the background of the dmg tool
 #DMG_BACKGROUND_IMAGE="@medInria_SOURCE_DIR@/app/medInria/resources/pixmaps/MUSICardio-logo-dmg.png"
@@ -62,8 +62,7 @@ devName=`hdiutil attach -readwrite -noverify -noautoopen MedinriaPackage.sparsei
    end tell
 ' | osascript
 
-#!/bin/bash
 sync
 hdiutil detach $devName
-hdiutil convert MedinriaPackage.sparseimage -format UDZO -imagekey zlib-level=9 -o "MUSICardio.dmg" 1>/dev/null 2>/dev/null
+hdiutil convert MedinriaPackage.sparseimage -format UDZO -imagekey zlib-level=9 -o "MUSICardio-@MEDINRIA_SUPERBUILD_VERSION@.dmg" 1>/dev/null 2>/dev/null
 \rm -fr MedinriaPackage.sparseimage @medInria_BINARY_DIR@/bin/TmpInstall
