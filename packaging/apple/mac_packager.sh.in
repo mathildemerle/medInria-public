@@ -50,7 +50,7 @@ devName=`hdiutil attach -readwrite -noverify -noautoopen MedinriaPackage.sparsei
 #\cp -f $DMG_BACKGROUND_IMAGE /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.background
 #\mv /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.background/MUSICardio-logo-dmg.png /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.background/medInria-logo-dmg.png
 
-echo '
+\echo '
    tell application "Finder"
      tell disk "MUSICardio"
            open
