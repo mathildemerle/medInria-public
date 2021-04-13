@@ -50,15 +50,17 @@ devName=`hdiutil attach -readwrite -noverify -noautoopen MedinriaPackage.sparsei
 #\cp -f $DMG_BACKGROUND_IMAGE /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.background
 #\mv /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.background/MUSICardio-logo-dmg.png /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.background/medInria-logo-dmg.png
 
-#!/usr/bin/osascript
-\tell application "Finder"
-    \tell disk product_name
-        \open
-        \set position of item "MUSICardio.app" of container window to {100, 225}
-        \update without registering applications
-        \close
-    \end tell
-\end tell
+echo '
+   tell application "Finder"
+     tell disk "MUSICardio"
+           open
+           set position of item "MUSICardio.app" of container window to {100, 100}
+           update without registering applications
+           delay 5
+           close
+     end tell
+   end tell
+' | osascript
 
 #!/bin/bash
 sync
