@@ -1,0 +1,12 @@
+{
+    "title": "MUSICardio3",
+    "background": "../src/app/medInria/resources/pixmaps/MUSICardio-logo-dmg.png",
+    "format": "UDZO",
+    "compression-level": 9,
+    "window": { "position": { "x": 100, "y": 100 },
+                "size": { "width": 640, "height": 300 } },
+    "contents": [
+        { "x": 140, "y": 165, "type": "file", "path": "/Volumes/MUSICardio/MUSICardio.app" },
+        { "x": 480, "y": 165, "type": "link", "path": "/Applications" }
+    ]
+}
