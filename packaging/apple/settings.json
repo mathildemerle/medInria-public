@@ -6,7 +6,7 @@
     "window": { "position": { "x": 100, "y": 100 },
                 "size": { "width": 640, "height": 280 } },
     "contents": [
-        { "x": 120, "y": 195, "type": "file", "path": "/Volumes/MUSICardio/MUSICardio.app" },
-        { "x": 460, "y": 195, "type": "link", "path": "/Applications" }
+        { "x": 120, "y": 185, "type": "file", "path": "/Volumes/MUSICardio/MUSICardio.app" },
+        { "x": 460, "y": 185, "type": "link", "path": "/Applications" }
     ]
 }
