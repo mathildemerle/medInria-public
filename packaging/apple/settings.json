@@ -1,12 +1,12 @@
 {
     "title": "MUSICardio3",
-    "background": "../../src/app/medInria/resources/pixmaps/MUSICardio-logo-dmg2.png",
+    "background": "../src/app/medInria/resources/pixmaps/MUSICardio-logo-dmg2.png",
     "format": "UDZO",
     "compression-level": 9,
     "window": { "position": { "x": 100, "y": 100 },
                 "size": { "width": 640, "height": 280 } },
     "contents": [
-        { "x": 120, "y": 195, "type": "file", "path": "/Volumes/MUSICardio 3.0.0/MUSICardio.app" },
+        { "x": 120, "y": 195, "type": "file", "path": "/Volumes/MUSICardio/MUSICardio.app" },
         { "x": 460, "y": 195, "type": "link", "path": "/Applications" }
     ]
 }
