@@ -44,12 +44,6 @@ devName=`hdiutil attach -readwrite -noverify -noautoopen MedinriaPackage.sparsei
 diskutil rename "BaseMedinriaPackage" "MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"
 \cp -rf @medInria_BINARY_DIR@/bin/TmpInstall/MUSICardio.app /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/
 
-# Change the background of the dmg tool
-#DMG_BACKGROUND_IMAGE="@medInria_SOURCE_DIR@/app/medInria/resources/pixmaps/MUSICardio-logo-dmg.png"
-#\rm -fr /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.background/*
-#\cp -f $DMG_BACKGROUND_IMAGE /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.background
-#\mv /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.background/MUSICardio-logo-dmg.png /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/.background/medInria-logo-dmg.png
-
 sync
 hdiutil detach $devName
 hdiutil convert MedinriaPackage.sparseimage -format UDZO -imagekey zlib-level=9 -o "MUSICardio-@MEDINRIA_SUPERBUILD_VERSION@.dmg" 1>/dev/null 2>/dev/null
