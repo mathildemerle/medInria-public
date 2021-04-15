@@ -40,7 +40,7 @@ cd @PROJECT_BINARY_DIR@
 gunzip -f MedinriaPackage.sparseimage.gz
 
 devName=`hdiutil attach -readwrite -noverify -noautoopen MedinriaPackage.sparseimage | egrep '^/dev/' | sed 1q | awk '{print $1}'`
-diskutil rename "BaseMedinriaPackage" "MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"
+diskutil rename "medInria base" "MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"
 \cp -rf @medInria_BINARY_DIR@/bin/TmpInstall/MUSICardio.app /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/
 
 sync
