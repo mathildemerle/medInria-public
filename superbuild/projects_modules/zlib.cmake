@@ -44,6 +44,7 @@ function(zlib_project)
             )
 
         set(${external_project}_DIR ${build_path} PARENT_SCOPE)
+        set(${external_project}_INCLUDE_DIR ${EP_PATH_SOURCE}/${external_project} PARENT_SCOPE)
 
     endif()
 
