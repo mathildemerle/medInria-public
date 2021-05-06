@@ -59,6 +59,7 @@ function(music_plugins_project)
             -DQUAZIP_DIR:FILEPATH=${quazip_DIR}
             -DQUAZIP_INCLUDE_DIR:FILEPATH=${quazip_INCLUDE_DIR}
             -DZLIB_DIR:FILEPATH=${zlib_DIR}
+            -DZLIB_INCLUDE_DIR:FILEPATH=${zlib_INCLUDE_DIR}
             )
 
         epComputPath(${external_project})
