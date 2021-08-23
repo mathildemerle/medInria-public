@@ -64,12 +64,8 @@ function(music_plugins_project)
             -DQUAZIP_DIR:FILEPATH=${quazip_DIR}
             -DQUAZIP_INCLUDE_DIR:FILEPATH=${quazip_INCLUDE_DIR}
             -DZLIB_DIR:FILEPATH=${zlib_DIR}
+            -DUSE_RealTimeWorkspace=${USE_RealTimeWorkspace}
             )
-
-        if (${USE_RealTimeWorkspace})
-            list(APPEND cmake_args
-            -DUSE_RealTimeWorkspace=${USE_RealTimeWorkspace})
-        endif()
 
         epComputPath(${external_project})
         ExternalProject_Add(${external_project}
