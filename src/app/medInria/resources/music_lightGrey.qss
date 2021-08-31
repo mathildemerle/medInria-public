@@ -37,8 +37,11 @@ $GREY12      = #324156; /*logo blue*/
 $WHITE       = #FFFFFF;
 $ORANGE      = #EF4123;
 $DARK_ORANGE = #B03E2A;
+$BLUE        = #B2DCFF;
+$BLUE_ROI    = #385b9f;
+$BLUE_DARK   = #203765;
 
-$HIGHLIGHT_COLOR   = $DARK_ORANGE; /*highlight*/
+$HIGHLIGHT_COLOR   = $ORANGE; /*highlight*/
 $DARKGRAY          = $GREY01; /*toolbox headers*/
 $MEDINRIA_DARKGRAY = $GREY02; /*toolbox headers*/
 
@@ -85,8 +88,8 @@ $QUICK_ACCESS_MENU_BACKGROUND        = rgba(200,200,200,150);
 /*******************************************************************************
     TOOLTIP COLOR
  *******************************************************************************/
-$TOOLTIP_BACKGROUND = $GREY11;
-$TOOLTIP_COLOR      = $GREY04;
+$TOOLTIP_BACKGROUND = $OFFWHITE1;
+$TOOLTIP_COLOR      = $BLUE_ROI;
 
 /*******************************************************************************
     MENU_ITEM COLOR
@@ -173,13 +176,14 @@ $PROGRESS_BAR_COLOR      = $GREY12;
 $PROGRESS_BAR_TEXT_COLOR = $GREY00;
 
 /*******************************************************************************
-    TOOLBOX_HEADER COLOR
+    TOOLBOX COLOR
  *******************************************************************************/
 $TOOLBOX_CONTAINER_BACKGROUND = $GREY01; /*does not seem to be visible*/
 $TOOLBOX_HEADER_BACKGROUND    = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $DARKGRAY, stop: 1 $MEDINRIA_DARKGRAY);
 $TOOLBOX_BODY_BACKGROUND      = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY02, stop: 1 $GREY01);
-$TOOLBOX_BACKGROUND           = $GREY05;
+$TOOLBOX_BACKGROUND           = $GREY04;
 $TOOLBOX_HEADER_COLOR         = $GREY12;
+$TOOLBOX_INNER_TITLE          = $BLUE_DARK;
 
 /*******************************************************************************
     COMBO_BOX COLOR
@@ -602,6 +606,12 @@ QTreeView::branch:open:has-children:has-siblings
 QLabel
 {
     color: $EDITION_COLOR;
+    background: none;
+}
+
+QLabel#innerTitle
+{
+    color: $TOOLBOX_INNER_TITLE;
     background: none;
 }
 

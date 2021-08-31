@@ -159,7 +159,7 @@ meshManipulationToolBox::meshManipulationToolBox(QWidget *parent)
     toolboxLayout->addLayout(undoLayout);
 
     QLabel* registrationListText = new QLabel("Imported transformation matrices");
-    registrationListText->setStyleSheet("QLabel{color:#ED6639;}");
+    registrationListText->setObjectName("innerTitle");
     toolboxLayout->addWidget(registrationListText);
 
     _availableMatricesWidget = new QListWidget(this);
