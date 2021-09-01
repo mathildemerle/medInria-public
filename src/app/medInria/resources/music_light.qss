@@ -123,9 +123,9 @@ $TOOLTIP_COLOR      = $GREY04;
 
 /*Example in Tools button in views*/
 $MENU_ITEM_HOVER_BACKGROUND    = $BLUE_GREY_LIGHT;
-$MENU_ITEM_BACKGROUND          = $GREY_DARK;
-$MENU_ITEM_SELECTED_BACKGROUND = $GREY_MID_DARK;
-$MENU_ITEM_SELECTED_COLOR      = $HIGHLIGHT_COLOR;
+$MENU_ITEM_BACKGROUND          = $GREY_MID_DARK;
+$MENU_ITEM_SELECTED_BACKGROUND = $GREY_DARK;
+$MENU_ITEM_SELECTED_COLOR      = $BLUE_ROI;
 
 /*******************************************************************************
     EDITION COLOR
@@ -1063,29 +1063,9 @@ QMenu
     background-color: $MENU_ITEM_BACKGROUND;
 }
 
-QMenu::indicator:non-exclusive:unchecked
-{
-    image: url(:/pixmaps/checkbox.png);
-}
-
-QMenu::indicator:non-exclusive:checked
-{
-    image: url(:/pixmaps/checkbox-checked.png);
-}
-
-QMenu::indicator:exclusive:unchecked
-{
-    image: url(:/pixmaps/radio.png);
-}
-
-QMenu::indicator:exclusive:checked
-{
-    image: url(:/pixmaps/radio-checked.png);
-}
-
 QMenu::item:checked /* appearance of a 'checked' icon */
 {
-    background: $HIGHLIGHT_COLOR;
+    background: $BLUE_ROI;
 }
 
 QMenu::separator

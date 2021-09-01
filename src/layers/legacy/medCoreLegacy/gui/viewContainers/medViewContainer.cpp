@@ -180,7 +180,6 @@ medViewContainer::medViewContainer(medViewContainerSplitter *parent): QFrame(par
     // Scene
     d->saveSceneAction = new QAction(tr("Save scene"), d->toolBarMenu);
     d->saveSceneAction->setToolTip(tr("Save container content as is."));
-    d->saveSceneAction->setIcon(QIcon(":icons/saveScene.png"));
     d->saveSceneAction->setIconVisibleInMenu(true);
     connect(d->saveSceneAction, SIGNAL(triggered()), this, SLOT(saveScene()), Qt::UniqueConnection);
     d->saveSceneAction->setEnabled(false);
@@ -192,6 +191,7 @@ medViewContainer::medViewContainer(medViewContainerSplitter *parent): QFrame(par
     // Themes
     if (themeIndex == 3) // Light Grey
     {
+        d->saveSceneAction->setIcon(QIcon(":icons/saveScene_black.png"));
         d->histogramAction->setIcon(QIcon(":/icons/Gaussian_Filter_blue.png"));
         d->menuButton->setIcon(QIcon(":/pixmaps/tools_blue.png"));
         QIcon closeIcon;
@@ -210,6 +210,7 @@ medViewContainer::medViewContainer(medViewContainerSplitter *parent): QFrame(par
     }
     else
     {
+        d->saveSceneAction->setIcon(QIcon(":icons/saveScene_white.png"));
         d->histogramAction->setIcon(QIcon(":/icons/Gaussian_Filter.png"));
         QIcon closeIcon;
         closeIcon.addPixmap(QPixmap(":/pixmaps/closebutton.png"),         QIcon::Normal);
