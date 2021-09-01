@@ -85,6 +85,9 @@ $HOMEPAGE_TEXT_COLOR = $GREY06;
 $QUICK_ACCESS_MENU_HEADER_BACKGROUND = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY00, stop: 1 $GREY01);
 $QUICK_ACCESS_MENU_BACKGROUND        = rgba(200,200,200,150);
 
+$CHECKBOX_FONT_COLOR     = $BLUE_DARK;
+$RADIOBUTTON_FONT_COLOR  = $BLUE_DARK;
+
 /*******************************************************************************
     TOOLTIP COLOR
  *******************************************************************************/
@@ -113,7 +116,7 @@ $PUSH_BUTTON_BACKGROUND            = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
 $PUSH_BUTTON_DISABLED_BACKGROUND   = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY05, stop: 1 $GREY04);
 $PUSH_BUTTON_HOVER_BACKGROUND      = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY00, stop: 1 $GREY01);
 $PUSH_BUTTON_CHECKED_BACKGROUND    = $GREY00;
-$PUSH_BUTTON_CHECKED_BORDER        = $ORANGE;
+$PUSH_BUTTON_CHECKED_BORDER        = $BLUE_ROI;
 $PUSH_BUTTON_PRESSED_BACKGROUND    = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY02, stop: 1 $GREY01);
 
 $HOME_PAGE_BUTTON_BACKGROUND       = $GREY03;
@@ -508,37 +511,13 @@ QComboBox::item:selected
 QCheckBox
 {
     background: none;
+    color: $CHECKBOX_FONT_COLOR;
 }
 
 QCheckBox::indicator
 {
     width: $CHECKBOX_SIZE;
     height: $CHECKBOX_SIZE;
-}
-
-QCheckBox::indicator:unchecked
-{
-    image: url(:/pixmaps/checkbox_blue.png);
-}
-
-QCheckBox::indicator:checked
-{
-    image: url(:/pixmaps/checkbox-checked_blue.png);
-}
-
-QCheckBox::indicator:indeterminate
-{
-    image: url(:/pixmaps/checkbox-partial_blue.png);
-}
-
-QCheckBox::indicator:disabled:unchecked
-{
-    image: url(:/pixmaps/checkbox-disabled.png);
-}
-
-QCheckBox::indicator:disabled:checked
-{
-    image: url(:/pixmaps/checkbox-checked-disabled.png);
 }
 
 /*******************************************************************************
@@ -718,37 +697,13 @@ QRadioButton
 {
     background: none;
     outline: 0px;
+    color: $RADIOBUTTON_FONT_COLOR;
 }
 
 QRadioButton::indicator
 {
     width: $RADIO_BUTTON_SIZE;
     height: $RADIO_BUTTON_SIZE;
-}
-
-QRadioButton::indicator:unchecked
-{
-    image: url(:/pixmaps/radio_blue.png);
-}
-
-QRadioButton::indicator:checked
-{
-    image: url(:/pixmaps/radio-checked_blue.png);
-}
-
-QRadioButton::indicator:indeterminate
-{
-    image: url(:/pixmaps/radio-partial_blue.png);
-}
-
-QRadioButton::indicator:disabled:unchecked
-{
-    image: url(:/pixmaps/radio-disabled.png);
-}
-
-QRadioButton::indicator:disabled:checked
-{
-    image: url(:/pixmaps/radio-checked-disabled.png);
 }
 
 /*******************************************************************************

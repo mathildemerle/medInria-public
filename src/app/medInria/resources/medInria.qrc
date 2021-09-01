@@ -173,7 +173,7 @@
         <file>MUSICardio_logo_light.png</file>
         <file>MUSICardio_logo_small_light.png</file>
         <file>MUSICardio_logo_dark.png</file>
-        <file>MUSICardio_logo_small_dark.png</file>        
+        <file>MUSICardio_logo_small_dark.png</file>
         <file>icons/music-check.svg</file>
         <file>icons/music-cross.svg</file>
         <file>icons/workspace_Pipelines.png</file>
@@ -214,5 +214,15 @@
         <file>icons/adjust_size_grey_blue.png</file>
         <file>pixmaps/radio_blue.png</file>
         <file>music_darkGrey.qss</file>
+        <file>icons/stack_white.png</file>
+        <file>icons/stack_black.png</file>
+        <file>icons/magnifier_white.png</file>
+        <file>icons/magnifier_black.png</file>
+        <file>icons/pan_white.svg</file>
+        <file>icons/pan_black.svg</file>
+        <file>icons/ruler_white.png</file>
+        <file>icons/ruler_black.png</file>
+        <file>icons/contrast_white.png</file>
+        <file>icons/contrast_black.png</file>
     </qresource>
 </RCC>

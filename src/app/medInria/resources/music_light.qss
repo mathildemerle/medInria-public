@@ -66,7 +66,7 @@ $HEADER_BACKGROUND                      = $BLUE_GREY;
 $STATUS_BAR_BACKGROUND                  = $GREY_LIGHT;
 
 $CONTAINER_BACKGROUND                   = $GREY_VERY_LIGHT;
-$VIEW_CONTAINER_BUTTON_HOVER_BACKGOUND  = $CONTAINER_BACKGROUND; /*Color of tab container background*/
+$VIEW_CONTAINER_BUTTON_HOVER_BACKGOUND  = $GREY;
 
 $DROP_SITE_BACKGROUND                   = $GREY_LIGHT;
 
@@ -583,31 +583,6 @@ QCheckBox::indicator
     height: $CHECKBOX_SIZE;
 }
 
-QCheckBox::indicator:unchecked
-{
-    /*image: url(:/pixmaps/checkbox.png);*/
-}
-
-QCheckBox::indicator:checked
-{
-    /*image: url(:/pixmaps/checkbox-checked.png);*/
-}
-
-QCheckBox::indicator:indeterminate
-{
-    /*image: url(:/pixmaps/checkbox-partial.png);*/
-}
-
-QCheckBox::indicator:disabled:unchecked
-{
-    /*image: url(:/pixmaps/checkbox-disabled.png);*/
-}
-
-QCheckBox::indicator:disabled:checked
-{
-    /*image: url(:/pixmaps/checkbox-checked-disabled.png);*/
-}
-
 /*******************************************************************************
      QTreeView
  *******************************************************************************/
@@ -794,31 +769,6 @@ QRadioButton::indicator
 {
     width: $RADIO_BUTTON_SIZE;
     height: $RADIO_BUTTON_SIZE;
-}
-
-QRadioButton::indicator:unchecked
-{
-    /*image: url(:/pixmaps/radio.png);*/
-}
-
-QRadioButton::indicator:checked
-{
-    /*image: url(:/pixmaps/radio-checked.png);*/
-}
-
-QRadioButton::indicator:indeterminate
-{
-    /*image: url(:/pixmaps/radio-partial.png);*/
-}
-
-QRadioButton::indicator:disabled:unchecked
-{
-    /*image: url(:/pixmaps/radio-disabled.png);*/
-}
-
-QRadioButton::indicator:disabled:checked
-{
-    /*image: url(:/pixmaps/radio-checked-disabled.png);*/
 }
 
 /*******************************************************************************
