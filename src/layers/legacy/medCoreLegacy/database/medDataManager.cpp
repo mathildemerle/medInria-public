@@ -21,6 +21,7 @@
 #include <medJobManagerL.h>
 #include <medMessageController.h>
 #include <medPluginManager.h>
+#include <medSettingsManager.h>
 
 /* THESE CLASSES NEED TO BE THREAD-SAFE, don't forget to lock the mutex in the
  * methods below that access state.
@@ -481,7 +482,30 @@ QPixmap medDataManager::thumbnail(const medDataIndex & index)
         pix = dbc->thumbnail(index);
     }
 
-    return pix.isNull() ? QPixmap(":/pixmaps/default_thumbnail.png") : pix;
+    if (pix.isNull())
+    {
+        // Themes
+        QVariant themeChosen = medSettingsManager::instance()->value("startup","theme");
+        int themeIndex = themeChosen.toInt();
+        switch (themeIndex)
+        {
+            case 0:
+            case 1:
+            case 2:
+            default:
+            {
+                pix.load(":/pixmaps/default_thumbnail.png");
+                break;
+            }
+            case 3:
+            case 4:
+            {
+                pix.load(":/pixmaps/default_thumbnail-lightbackground.png");
+                break;
+            }
+        }
+    }
+    return pix;
 }
 
 void medDataManager::setWriterPriorities()

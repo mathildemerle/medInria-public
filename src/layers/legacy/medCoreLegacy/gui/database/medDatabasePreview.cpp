@@ -19,6 +19,7 @@
 #include <medDatabaseNonPersistentController.h>
 #include <medDataManager.h>
 #include <medGlobalDefs.h>
+#include <medSettingsManager.h>
 
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
@@ -227,7 +228,27 @@ medDatabasePreview::medDatabasePreview(QWidget *parent): d(new medDatabasePrevie
     d->staticScene = nullptr;
 
     QGraphicsPixmapItem *pixmap = new QGraphicsPixmapItem;
-    pixmap->setPixmap(QPixmap(":/pixmaps/default_thumbnail.png"));
+    // Themes
+    QVariant themeChosen = medSettingsManager::instance()->value("startup","theme");
+    int themeIndex = themeChosen.toInt();
+    switch (themeIndex)
+    {
+        case 0:
+        case 1:
+        case 2:
+        default:
+        {
+            pixmap->setPixmap(QPixmap(":/pixmaps/default_thumbnail.png"));
+            break;
+        }
+        case 3:
+        case 4:
+        {
+            pixmap->setPixmap(QPixmap(":/pixmaps/default_thumbnail-lightbackground.png"));
+            break;
+        }
+    }
+
     this->fitInView(pixmap, Qt::KeepAspectRatio);
     scene->addItem(pixmap);
 
