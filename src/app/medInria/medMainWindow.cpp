@@ -166,8 +166,28 @@ medMainWindow::medMainWindow ( QWidget *parent ) : QMainWindow ( parent ), d ( n
         adjustIcon.addPixmap(QPixmap(":icons/adjust_size_grey.png"),QIcon::Disabled);
     }
 
+    QString qssWarningColor;
+    switch (themeIndex)
+    {
+        case 0:
+        case 1:
+        case 2:
+        default:
+        {
+            qssWarningColor = "#FC875F";
+            break;
+        }
+        case 3:
+        case 4:
+        {
+            qssWarningColor = "#0010A8";
+            break;
+        }
+    }
+
     //  Setup quick access menu
     d->quickAccessButton = new medQuickAccessPushButton ( this );
+    d->quickAccessButton->setObjectName("medQuickAccessPushButton");
     d->quickAccessButton->setFocusPolicy ( Qt::NoFocus );
     d->quickAccessButton->setMinimumHeight(31);
     d->quickAccessButton->setCursor(Qt::PointingHandCursor);
@@ -248,7 +268,7 @@ medMainWindow::medMainWindow ( QWidget *parent ) : QMainWindow ( parent ), d ( n
     QObject::connect(d->adjustSizeButton, SIGNAL(clicked()), this, SLOT(adjustContainersSize()));
 
     QLabel *prototypeLabel = new QLabel("RESEARCH PROTOTYPE NOT FOR CLINICAL USE");
-    prototypeLabel->setStyleSheet("QLabel {color : red}");
+    prototypeLabel->setStyleSheet("QLabel {color : " + qssWarningColor + "}");
     prototypeLabel->setFont(QFont("Arial", 10, QFont::Bold));
 
     //  QuitMessage and rightEndButtons will switch hidden and shown statuses.

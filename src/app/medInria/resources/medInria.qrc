@@ -162,13 +162,14 @@
         <file>icons/adjust_size_grey.png</file>
         <file>icons/movie.png</file>
         <file>icons/movie_grey.png</file>
-        <file>icons/saveScene.png</file>
-        <file>icons/saveScene_grey.png</file>
+        <file>icons/saveScene_white.png</file>
+        <file>icons/saveScene_black.png</file>
         <file>icons/scene.png</file>
 
         <file>../../../../LICENSE_MUSICardio.txt</file>
         <file>../../../../LICENSES_EXT.txt</file>
-        <file>MUSICardio_logo_light-notext.png</file>
+        <file>MUSICardio_logo_lightbackground_notext.png</file>
+        <file>MUSICardio_logo_darkbackground_notext.png</file>
         <file>MUSICardio_logo_light.png</file>
         <file>MUSICardio_logo_small_light.png</file>
         <file>MUSICardio_logo_dark.png</file>
@@ -213,5 +214,15 @@
         <file>icons/adjust_size_grey_blue.png</file>
         <file>pixmaps/radio_blue.png</file>
         <file>music_darkGrey.qss</file>
+        <file>icons/stack_white.png</file>
+        <file>icons/stack_black.png</file>
+        <file>icons/magnifier_white.png</file>
+        <file>icons/magnifier_black.png</file>
+        <file>icons/pan_white.svg</file>
+        <file>icons/pan_black.svg</file>
+        <file>icons/ruler_white.png</file>
+        <file>icons/ruler_black.png</file>
+        <file>icons/contrast_white.png</file>
+        <file>icons/contrast_black.png</file>
     </qresource>
 </RCC>

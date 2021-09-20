@@ -90,8 +90,29 @@ int main(int argc,char* argv[])
     // Qt doc, otherwise there are some edge cases where the style is not fully applied
     //QApplication::setStyle("plastique");
     medApplication application(argc,argv);
-    QPixmap splashLogo(":MUSICardio_logo_light-notext.png");
-    splashLogo = splashLogo.scaled(761, 180, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    // Themes
+    QVariant themeChosen = medSettingsManager::instance()->value("startup","theme");
+    int themeIndex = themeChosen.toInt();
+    QPixmap splashLogo;
+    switch (themeIndex)
+    {
+        case 0:
+        case 1:
+        case 2:
+        default:
+        {
+            splashLogo.load(":MUSICardio_logo_darkbackground_notext.png");
+            break;
+        }
+        case 3:
+        case 4:
+        {
+            splashLogo.load(":MUSICardio_logo_lightbackground_notext.png");
+            break;
+        }
+    }
+    splashLogo = splashLogo.scaled(914, 147, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     medSplashScreen splash(splashLogo);
 
     setlocale(LC_NUMERIC, "C");

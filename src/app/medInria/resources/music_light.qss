@@ -36,12 +36,13 @@ $BLUE_ROI        = #385b9f;
 $BLUE_GREY_LIGHT = #C7D0D5;
 $BLUE_LIGHT      = #e6f7ff;
 $BLUE_VERY_LIGHT = #e3ecf1;
+$BLUE            = #B2DCFF;
 $WHITE           = #FFFFFF;
 $WHITE_CASSE     = #DFDED4;
 $WHITE_DARK      = #CDCAB9;
 $ORANGE_DARK     = #EC583A;
 $PURPLE_DARK     = #3F2860;
-$GREY_VERY_LIGHT = #d9d9d9;
+$GREY_VERY_LIGHT = #F2F2F2;
 $GREY_LIGHT      = #cccccc;
 $GREY            = #B6B6B6;
 $GREY_MID_DARK   = #6E6E6E;
@@ -62,10 +63,10 @@ $WIDGET_BACKGROUND                      = $WHITE;
 $HEADER_BACKGROUND                      = $BLUE_GREY;
 
 /*Navigation bar at bottom of app*/
-$STATUS_BAR_BACKGROUND                  = $BLUE_DARK;
+$STATUS_BAR_BACKGROUND                  = $GREY_LIGHT;
 
 $CONTAINER_BACKGROUND                   = $GREY_VERY_LIGHT;
-$VIEW_CONTAINER_BUTTON_HOVER_BACKGOUND  = $CONTAINER_BACKGROUND; /*Color of tab container background*/
+$VIEW_CONTAINER_BUTTON_HOVER_BACKGOUND  = $GREY;
 
 $DROP_SITE_BACKGROUND                   = $GREY_LIGHT;
 
@@ -91,9 +92,9 @@ $RADIOBUTTON_FONT_COLOR  = $BLUE_DARK;
     WIDGET COLOR
  *******************************************************************************/
 
-$QUICK_ACCESS_MENU_HEADER_BACKGROUND    = $GREY_DARK;
-$QUICK_ACCESS_MENU_BACKGROUND           = rgba(200,200,200,150);
+$QUICK_ACCESS_MENU_HEADER_BACKGROUND    = $GREY_MID_DARK;
 $QUICK_ACCESS_MENU_HEADER_COLOR         = $WHITE;
+$QUICK_ACCESS_MENU_BACKGROUND           = rgba(200,200,200,150);
 
 /*******************************************************************************
     SPINBOX COLOR
@@ -113,8 +114,8 @@ $QLINEEDIT_FONT_COLOR = $BLUE_DARK;
     TOOLTIP COLOR
  *******************************************************************************/
 
-$TOOLTIP_BACKGROUND = $ORANGE;
-$TOOLTIP_COLOR      = $BLUE_DARK; /*Tooltip text color*/
+$TOOLTIP_BACKGROUND = $BLUE;
+$TOOLTIP_COLOR      = $GREY04;
 
 /*******************************************************************************
     MENU_ITEM COLOR
@@ -122,9 +123,9 @@ $TOOLTIP_COLOR      = $BLUE_DARK; /*Tooltip text color*/
 
 /*Example in Tools button in views*/
 $MENU_ITEM_HOVER_BACKGROUND    = $BLUE_GREY_LIGHT;
-$MENU_ITEM_BACKGROUND          = $GREY_DARK;
-$MENU_ITEM_SELECTED_BACKGROUND = $GREY_MID_DARK;
-$MENU_ITEM_SELECTED_COLOR      = $HIGHLIGHT_COLOR;
+$MENU_ITEM_BACKGROUND          = $GREY_MID_DARK;
+$MENU_ITEM_SELECTED_BACKGROUND = $GREY_DARK;
+$MENU_ITEM_SELECTED_COLOR      = $BLUE_ROI;
 
 /*******************************************************************************
     EDITION COLOR
@@ -137,21 +138,20 @@ $EDITION_COLOR      = $BLUE_DARK; /*Homepage, text color*/
     PUSH_BUTTON COLOR
  *******************************************************************************/
 
-$PUSH_BUTTON_BACKGROUND                 = $BLUE_ROI;
+$PUSH_BUTTON_BACKGROUND                 = $BLUE_GREY;
 $PUSH_BUTTON_HOVER_BACKGROUND           = $GREY;
 $PUSH_BUTTON_CHECKED_BACKGROUND         = $BLUE_DARK;
 $PUSH_BUTTON_PRESSED_BACKGROUND         = $BLUE_GREY_LIGHT;
 
-/*Example in Brower, Actions buttons*/
-$PUSH_BUTTON_DISABLED_BACKGROUND        = $GREY_MID_DARK;
-$PUSH_BUTTON_DISABLED_COLOR             = $BLUE_GREY_LIGHT;
+$PUSH_BUTTON_DISABLED_BACKGROUND        = $GREY;
+$PUSH_BUTTON_DISABLED_COLOR             = $GREY_VERY_LIGHT;
 
-$PUSH_BUTTON_HOVER_COLOR                = $HIGHLIGHT_COLOR;
+$PUSH_BUTTON_HOVER_COLOR                = $BLUE_ROI;
 $PUSH_BUTTON_CHECKED_COLOR              = $WHITE;
 
-$HOME_PAGE_BUTTON_BACKGROUND            = $BLUE_GREY;
+$HOME_PAGE_BUTTON_BACKGROUND            = $BLUE_GREY_LIGHT;
 $HOME_PAGE_BUTTON_HOVER_BACKGROUND      = $PUSH_BUTTON_HOVER_BACKGROUND;
-$HOME_PAGE_BUTTON_COLOR                 = $HIGHLIGHT_COLOR;
+$HOME_PAGE_BUTTON_COLOR                 = $BLUE_ROI;
 
 /*******************************************************************************
     FINDER COLOR
@@ -175,7 +175,7 @@ $LIST_FONT_COLOR     = $BLUE_DARK;
  *******************************************************************************/
 
 /*Tabs in homepage: settings, etc*/
-$TAB_BACKGROUND           = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY_DARK, stop: 1 $GREY_MID_DARK);
+$TAB_BACKGROUND           = $GREY;
 $TAB_HOVER_BACKGROUND     = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $BLUE_GREY_LIGHT, stop: 1 $BLUE_GREY_LIGHT);
 $TAB_PRESSED_BACKGROUND   = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $BLUE_ROI, stop: 1 $BLUE_ROI);
 $TAB_SELECTED_BACKGROUND  = $BLUE_ROI;
@@ -218,23 +218,25 @@ $PROGRESS_BAR_COLOR        = $ORANGE_DARK;
 $PROGRESS_BAR_TEXT_COLOR   = $BLUE_DARK;
 
 /*******************************************************************************
-    TOOLBOX_HEADER COLOR
+    TOOLBOX COLOR
  *******************************************************************************/
 
-$TOOLBOX_HEADER_BACKGROUND  = $GREY_DARK;
+$TOOLBOX_HEADER_BACKGROUND  = $GREY_MID_DARK;
 $TOOLBOX_BACKGROUND         = $GREY_VERY_LIGHT;
 $TOOLBOX_BODY_BACKGROUND    = $TOOLBOX_BACKGROUND;
 $TOOLBOX_HEADER_COLOR       = $WHITE; /*Font color*/
+$TOOLBOX_INNER_TITLE        = $BLUE_ROI;
 
 /*******************************************************************************
     COMBO_BOX COLOR
  *******************************************************************************/
 
-$COMBO_BOX_BACKGROUND               = $BLUE_ROI;
-$COMBO_BOX_HOVER_BACKGROUND         = $COMBO_BOX_BACKGROUND;
+$COMBO_BOX_BACKGROUND               = $BLUE_GREY_LIGHT;
+$COMBO_BOX_HOVER_BACKGROUND         = $GREY00;
+$COMBO_BOX_HOVER_COLOR              = $WHITE;
 
-$COMBO_BOX_ITEM_BACKGROUND          = $GREY;
-$COMBO_BOX_ITEM_SELECTED_BACKGROUND = $BLUE_GREY;
+$COMBO_BOX_ITEM_BACKGROUND          = $BLUE_GREY_LIGHT;
+$COMBO_BOX_ITEM_SELECTED_BACKGROUND = $GREY00;
 $COMBO_BOX_ITEM_SELECTED_COLOR      = $WHITE;
 
 /*******************************************************************************
@@ -524,6 +526,7 @@ QComboBox
     height: $COMBO_BOX_SIZE;
     min-width: $COMBO_BOX_SIZE;
     padding: 0px $COMBO_BOX_PADDING;
+    color: $BLUE_ROI;
 }
 
 QComboBox::drop-down
@@ -537,6 +540,7 @@ QComboBox::drop-down
 QComboBox::hover
 {
     background-color: $COMBO_BOX_HOVER_BACKGROUND;
+    color: $COMBO_BOX_HOVER_COLOR;
 }
 
 QComboBox QAbstractItemView
@@ -550,6 +554,17 @@ QComboBox QAbstractItemView
 QComboBox QAbstractItemView::disabled
 {
     color:$BLUE_VERY_LIGHT;
+}
+
+QComboBox::item
+{
+    background: $COMBO_BOX_ITEM_BACKGROUND;
+}
+
+QComboBox::item:selected
+{
+    background: $COMBO_BOX_ITEM_SELECTED_BACKGROUND;
+    color: $COMBO_BOX_ITEM_SELECTED_COLOR;
 }
 
 /*******************************************************************************
@@ -566,31 +581,6 @@ QCheckBox::indicator
 {
     width: $CHECKBOX_SIZE;
     height: $CHECKBOX_SIZE;
-}
-
-QCheckBox::indicator:unchecked
-{
-    /*image: url(:/pixmaps/checkbox.png);*/
-}
-
-QCheckBox::indicator:checked
-{
-    /*image: url(:/pixmaps/checkbox-checked.png);*/
-}
-
-QCheckBox::indicator:indeterminate
-{
-    /*image: url(:/pixmaps/checkbox-partial.png);*/
-}
-
-QCheckBox::indicator:disabled:unchecked
-{
-    /*image: url(:/pixmaps/checkbox-disabled.png);*/
-}
-
-QCheckBox::indicator:disabled:checked
-{
-    /*image: url(:/pixmaps/checkbox-checked-disabled.png);*/
 }
 
 /*******************************************************************************
@@ -659,6 +649,12 @@ QTreeView::branch:open:has-children:has-siblings
 QLabel
 {
     color: $EDITION_COLOR;
+    background: none;
+}
+
+QLabel#innerTitle
+{
+    color: $TOOLBOX_INNER_TITLE;
     background: none;
 }
 
@@ -773,31 +769,6 @@ QRadioButton::indicator
 {
     width: $RADIO_BUTTON_SIZE;
     height: $RADIO_BUTTON_SIZE;
-}
-
-QRadioButton::indicator:unchecked
-{
-    /*image: url(:/pixmaps/radio.png);*/
-}
-
-QRadioButton::indicator:checked
-{
-    /*image: url(:/pixmaps/radio-checked.png);*/
-}
-
-QRadioButton::indicator:indeterminate
-{
-    /*image: url(:/pixmaps/radio-partial.png);*/
-}
-
-QRadioButton::indicator:disabled:unchecked
-{
-    /*image: url(:/pixmaps/radio-disabled.png);*/
-}
-
-QRadioButton::indicator:disabled:checked
-{
-    /*image: url(:/pixmaps/radio-checked-disabled.png);*/
 }
 
 /*******************************************************************************
@@ -1092,29 +1063,9 @@ QMenu
     background-color: $MENU_ITEM_BACKGROUND;
 }
 
-QMenu::indicator:non-exclusive:unchecked
-{
-    image: url(:/pixmaps/checkbox.png);
-}
-
-QMenu::indicator:non-exclusive:checked
-{
-    image: url(:/pixmaps/checkbox-checked.png);
-}
-
-QMenu::indicator:exclusive:unchecked
-{
-    image: url(:/pixmaps/radio.png);
-}
-
-QMenu::indicator:exclusive:checked
-{
-    image: url(:/pixmaps/radio-checked.png);
-}
-
 QMenu::item:checked /* appearance of a 'checked' icon */
 {
-    background: $HIGHLIGHT_COLOR;
+    background: $BLUE_ROI;
 }
 
 QMenu::separator
@@ -1144,6 +1095,7 @@ QMenu::item:selected
 medHomepagePushButton
 {
     background-color: $HOME_PAGE_BUTTON_BACKGROUND;
+    color: $HOME_PAGE_BUTTON_COLOR;
     font-size: $WIDGET_FONTSIZE;
     border: 2px solid $WIDGET_BACKGROUND;
 }
@@ -1166,6 +1118,7 @@ medHomepagePushButton[selected="true"]
 medHomepageButton
 {
     background-color: $HOME_PAGE_BUTTON_BACKGROUND;
+    color: $HOME_PAGE_BUTTON_COLOR;
 }
 
 medHomepageButton:hover
@@ -1181,7 +1134,6 @@ medHomepageButton:hover
 QLabel#quickAccessMenuHeader
 {
     background: $QUICK_ACCESS_MENU_HEADER_BACKGROUND;
-    //padding-top: 4px;
     color: $QUICK_ACCESS_MENU_HEADER_COLOR;
 }
 
@@ -1343,9 +1295,11 @@ QWidget#defaultWidget
      medQuickAccessPushButton
  *******************************************************************************/
 
-medQuickAccessPushButton
+QPushButton#medQuickAccessPushButton
 {
     border: QUICK_ACCESS_PUSH_BUTTON_BORDER;
+    background-color: $GREY;
+    color: $GREY_DARK;
 }
 
 /*******************************************************************************

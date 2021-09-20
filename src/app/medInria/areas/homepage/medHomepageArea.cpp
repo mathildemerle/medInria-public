@@ -127,6 +127,7 @@ medHomepageArea::medHomepageArea ( QWidget * parent ) : QWidget ( parent ), d ( 
     QVariant themeChosen = medSettingsManager::instance()->value("startup","theme");
     int themeIndex = themeChosen.toInt();
     QString qssLogoName;
+    QString qssWarningColor;
     switch (themeIndex)
     {
         case 0:
@@ -135,15 +136,17 @@ medHomepageArea::medHomepageArea ( QWidget * parent ) : QWidget ( parent ), d ( 
         default:
         {
             qssLogoName = ":MUSICardio_logo_dark.png";
+            qssWarningColor = "#FC875F";
             break;
         }
         case 3:
         case 4:
         {
             qssLogoName = ":MUSICardio_logo_light.png";
+            qssWarningColor = "#0010A8";
             break;
         }
-    }    
+    }
 
     QPixmap medLogo(qssLogoName);
     medLogo = medLogo.scaled(576, 121, Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -158,9 +161,10 @@ medHomepageArea::medHomepageArea ( QWidget * parent ) : QWidget ( parent ), d ( 
                                           "<br/><br/>"
                                           "<b>%1</b> is proprietary software, copyright (c) 2013, IHU Liryc, Université de Bordeaux and Inria."
                                           "<br/><br/>"
-                                          " <font color = 'red'><b>This %1 copy will expire on ")
+                                          " <font color = '%3'><b>This %1 copy will expire on ")
                         .arg(qApp->applicationName())
                         .arg(qApp->applicationVersion())
+                        .arg(qssWarningColor)
                         + QLocale(QLocale::English).toString(expiryDate, "d MMMM yyyy")
                         + ".</b></font>");
 

@@ -37,8 +37,11 @@ $GREY12      = #324156; /*logo blue*/
 $WHITE       = #FFFFFF;
 $ORANGE      = #EF4123;
 $DARK_ORANGE = #B03E2A;
+$BLUE        = #B2DCFF;
+$BLUE_ROI    = #385b9f;
+$BLUE_DARK   = #203765;
 
-$HIGHLIGHT_COLOR   = $DARK_ORANGE; /*highlight*/
+$HIGHLIGHT_COLOR   = $ORANGE; /*highlight*/
 $DARKGRAY          = $GREY01; /*toolbox headers*/
 $MEDINRIA_DARKGRAY = $GREY02; /*toolbox headers*/
 
@@ -82,11 +85,14 @@ $HOMEPAGE_TEXT_COLOR = $GREY06;
 $QUICK_ACCESS_MENU_HEADER_BACKGROUND = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY00, stop: 1 $GREY01);
 $QUICK_ACCESS_MENU_BACKGROUND        = rgba(200,200,200,150);
 
+$CHECKBOX_FONT_COLOR     = $BLUE_DARK;
+$RADIOBUTTON_FONT_COLOR  = $BLUE_DARK;
+
 /*******************************************************************************
     TOOLTIP COLOR
  *******************************************************************************/
-$TOOLTIP_BACKGROUND = $GREY11;
-$TOOLTIP_COLOR      = $GREY04;
+$TOOLTIP_BACKGROUND = $OFFWHITE1;
+$TOOLTIP_COLOR      = $BLUE_ROI;
 
 /*******************************************************************************
     MENU_ITEM COLOR
@@ -110,7 +116,7 @@ $PUSH_BUTTON_BACKGROUND            = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
 $PUSH_BUTTON_DISABLED_BACKGROUND   = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY05, stop: 1 $GREY04);
 $PUSH_BUTTON_HOVER_BACKGROUND      = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY00, stop: 1 $GREY01);
 $PUSH_BUTTON_CHECKED_BACKGROUND    = $GREY00;
-$PUSH_BUTTON_CHECKED_BORDER        = $ORANGE;
+$PUSH_BUTTON_CHECKED_BORDER        = $BLUE_ROI;
 $PUSH_BUTTON_PRESSED_BACKGROUND    = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY02, stop: 1 $GREY01);
 
 $HOME_PAGE_BUTTON_BACKGROUND       = $GREY03;
@@ -173,13 +179,14 @@ $PROGRESS_BAR_COLOR      = $GREY12;
 $PROGRESS_BAR_TEXT_COLOR = $GREY00;
 
 /*******************************************************************************
-    TOOLBOX_HEADER COLOR
+    TOOLBOX COLOR
  *******************************************************************************/
 $TOOLBOX_CONTAINER_BACKGROUND = $GREY01; /*does not seem to be visible*/
 $TOOLBOX_HEADER_BACKGROUND    = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $DARKGRAY, stop: 1 $MEDINRIA_DARKGRAY);
 $TOOLBOX_BODY_BACKGROUND      = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY02, stop: 1 $GREY01);
-$TOOLBOX_BACKGROUND           = $GREY05;
+$TOOLBOX_BACKGROUND           = $GREY04;
 $TOOLBOX_HEADER_COLOR         = $GREY12;
+$TOOLBOX_INNER_TITLE          = $BLUE_DARK;
 
 /*******************************************************************************
     COMBO_BOX COLOR
@@ -504,37 +511,13 @@ QComboBox::item:selected
 QCheckBox
 {
     background: none;
+    color: $CHECKBOX_FONT_COLOR;
 }
 
 QCheckBox::indicator
 {
     width: $CHECKBOX_SIZE;
     height: $CHECKBOX_SIZE;
-}
-
-QCheckBox::indicator:unchecked
-{
-    image: url(:/pixmaps/checkbox_blue.png);
-}
-
-QCheckBox::indicator:checked
-{
-    image: url(:/pixmaps/checkbox-checked_blue.png);
-}
-
-QCheckBox::indicator:indeterminate
-{
-    image: url(:/pixmaps/checkbox-partial_blue.png);
-}
-
-QCheckBox::indicator:disabled:unchecked
-{
-    image: url(:/pixmaps/checkbox-disabled.png);
-}
-
-QCheckBox::indicator:disabled:checked
-{
-    image: url(:/pixmaps/checkbox-checked-disabled.png);
 }
 
 /*******************************************************************************
@@ -602,6 +585,12 @@ QTreeView::branch:open:has-children:has-siblings
 QLabel
 {
     color: $EDITION_COLOR;
+    background: none;
+}
+
+QLabel#innerTitle
+{
+    color: $TOOLBOX_INNER_TITLE;
     background: none;
 }
 
@@ -708,37 +697,13 @@ QRadioButton
 {
     background: none;
     outline: 0px;
+    color: $RADIOBUTTON_FONT_COLOR;
 }
 
 QRadioButton::indicator
 {
     width: $RADIO_BUTTON_SIZE;
     height: $RADIO_BUTTON_SIZE;
-}
-
-QRadioButton::indicator:unchecked
-{
-    image: url(:/pixmaps/radio_blue.png);
-}
-
-QRadioButton::indicator:checked
-{
-    image: url(:/pixmaps/radio-checked_blue.png);
-}
-
-QRadioButton::indicator:indeterminate
-{
-    image: url(:/pixmaps/radio-partial_blue.png);
-}
-
-QRadioButton::indicator:disabled:unchecked
-{
-    image: url(:/pixmaps/radio-disabled.png);
-}
-
-QRadioButton::indicator:disabled:checked
-{
-    image: url(:/pixmaps/radio-checked-disabled.png);
 }
 
 /*******************************************************************************
