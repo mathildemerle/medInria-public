@@ -12,7 +12,42 @@
 =========================================================================*/
 #include "medUtilitiesITK.h"
 
+#include <itkIntensityWindowingImageFilter.h>
+
+#include <medAbstractDataFactory.h>
 #include <statsROI.h>
+
+/**
+ * @brief For masks with values non-0/1, as -1024/10000, set the intensity to 0/1
+ * 
+ * @param data 
+ */
+template <class ImageType>
+dtkSmartPointer<medAbstractData> medUtilitiesITK::binarizeMask(dtkSmartPointer<medAbstractData> data)
+{
+    // Get minimum and maximum of the data
+    auto minValueImage = medUtilitiesITK::minimumValue(data);
+    auto maxValueImage = medUtilitiesITK::maximumValue(data);
+
+    //auto inputImage = dynamic_cast<ImageType*>((itk::Object*)(data->data()));
+    auto inputImage = static_cast<ImageType*>(data->data());
+    dtkSmartPointer<medAbstractData> binarizeMask = data;
+
+    if(minValueImage != 0)
+    {
+        typedef itk::IntensityWindowingImageFilter< ImageType, ImageType >  WindowingFilterType;
+        typename WindowingFilterType::Pointer windowingFilter = WindowingFilterType::New();
+        windowingFilter->SetInput(inputImage);
+        windowingFilter->SetWindowMinimum(minValueImage);
+        windowingFilter->SetWindowMaximum(maxValueImage);
+        windowingFilter->SetOutputMinimum(0);
+        windowingFilter->SetOutputMaximum(1);
+        windowingFilter->Update();
+        binarizeMask = medAbstractDataFactory::instance()->createSmartPointer(data->identifier());
+        binarizeMask->setData(windowingFilter->GetOutput());
+    }
+    return binarizeMask;
+}
 
 double medUtilitiesITK::minimumValue(dtkSmartPointer<medAbstractData> data)
 {

@@ -27,6 +27,9 @@ class MEDUTILITIES_EXPORT medUtilitiesITK
 {
 public:
 
+    template <class ImageType>
+    static dtkSmartPointer<medAbstractData> binarizeMask(dtkSmartPointer<medAbstractData> data);
+
     /**
      * @brief minimumValue computes the minimum pixel intensity in a volume
      * @param the input volume
