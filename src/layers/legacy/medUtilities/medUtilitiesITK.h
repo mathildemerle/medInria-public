@@ -27,7 +27,6 @@ class MEDUTILITIES_EXPORT medUtilitiesITK
 {
 public:
 
-    template <class ImageType>
     static dtkSmartPointer<medAbstractData> binarizeMask(dtkSmartPointer<medAbstractData> data);
 
     /**
