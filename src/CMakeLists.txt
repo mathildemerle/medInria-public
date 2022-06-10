@@ -72,7 +72,7 @@ string(CONCAT USE_PYTHON_DOC
     " (If embedded, Python can be deactivated at startup with the --no-python"
     " option)"
     )
-option(USE_PYTHON ${USE_PYTHON_DOC} ON)
+option(USE_PYTHON ${USE_PYTHON_DOC} OFF)
 
 if (USE_PYTHON)
     add_compile_definitions(USE_PYTHON)
