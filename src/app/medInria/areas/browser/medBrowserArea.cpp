@@ -76,23 +76,15 @@ medBrowserArea::medBrowserArea(QWidget *parent) : QWidget(parent), d(new medBrow
     layout->addWidget(d->toolboxContainer);
     layout->addWidget(d->stack);
 
-    // make toolboxes visible
-    onSourceIndexChanged(d->stack->currentIndex());
-
-    //Check if there are already item in the database, otherwise, switch to File system datasource
-    QList<medDataIndex> indexes = medDatabaseNonPersistentController::instance()->availableItems();
-    QList<medDataIndex> patients = medDataManager::instance()->controller()->patients(); 
-    if (indexes.isEmpty() && patients.isEmpty())
-    {
-        d->sourceSelectorToolBox->setCurrentTab(1);
-    }
-
     // DataSources
     for(medAbstractDataSource *dataSource : medDataSourceManager::instance()->dataSources())
     {
         addDataSource(dataSource);
     }
- }
+
+    // Switch to default "File system" tab
+    d->sourceSelectorToolBox->setCurrentTab(1);
+}
 
 medBrowserArea::~medBrowserArea()
 {
@@ -135,8 +127,7 @@ void medBrowserArea::addDataSource( medAbstractDataSource* dataSource )
     QList<medToolBox*> toolBoxes = dataSource->getToolBoxes();
     for(medToolBox* toolBox : toolBoxes)
     {
-        toolBox->setVisible(false);
         d->toolboxContainer->addToolBox(toolBox);
     }
-    onSourceIndexChanged(d->stack->currentIndex());
+    setToolBoxesVisible(d->stack->count()-1, false);
 }
