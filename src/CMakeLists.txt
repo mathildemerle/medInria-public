@@ -66,12 +66,6 @@ option(USE_FFmpeg
   )
 endif()
 
-set(USE_PYTHON OFF CACHE BOOL "unused" FORCE)
-
-if (USE_PYTHON)
-    add_compile_definitions(USE_PYTHON)
-endif()
-
 ## #############################################################################
 ## Find package
 ## #############################################################################
@@ -117,7 +111,6 @@ endif()
 set(${PROJECT_NAME}_CMAKE_DIR
   ${CMAKE_CURRENT_SOURCE_DIR}/cmake
   ${CMAKE_CURRENT_SOURCE_DIR}/cmake/module
-  ${CMAKE_CURRENT_SOURCE_DIR}/layers/medPython/cmake
   )
 
 set(CMAKE_MODULE_PATH
@@ -209,10 +202,6 @@ set_lib_properties_variables(
     medUtilities
     medVtkDataMeshBase
     )
-
-if (USE_PYTHON)
-    set_lib_properties_variables(medPythonBase)
-endif()
 
 if(EXISTS ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in)
   configure_file( ## Build tree configure file
