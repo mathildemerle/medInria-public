@@ -42,10 +42,10 @@ public:
     ~medDatabaseNonPersistentImporter() override = default;
 
 public:
+    QString getPatientID(QString patientName, QString birthDate);
 
-    QString getPatientID(QString patientName, QString birthDate) override;
+    medDataIndex populateDatabaseAndGenerateThumbnails ( medAbstractData* medData, QString pathToStoreThumbnails );
+    void setNumberOfFilesInDirectory(int num) override{};
 
-    medDataIndex populateDatabaseAndGenerateThumbnails ( medAbstractData* medData, QString pathToStoreThumbnails ) override;
-
-    QString ensureUniqueSeriesName ( const QString seriesName, const QString studyId ) override;
+    QString ensureUniqueSeriesName(const QString seriesName, const QString studyId) override;
 };

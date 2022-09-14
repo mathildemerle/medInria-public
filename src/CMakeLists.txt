@@ -16,7 +16,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 if(NOT DEFINED ${medInria_VERSION})
-    set(medInria_VERSION 3.0.0)
+    set(medInria_VERSION 3.2.0)
 endif()
 
 project(medInria VERSION ${medInria_VERSION})
@@ -131,7 +131,8 @@ include(set_exe_install_rules)
 include(set_lib_install_rules)
 include(set_lib_properties_variables)
 include(set_plugin_install_rules)
-include(add_external_resources)
+include(set_external_resources)
+include(import_external_resources)
 
 include(add_plugins)
 if(APPLE)
@@ -177,17 +178,6 @@ endif()
 if (WIN32)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /wd4068")
-endif()
-
-## #############################################################################
-## Setup resources directory (for Windows and Linux)
-## #############################################################################
-
-if (NOT APPLE)
-  set(${PROJECT_NAME}_RESOURCES_DIR "${CMAKE_BINARY_DIR}/resources")
-  add_custom_target(make_resource_dir ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${${PROJECT_NAME}_RESOURCES_DIR}"
-    )
 endif()
 
 ## #############################################################################

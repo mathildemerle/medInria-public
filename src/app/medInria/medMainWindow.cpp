@@ -15,7 +15,6 @@
 
 #include <medBrowserArea.h>
 #include <medComposerArea.h>
-#include <medDatabaseController.h>
 #include <medDatabaseNonPersistentController.h>
 #include <medDataManager.h>
 #include <medEmptyDbWarning.h>
@@ -676,7 +675,7 @@ void medMainWindow::switchToWorkspaceArea()
     if ( showWarning )
     {
         QList<medDataIndex> indexes = medDatabaseNonPersistentController::instance()->availableItems();
-        QList<medDataIndex> patients = medDatabaseController::instance()->patients();
+        QList<medDataIndex> patients = medDataManager::instance()->controller()->patients();
         if( indexes.isEmpty() )
             if( patients.isEmpty())
             {

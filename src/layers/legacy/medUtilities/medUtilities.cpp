@@ -31,15 +31,22 @@
 
 #include <gdcmUIDGenerator.h>
 
-void medUtilities::setDerivedMetaData(medAbstractData* derived, medAbstractData* original, QString derivationDescription, bool queryForDescription)
+void medUtilities::setDerivedMetaData(medAbstractData* derived, medAbstractData* original, QString derivationDescription, bool queryForDescription, bool outputSchema)
 {
     copyMetaDataIfEmpty(derived, original, metaDataKeysToCopyForDerivedData(derived));
 
     if (derivationDescription != "")
     {
         QString newSeriesDescription;
-        newSeriesDescription = original->metadata(medMetaDataKeys::SeriesDescription.key());
-        newSeriesDescription += " (" + derivationDescription + ")";
+        if (outputSchema)
+        {
+            newSeriesDescription = original->metadata(medMetaDataKeys::SeriesDescription.key());
+            newSeriesDescription += " (" + derivationDescription + ")";
+        }
+        else
+        {
+            newSeriesDescription = derivationDescription;
+        }
         derived->setMetaData(medMetaDataKeys::SeriesDescription.key(), newSeriesDescription);
     }
     else
@@ -88,6 +95,8 @@ QStringList medUtilities::metaDataKeysToCopyForDerivedData(medAbstractData* deri
          << medMetaDataKeys::Referee.key()
          << medMetaDataKeys::StudyDate.key()
          << medMetaDataKeys::StudyTime.key()
+         << medMetaDataKeys::SeriesDate.key()
+         << medMetaDataKeys::SeriesTime.key()
          << medMetaDataKeys::Modality.key()
          << medMetaDataKeys::Performer.key()
          << medMetaDataKeys::Report.key()

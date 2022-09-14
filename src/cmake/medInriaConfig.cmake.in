@@ -56,5 +56,4 @@ set_target_properties(medPythonBase PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "@m
 set(medInria_CMAKE_DIR @medInria_CMAKE_DIR@)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
   ${medInria_CMAKE_DIR}
-  ${medPython_CMAKE_DIR}
   )
