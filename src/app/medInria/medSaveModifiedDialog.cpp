@@ -51,7 +51,7 @@ class medSaveModifiedDialogCheckListItem : public QTreeWidgetItem
             setText(3, studyName);
             setText(4, seriesName);
             setText(5, file);
-            setCheckState(0, Qt::Unchecked);
+            setCheckState(0, Qt::Checked);
         }
 
         const medDataIndex& getIndex() const
@@ -139,7 +139,7 @@ void medSaveModifiedDialog::saveAndQuit()
     medDataManager * mdm = medDataManager::instance();
     for(medDataIndex index : list)
     {
-        mdm->makePersistent(mdm->retrieveData(index));
+        mdm->makePersistent(index);
     }
 
     if (d->counter != 0)

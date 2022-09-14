@@ -94,6 +94,9 @@ public:
     std::string GetNumberOfSeriesInStudy() const;
     std::string GetNumberOfStudyRelatedSeries() const;
     std::string GetStudyDate() const;
+    std::string GetStudyTime() const;
+    std::string GetSeriesDate() const;
+    std::string GetSeriesTime() const;
     std::string GetModality() const;
     std::string GetManufacturer() const;
     std::string GetInstitution() const;
@@ -185,7 +188,7 @@ protected:
     void DetermineOrigin();
     void DetermineOrientation();
 
-    double GetZPositionForImage (int);
+    double GetPositionOnStackingAxisForImage (int);
     double GetSliceLocation(std::string);
 
     void ReadHeader( const std::string& name, const int& fileIndex, const int& fileCount );
