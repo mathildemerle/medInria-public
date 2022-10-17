@@ -1,3 +1,14 @@
+/*
+ * medInria
+ * Copyright (c) INRIA 2013. All rights reserved.
+ *
+ * medInria is under BSD-2-Clause license. See LICENSE.txt for details in the
+ * root of the sources or:
+ * https://github.com/medInria/medInria-public/blob/master/LICENSE.txt
+ *
+ * This software is distributed WITHOUT ANY WARRANTY; without even
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ */
 #include "medICPFilter.h"
 
 #include "vtkCellLocator.h"
@@ -232,7 +243,6 @@ void medICPFilter::GetFREStats(double &mean, double &stdDev, double &median)
      median = this->medianFRE;
 }
 
-
 //----------------------------------------------------------------------------
 
 void medICPFilter::Inverse()
@@ -328,8 +338,6 @@ void medICPFilter::InternalUpdate()
   {
      this->SourceLandmarkIds[i] = j;
   }
-
-
 
   // Allocate some points.
   // - closestp is used so that the internal state of LandmarkTransform remains
@@ -472,7 +480,9 @@ void medICPFilter::InternalUpdate()
         if (this->MeanDistanceMode == VTK_ICP_MODE_RMS)
         {
           totaldist += vtkMath::Distance2BetweenPoints(p1, p2);
-        } else {
+        }
+        else
+        {
           totaldist += sqrt(vtkMath::Distance2BetweenPoints(p1, p2));
         }
       }
@@ -483,7 +493,9 @@ void medICPFilter::InternalUpdate()
       if (this->MeanDistanceMode == VTK_ICP_MODE_RMS)
       {
         this->MeanDistance = sqrt(totaldist / (double)nb_points);
-      } else {
+      }
+      else
+      {
         this->MeanDistance = totaldist / (double)nb_points;
       }
       vtkDebugMacro("Mean distance: " << this->MeanDistance);
