@@ -29,7 +29,7 @@ for i in $*; do
         injectDirs="$injectDirs -inject-dir=$i"
 done
 
-resourceLibsDir=@medInria_BINARY_DIR@/lib/resources_libs
+resourceLibsDir=@medInria_BINARY_DIR@/lib/resource_libs
 injectDirs="$injectDirs -inject-dir=$resourceLibsDir"
 
 @dtk_DIR@/bin/dtkDeploy MUSICardio.app $injectDirs &>/dev/null
@@ -59,13 +59,13 @@ resourceLibs=''
 echo "########################## 3"
 dylibResourceNames=$(ls $resourceLibsDir/*.dylib)
 for lib in $dylibResourceNames; do
-echo $lib
-libname=${lib##*/}
-copiedLib=$contentsDir/Frameworks/$libname
-\mv $contentsDir/PlugIns/$libname $copiedLib
-installedName="@executable_path/../Frameworks/$libname"
-install_name_tool -id $installedName $copiedLib
-resourceLibs="$resourceLibs $libname"
+    echo $lib
+    libname=${lib##*/}
+    copiedLib=$contentsDir/Frameworks/$libname
+    \mv $contentsDir/PlugIns/$libname $copiedLib
+    installedName="@executable_path/../Frameworks/$libname"
+    install_name_tool -id $installedName $copiedLib
+    resourceLibs="$resourceLibs $libname"
 done
 
 # Because of the dtkDeploy bug with install names, we have to fix the
