@@ -44,10 +44,10 @@ ls $contentsDir/PlugIns
 echo "########################## 2 "
 dylibNames=$(ls $contentsDir/PlugIns/*.dylib)
 for lib in $dylibNames do
-    echo lib
-    libname=${lib##*/}
-    installedName="@executable_path/../PlugIns/$libname"
-    install_name_tool -id $installedName $contentsDir/PlugIns/$libname
+echo "$lib"
+libname=${lib##*/}
+installedName="@executable_path/../PlugIns/$libname"
+install_name_tool -id $installedName $contentsDir/PlugIns/$libname
 done
 
 # Resource libraries are sent as plugins to dtkDeploy (above) because they are
@@ -59,13 +59,13 @@ resourceLibs=''
 echo "########################## 3"
 dylibResourceNames=$(ls $resourceLibsDir/*.dylib)
 for lib in $dylibResourceNames do
-    echo lib
-    libname=${lib##*/}
-    copiedLib=$contentsDir/Frameworks/$libname
-    \mv $contentsDir/PlugIns/$libname $copiedLib
-    installedName="@executable_path/../Frameworks/$libname"
-    install_name_tool -id $installedName $copiedLib
-    resourceLibs="$resourceLibs $libname"
+echo "$lib"
+libname=${lib##*/}
+copiedLib=$contentsDir/Frameworks/$libname
+\mv $contentsDir/PlugIns/$libname $copiedLib
+installedName="@executable_path/../Frameworks/$libname"
+install_name_tool -id $installedName $copiedLib
+resourceLibs="$resourceLibs $libname"
 done
 
 # Because of the dtkDeploy bug with install names, we have to fix the
