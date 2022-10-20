@@ -29,7 +29,7 @@ for i in $*; do
         injectDirs="$injectDirs -inject-dir=$i"
 done
 
-resourceLibsDir=@medInria_BINARY_DIR@/lib/resources
+resourceLibsDir=@medInria_BINARY_DIR@/lib/resources_libs
 injectDirs="$injectDirs -inject-dir=$resourceLibsDir"
 
 @dtk_DIR@/bin/dtkDeploy MUSICardio.app $injectDirs &>/dev/null
@@ -44,10 +44,10 @@ ls $contentsDir/PlugIns
 echo "########################## 2 "
 dylibNames=$(ls $contentsDir/PlugIns/*.dylib)
 for lib in $dylibNames; do
-echo $lib
-libname=${lib##*/}
-installedName="@executable_path/../PlugIns/$libname"
-install_name_tool -id $installedName $contentsDir/PlugIns/$libname
+    echo $lib
+    libname=${lib##*/}
+    installedName="@executable_path/../PlugIns/$libname"
+    install_name_tool -id $installedName $contentsDir/PlugIns/$libname
 done
 
 # Resource libraries are sent as plugins to dtkDeploy (above) because they are
