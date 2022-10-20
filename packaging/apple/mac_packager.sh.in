@@ -39,15 +39,15 @@ injectDirs="$injectDirs -inject-dir=$resourceLibsDir"
 
 echo "##########################"
 contentsDir=@medInria_BINARY_DIR@/bin/TmpInstall/MUSICardio.app/Contents
-ls $(contentsDir)/PlugIns
+ls $contentsDir/PlugIns
 
 echo "########################## 2 "
-dylibNames=$(ls $(contentsDir)/PlugIns/*.dylib)
+dylibNames=$(ls $contentsDir/PlugIns/*.dylib)
 echo $dylibNames
 for lib in $dylibNames do
     libname=${lib##*/}
     installedName="@executable_path/../PlugIns/$libname"
-    install_name_tool -id $installedName $(contentsDir)/PlugIns/$libname
+    install_name_tool -id $installedName $contentsDir/PlugIns/$libname
 done
 
 # Resource libraries are sent as plugins to dtkDeploy (above) because they are
@@ -61,8 +61,8 @@ dylibResourceNames=$(ls $resourceLibsDir/*.dylib)
 echo $dylibResourceNames
 for lib in $dylibResourceNames do
     libname=${lib##*/}
-    copiedLib=$(contentsDir)/Frameworks/$libname
-    \mv $(contentsDir)/PlugIns/$libname $copiedLib
+    copiedLib=$contentsDir/Frameworks/$libname
+    \mv $contentsDir/PlugIns/$libname $copiedLib
     installedName="@executable_path/../Frameworks/$libname"
     install_name_tool -id $installedName $copiedLib
     resourceLibs="$resourceLibs $libname"
@@ -71,10 +71,10 @@ done
 # Because of the dtkDeploy bug with install names, we have to fix the
 # dependencies of the resource libraries.
 for lib1 in $resourceLibs; do
-    deployedLib1=$(contentsDir)/Frameworks/$lib1
+    deployedLib1=$contentsDir/Frameworks/$lib1
     installedName="@executable_path/../Frameworks/$lib1"
     for lib2 in $resourceLibs; do
-        deployedLib2=$(contentsDir)/Frameworks/$lib2
+        deployedLib2=$contentsDir/Frameworks/$lib2
         install_name_tool -change $1/$lib1 $installedName $deployedLib2
     done
 done
