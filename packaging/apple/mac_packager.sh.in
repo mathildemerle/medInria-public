@@ -37,7 +37,7 @@ injectDirs="$injectDirs -inject-dir=$resourceLibsDir"
 # A bug in dtkDeploy causes plugins to keep their original installed name so we
 # must manually fix them.
 echo "##########################"
-dylibNames="ls @medInria_BINARY_DIR@/bin/TmpInstall/medInria.app/Contents/PlugIns/*.dylib"
+dylibNames=$(ls @medInria_BINARY_DIR@/bin/TmpInstall/medInria.app/Contents/PlugIns/*.dylib)
 echo $dylibNames
 for lib in $dylibNames do
     libname=${lib##*/}
@@ -52,7 +52,7 @@ done
 # frameworks folder and adjust their install name.
 resourceLibs=''
 echo "########################## 2"
-dylibResourceNames = "ls $resourceLibsDir/*.dylib"
+dylibResourceNames = $(ls $resourceLibsDir/*.dylib)
 echo $dylibResourceNames
 for lib in $dylibResourceNames do
     libname=${lib##*/}
