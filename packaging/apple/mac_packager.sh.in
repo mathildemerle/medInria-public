@@ -43,8 +43,8 @@ ls $contentsDir/PlugIns
 
 echo "########################## 2 "
 dylibNames=$(ls $contentsDir/PlugIns/*.dylib)
-for lib in $dylibNames do
-echo "$lib"
+for lib in $dylibNames; do
+echo $lib
 libname=${lib##*/}
 installedName="@executable_path/../PlugIns/$libname"
 install_name_tool -id $installedName $contentsDir/PlugIns/$libname
@@ -58,8 +58,8 @@ done
 resourceLibs=''
 echo "########################## 3"
 dylibResourceNames=$(ls $resourceLibsDir/*.dylib)
-for lib in $dylibResourceNames do
-echo "$lib"
+for lib in $dylibResourceNames; do
+echo $lib
 libname=${lib##*/}
 copiedLib=$contentsDir/Frameworks/$libname
 \mv $contentsDir/PlugIns/$libname $copiedLib
