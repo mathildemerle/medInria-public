@@ -29,6 +29,8 @@ for i in $*; do
         injectDirs="$injectDirs -inject-dir=$i"
 done
 
+echo "########################## AAA"
+ls @medInria_BINARY_DIR@/lib
 resourceLibsDir=@medInria_BINARY_DIR@/lib/resource_libs
 injectDirs="$injectDirs -inject-dir=$resourceLibsDir"
 
@@ -37,11 +39,11 @@ injectDirs="$injectDirs -inject-dir=$resourceLibsDir"
 # A bug in dtkDeploy causes plugins to keep their original installed name so we
 # must manually fix them.
 
-echo "##########################"
+echo "########################## BBB"
 contentsDir=@medInria_BINARY_DIR@/bin/TmpInstall/MUSICardio.app/Contents
 ls $contentsDir/PlugIns
 
-echo "########################## 2 "
+echo "########################## CCC"
 dylibNames=$(ls $contentsDir/PlugIns/*.dylib)
 for lib in $dylibNames; do
     echo $lib
@@ -56,7 +58,7 @@ done
 # libraries). After the execution of dtkDeploy we move these libraries to the
 # frameworks folder and adjust their install name.
 resourceLibs=''
-echo "########################## 3"
+echo "########################## DDD"
 dylibResourceNames=$(ls $resourceLibsDir/*.dylib)
 for lib in $dylibResourceNames; do
     echo $lib
