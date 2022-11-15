@@ -32,7 +32,7 @@ medDatabaseExporter::medDatabaseExporter(dtkSmartPointer<medAbstractData> data, 
     d->writer   = writer;
 }
 
-medDatabaseExporter::~medDatabaseExporter(void)
+medDatabaseExporter::~medDatabaseExporter()
 {
     delete d;
 

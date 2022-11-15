@@ -25,8 +25,6 @@
 #include <itkObjectFactoryBase.h>
 #include <itkCommand.h>
 
-#include <itkMetaDataObject.h>
-
 // implement an observer
 namespace itk {
 
