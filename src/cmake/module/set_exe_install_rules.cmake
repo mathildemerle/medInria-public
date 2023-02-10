@@ -41,6 +41,7 @@ install(TARGETS ${target}
 
 if (APPLE)
 
+message("### original target ${target} ${${target}_VERSION} or ${MEDINRIA_SUPERBUILD_VERSION}")
   set(MACOSX_BUNDLE_SHORT_VERSION_STRING
     ${${target}_VERSION}
     )
