@@ -41,23 +41,13 @@ install(TARGETS ${target}
 
 if (APPLE)
 
-message("### original target ${target} ${${target}_VERSION} or ${MEDINRIA_SUPERBUILD_VERSION}")
-  set(MACOSX_BUNDLE_SHORT_VERSION_STRING
-    ${${target}_VERSION}
+  set(${target}_RESOURCE_DIR
+    ${CMAKE_BINARY_DIR}/bin/${target}.app/Contents/Resources
     )
-  set(MACOSX_BUNDLE_BUNDLE_VERSION
-    ${${target}_VERSION}
+  add_custom_command(TARGET ${target} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} ARGS -E make_directory ${${target}_RESOURCE_DIR}
+    COMMAND ${CMAKE_COMMAND} ARGS -E copy ${MACOS_ICON_PATH} ${${target}_RESOURCE_DIR}
     )
-  set(MACOSX_BUNDLE_LONG_VERSION_STRING
-    "Version ${${target}_VERSION}"
-    )
-  # set(${target}_RESOURCE_DIR
-  #   ${CMAKE_BINARY_DIR}/bin/${target}.app/Contents/Resources
-  #   )
-  # add_custom_command(TARGET ${target} POST_BUILD
-  #   COMMAND ${CMAKE_COMMAND} ARGS -E make_directory ${${target}_RESOURCE_DIR}
-  #  # COMMAND ${CMAKE_COMMAND} ARGS -E copy ${MACOS_ICON_PATH} ${${target}_RESOURCE_DIR}
-  #   )
 
   install(CODE "
   execute_process(COMMAND
