@@ -62,7 +62,6 @@ target_include_directories(${TARGET_NAME}
 target_link_libraries(${TARGET_NAME}
   ITKCommon
   ITKStatistics
-  ITKSmoothing
   Qt5::Core
   dtkCore
   dtkCoreSupport

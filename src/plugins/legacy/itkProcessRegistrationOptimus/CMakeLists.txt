@@ -98,7 +98,6 @@ target_link_libraries(${TARGET_NAME}
   medCoreLegacy
   ${ITKIO_LIBRARIES}
   ITKOptimizers
-  ITKSmoothing
   medRegistration
 )
 

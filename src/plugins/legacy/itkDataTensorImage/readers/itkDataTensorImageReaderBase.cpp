@@ -109,13 +109,13 @@ bool itkDataTensorImageReaderBase::readInformation (const QString &path)
 
         switch (this->io->GetComponentType()) {
 
-            case itk::IOComponentEnum::FLOAT:
+            case itk::ImageIOBase::FLOAT:
                 medData = medAbstractDataFactory::instance()->create ("itkDataTensorImageFloat3");
                 if (medData)
                     this->setData ( medData );
                 break;
 
-            case itk::IOComponentEnum::DOUBLE:
+            case itk::ImageIOBase::DOUBLE:
                 medData = medAbstractDataFactory::instance()->create ("itkDataTensorImageDouble3");
                 if (medData)
                     this->setData ( medData );

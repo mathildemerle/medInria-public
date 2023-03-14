@@ -19,7 +19,6 @@
 
 #include <itkDCMTKImageIO.h>
 
-#include <itkCommonEnums.h>
 #include <itkImageIOBase.h>
 #include <itkImageFileReader.h>
 #include <itkRGBPixel.h>
@@ -303,38 +302,38 @@ bool itkDCMTKDataImageReader::readInformation(const QStringList& paths)
         std::ostringstream imagetypestring;
         imagetypestring << "itkDataImage";
 
-        if (d->io->GetPixelType() == itk::IOPixelEnum::SCALAR)
+        if (d->io->GetPixelType() == itk::ImageIOBase::SCALAR)
         {
             switch (d->io->GetComponentType())
             {
-            case itk::IOComponentEnum::UCHAR:
+            case itk::ImageIOBase::UCHAR:
                 imagetypestring << "UChar";
                 break;
-            case itk::IOComponentEnum::CHAR:
+            case itk::ImageIOBase::CHAR:
                 imagetypestring << "Char";
                 break;
-            case itk::IOComponentEnum::USHORT:
+            case itk::ImageIOBase::USHORT:
                 imagetypestring << "UShort";
                 break;
-            case itk::IOComponentEnum::SHORT:
+            case itk::ImageIOBase::SHORT:
                 imagetypestring << "Short";
                 break;
-            case itk::IOComponentEnum::UINT:
+            case itk::ImageIOBase::UINT:
                 imagetypestring << "UInt";
                 break;
-            case itk::IOComponentEnum::INT:
+            case itk::ImageIOBase::INT:
                 imagetypestring << "Int";
                 break;
-            case itk::IOComponentEnum::ULONG:
+            case itk::ImageIOBase::ULONG:
                 imagetypestring << "ULong";
                 break;
-            case itk::IOComponentEnum::LONG:
+            case itk::ImageIOBase::LONG:
                 imagetypestring << "Long";
                 break;
-            case itk::IOComponentEnum::FLOAT:
+            case itk::ImageIOBase::FLOAT:
                 imagetypestring << "Float";
                 break;
-            case itk::IOComponentEnum::DOUBLE:
+            case itk::ImageIOBase::DOUBLE:
                 imagetypestring << "Double";
                 break;
             default:
@@ -347,12 +346,12 @@ bool itkDCMTKDataImageReader::readInformation(const QStringList& paths)
             if (medData)
                 this->setData(medData);
         }
-        else if (d->io->GetPixelType() == itk::IOPixelEnum::RGB)
+        else if (d->io->GetPixelType() == itk::ImageIOBase::RGB)
         {
 
             switch (d->io->GetComponentType())
             {
-            case itk::IOComponentEnum::UCHAR:
+            case itk::ImageIOBase::UCHAR:
                 medData = medAbstractDataFactory::instance()->create("itkDataImageRGB3");
 
                 if (medData)

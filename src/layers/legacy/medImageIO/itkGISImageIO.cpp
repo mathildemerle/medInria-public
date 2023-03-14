@@ -29,16 +29,16 @@ namespace itk
   {
     m_IsBinary = true;
     this->SetNumberOfDimensions(3);
-    m_PixelType         = itk::IOPixelEnum::SCALAR;
-    m_ComponentType     = itk::IOComponentEnum::UCHAR;
+    m_PixelType         = itk::ImageIOBase::SCALAR;
+    m_ComponentType     = UCHAR;
     
     if (ByteSwapper<int>::SystemIsBigEndian())
     {
-        m_ByteOrder = itk::IOByteOrderEnum::BigEndian;
+        m_ByteOrder = BigEndian;
     }
     else
     {
-      m_ByteOrder = itk::IOByteOrderEnum::LittleEndian;
+      m_ByteOrder = LittleEndian;
     }
   }
   
@@ -137,13 +137,13 @@ namespace itk
 	//this->SetNumberOfComponents( dims[3] );
 	this->SetNumberOfComponents( 1 );
 	//this->SetPixelType (VECTOR);
-	this->SetPixelType (itk::IOPixelEnum::SCALAR);
+	this->SetPixelType (itk::ImageIOBase::SCALAR);
       }
       else
       {
 	this->SetNumberOfDimensions(3);
 	this->SetNumberOfComponents(1);
-	this->SetPixelType (itk::IOPixelEnum::SCALAR);
+	this->SetPixelType (itk::ImageIOBase::SCALAR);
       }
 
       ifs >> junk;
@@ -154,7 +154,7 @@ namespace itk
       dims[3] = 1;
       this->SetNumberOfDimensions(3);
       this->SetNumberOfComponents(1);
-      this->SetPixelType (itk::IOPixelEnum::SCALAR);
+      this->SetPixelType (itk::ImageIOBase::SCALAR);
     }
 
     for( unsigned int i=0; i<this->GetNumberOfDimensions(); i++ )
@@ -174,35 +174,35 @@ namespace itk
     // parse the type
     if( s_type== "S8" )
     {
-      m_ComponentType = itk::IOComponentEnum::CHAR;
+      m_ComponentType = CHAR;
     }
     else if( s_type== "U8" )
     {
-      m_ComponentType = itk::IOComponentEnum::UCHAR;
+      m_ComponentType = UCHAR;
     }
     else if( s_type== "S16" )
     {
-      m_ComponentType = itk::IOComponentEnum::SHORT;
+      m_ComponentType = SHORT;
     }
     else if( s_type== "U16" )
     {
-      m_ComponentType = itk::IOComponentEnum::USHORT;
+      m_ComponentType = USHORT;
     }
     else if( s_type== "S32" )
     {
-      m_ComponentType = itk::IOComponentEnum::INT;
+      m_ComponentType = INT;
     }
     else if( s_type== "U32" )
     {
-      m_ComponentType = itk::IOComponentEnum::UINT;
+      m_ComponentType = UINT;
     }
     else if( s_type== "F32" || s_type=="FLOAT")
     {
-      m_ComponentType = itk::IOComponentEnum::FLOAT;
+      m_ComponentType = FLOAT;
     }
     else if( s_type== "F64" || s_type=="DOUBLE")
     {
-      m_ComponentType = itk::IOComponentEnum::DOUBLE;
+      m_ComponentType = DOUBLE;
     }
     else
     {
@@ -261,7 +261,7 @@ namespace itk
     {
       // assuming it's LittleEndian
       //throw itk::ExceptionObject(__FILE__,__LINE__,"Error: Cannot find keyword \"-bo\".");
-      m_ByteOrder = itk::IOByteOrderEnum::LittleEndian;
+      m_ByteOrder = LittleEndian;
     }
     else
     {
@@ -269,11 +269,11 @@ namespace itk
       ifs >> s_byteorder;
       if( s_byteorder == "DCBA" )
       {
-	m_ByteOrder = itk::IOByteOrderEnum::LittleEndian;
+	m_ByteOrder = LittleEndian;
       }
       else
       {
-	m_ByteOrder = itk::IOByteOrderEnum::BigEndian;
+	m_ByteOrder = BigEndian;
       }
       ifs >> junk;
     }
@@ -412,7 +412,7 @@ namespace itk
     }
     
 
-    if( this->GetNumberOfDimensions()==3 && this->GetPixelType()== itk::IOPixelEnum::SCALAR)
+    if( this->GetNumberOfDimensions()==3 && this->GetPixelType()== itk::ImageIOBase::SCALAR)
     {
       for( int i=0; i<3; i++ )
       {
@@ -420,7 +420,7 @@ namespace itk
       }
       ofs << "1\n";
     }
-    else if (this->GetNumberOfDimensions()==3 && this->GetPixelType()== itk::IOPixelEnum::VECTOR )
+    else if (this->GetNumberOfDimensions()==3 && this->GetPixelType()== itk::ImageIOBase::VECTOR )
     {
       for( int i=0; i<3; i++ )
       {
@@ -447,28 +447,28 @@ namespace itk
     ofs << "-type ";
     switch (m_ComponentType )
     {
-	case itk::IOComponentEnum::CHAR:
+	case CHAR:
 	  ofs << "S8\n";
 	  break;
-	case itk::IOComponentEnum::UCHAR:
+	case UCHAR:
 	  ofs << "U8\n";
 	  break;
-	case itk::IOComponentEnum::SHORT:
+	case SHORT:
 	  ofs << "S16\n";
 	  break;
-	case itk::IOComponentEnum::USHORT:
+	case USHORT:
 	  ofs << "U16\n";
 	  break;
-	case itk::IOComponentEnum::INT:
+	case INT:
 	  ofs << "S32\n";
 	  break;
-	case itk::IOComponentEnum::UINT:
+	case UINT:
 	  ofs << "U32\n";
 	  break;
-	case itk::IOComponentEnum::FLOAT:
+	case FLOAT:
 	  ofs << "FLOAT\n";
 	  break;
-	case itk::IOComponentEnum::DOUBLE:
+	case DOUBLE:
 	  ofs << "DOUBLE\n";
 	  break;
 	default:
@@ -492,7 +492,7 @@ namespace itk
     
     
     // byte order
-    if( m_ByteOrder == itk::IOByteOrderEnum::LittleEndian )
+    if( m_ByteOrder == LittleEndian )
     {
       ofs << "-bo DCBA\n";
     }
@@ -519,19 +519,19 @@ namespace itk
     }
 
 
-    if ( m_PixelType != itk::IOPixelEnum::SCALAR && m_PixelType != itk::IOPixelEnum::VECTOR)
+    if ( m_PixelType != itk::ImageIOBase::SCALAR && m_PixelType != itk::ImageIOBase::VECTOR)
     {
       throw ExceptionObject (__FILE__,__LINE__,"Error: GIS only supports SCALAR and VECTOR images.");
     }
 
-    if (m_ComponentType != itk::IOComponentEnum::CHAR &&
-	m_ComponentType != itk::IOComponentEnum::UCHAR &&
-	m_ComponentType != itk::IOComponentEnum::SHORT &&
-	m_ComponentType != itk::IOComponentEnum::USHORT &&
-	m_ComponentType != itk::IOComponentEnum::INT &&
-	m_ComponentType != itk::IOComponentEnum::UINT &&
-	m_ComponentType != itk::IOComponentEnum::FLOAT &&
-	m_ComponentType != itk::IOComponentEnum::DOUBLE)
+    if (m_ComponentType != CHAR &&
+	m_ComponentType != UCHAR &&
+	m_ComponentType != SHORT &&
+	m_ComponentType != USHORT &&
+	m_ComponentType != INT &&
+	m_ComponentType != UINT &&
+	m_ComponentType != FLOAT &&
+	m_ComponentType != DOUBLE)
     {
       throw ExceptionObject (__FILE__,__LINE__,"Error: Pixel type is not supported by GIS format yet.");
     }
@@ -565,7 +565,7 @@ namespace itk
     const unsigned long numberOfComponents = static_cast<unsigned long>( this->GetImageSizeInComponents() );
 
     // Swap bytes if necessary
-    if ( m_ByteOrder == itk::IOByteOrderEnum::LittleEndian )
+    if ( m_ByteOrder == LittleEndian )
     {
       char * tempBuffer = new char[ numberOfBytes ];
       memcpy( tempBuffer, buffer , numberOfBytes );
@@ -593,82 +593,82 @@ namespace itk
   {
     switch(m_ComponentType)
       {
-      case itk::IOComponentEnum::CHAR:
+      case CHAR:
 	{
-	  if ( m_ByteOrder == itk::IOByteOrderEnum::LittleEndian )
+	  if ( m_ByteOrder == LittleEndian )
 	    {
 	      ByteSwapper<char>::SwapRangeFromSystemToLittleEndian((char*)buffer, numberOfPixels );
 	    }
-	  else if ( m_ByteOrder == itk::IOByteOrderEnum::BigEndian )
+	  else if ( m_ByteOrder == BigEndian )
 	    {
 	      ByteSwapper<char>::SwapRangeFromSystemToBigEndian((char *)buffer, numberOfPixels );
 	    }
 	  break;
 	}
-      case itk::IOComponentEnum::UCHAR:
+      case UCHAR:
 	{
-	  if ( m_ByteOrder == itk::IOByteOrderEnum::LittleEndian )
+	  if ( m_ByteOrder == LittleEndian )
 	    {
 	      ByteSwapper<unsigned char>::SwapRangeFromSystemToLittleEndian(
 									    (unsigned char*)buffer, numberOfPixels );
 	    }
-	  else if ( m_ByteOrder == itk::IOByteOrderEnum::BigEndian )
+	  else if ( m_ByteOrder == BigEndian )
 	    {
 	      ByteSwapper<unsigned char>::SwapRangeFromSystemToBigEndian(
 									 (unsigned char *)buffer, numberOfPixels );
 	    }
 	  break;
 	}
-      case itk::IOComponentEnum::SHORT:
+      case SHORT:
 	{
-	  if ( m_ByteOrder == itk::IOByteOrderEnum::LittleEndian )
+	  if ( m_ByteOrder == LittleEndian )
 	    {
 	      ByteSwapper<short>::SwapRangeFromSystemToLittleEndian(
 								    (short*)buffer, numberOfPixels );
 	    }
-	  else if ( m_ByteOrder == itk::IOByteOrderEnum::BigEndian )
+	  else if ( m_ByteOrder == BigEndian )
 	    {
 	      ByteSwapper<short>::SwapRangeFromSystemToBigEndian(
 								 (short *)buffer, numberOfPixels );
 	    }
 	  break;
 	}
-      case itk::IOComponentEnum::USHORT:
+      case USHORT:
 	{
-	  if ( m_ByteOrder == itk::IOByteOrderEnum::LittleEndian )
+	  if ( m_ByteOrder == LittleEndian )
 	    {
 	      ByteSwapper<unsigned short>::SwapRangeFromSystemToLittleEndian(
 									     (unsigned short*)buffer, numberOfPixels );
 	    }
-	  else if ( m_ByteOrder == itk::IOByteOrderEnum::BigEndian )
+	  else if ( m_ByteOrder == BigEndian )
 	    {
 	      ByteSwapper<unsigned short>::SwapRangeFromSystemToBigEndian(
 									  (unsigned short *)buffer, numberOfPixels );
 	    }
 	  break; 
 	}
-      case itk::IOComponentEnum::INT:
+      case INT:
 	{
-	  if ( m_ByteOrder == itk::IOByteOrderEnum::LittleEndian )
+	  if ( m_ByteOrder == LittleEndian )
 	    {
 	      ByteSwapper<int>::SwapRangeFromSystemToLittleEndian(
 								  (int*)buffer, numberOfPixels );
 	    }
-	  else if ( m_ByteOrder == itk::IOByteOrderEnum::BigEndian )
+	  else if ( m_ByteOrder == BigEndian )
 	    {
 	      ByteSwapper<int>::SwapRangeFromSystemToBigEndian(
 							       (int*)buffer, numberOfPixels );
 	    }
 	  break;
 	}
-      case itk::IOComponentEnum::UINT:
+      case UINT:
 	{
-	  if ( m_ByteOrder == itk::IOByteOrderEnum::LittleEndian )
+	  if ( m_ByteOrder == LittleEndian )
 	    {
 	      ByteSwapper<unsigned int>::SwapRangeFromSystemToLittleEndian(
 									   (unsigned int*)buffer, numberOfPixels );
 	    }
-	  else if ( m_ByteOrder == itk::IOByteOrderEnum::BigEndian )
+	  else if ( m_ByteOrder == BigEndian )
 	    {
 	      ByteSwapper<unsigned int>::SwapRangeFromSystemToBigEndian(
 									(unsigned int *)buffer, numberOfPixels );
@@ -676,28 +676,28 @@ namespace itk
 	  break; 
 	}
 	
-      case itk::IOComponentEnum::FLOAT:
+      case FLOAT:
 	{
-	  if ( m_ByteOrder == itk::IOByteOrderEnum::LittleEndian )
+	  if ( m_ByteOrder == LittleEndian )
 	    {
 	      ByteSwapper<float>::SwapRangeFromSystemToLittleEndian(
 								    (float*)buffer, numberOfPixels );
 	    }
-	  else if ( m_ByteOrder == itk::IOByteOrderEnum::BigEndian )
+	  else if ( m_ByteOrder == BigEndian )
 	    {
 	      ByteSwapper<float>::SwapRangeFromSystemToBigEndian(
 								 (float *)buffer, numberOfPixels );
 	    }
 	  break; 
 	}
-      case itk::IOComponentEnum::DOUBLE:
+      case DOUBLE:
 	{
-	  if ( m_ByteOrder == itk::IOByteOrderEnum::LittleEndian )
+	  if ( m_ByteOrder == LittleEndian )
 	    {
 	      ByteSwapper<double>::SwapRangeFromSystemToLittleEndian(
 								     (double*)buffer, numberOfPixels );
 	    }
-	  else if ( m_ByteOrder == itk::IOByteOrderEnum::BigEndian )
+	  else if ( m_ByteOrder == BigEndian )
 	    {
 	      ByteSwapper<double>::SwapRangeFromSystemToBigEndian(
 								  (double *)buffer, numberOfPixels );

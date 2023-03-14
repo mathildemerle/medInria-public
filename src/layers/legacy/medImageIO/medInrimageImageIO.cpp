@@ -136,13 +136,13 @@ InrimageImageIO::InrimageImageIO()
 
     // pixel type is UCHAR
     // m_PixelType is a protected member of ImageIOBase (IODataType itk::ImageIOBase::m_PixelType)
-    this->SetPixelType(itk::IOPixelEnum::SCALAR);
+    this->SetPixelType(SCALAR);
     this->SetNumberOfComponents(1);
-    this->SetComponentType(itk::IOComponentEnum::DOUBLE);
+    this->SetComponentType(DOUBLE);
 
 
     // Byte order
-    this->SetByteOrder((itk::ByteSwapper<int>::SystemIsBigEndian() == true) ? itk::IOByteOrderEnum::BigEndian : itk::IOByteOrderEnum::LittleEndian);
+    this->SetByteOrder((itk::ByteSwapper<int>::SystemIsBigEndian() == true) ? BigEndian : LittleEndian);
 
     // additionnal information
     // (inrimage only)
@@ -171,30 +171,30 @@ void InrimageImageIO::PrintSelf(std::ostream& os, itk::Indent indent) const
     os << indent << "PixelType " << m_PixelType << std::endl;
 }
 
-const std::type_info& InrimageImageIO::ConvertToTypeInfo(itk::IOComponentEnum t) const
+const std::type_info& InrimageImageIO::ConvertToTypeInfo(IOPixelType t) const
 {
 
     switch (t)
     {
-        case itk::IOComponentEnum::UCHAR:
+        case UCHAR:
             return typeid(unsigned char);
-        case itk::IOComponentEnum::CHAR:
+        case CHAR:
             return typeid(char);
-        case itk::IOComponentEnum::USHORT:
+        case USHORT:
             return typeid(unsigned short);
-        case itk::IOComponentEnum::SHORT:
+        case SHORT:
             return typeid(short);
-        case itk::IOComponentEnum::UINT:
+        case UINT:
             return typeid(unsigned int);
-        case itk::IOComponentEnum::INT:
+        case INT:
             return typeid(int);
-        case itk::IOComponentEnum::ULONG:
+        case ULONG:
             return typeid(unsigned long);
-        case itk::IOComponentEnum::LONG:
+        case LONG:
             return typeid(long);
-        case itk::IOComponentEnum::FLOAT:
+        case FLOAT:
             return typeid(float);
-        case itk::IOComponentEnum::DOUBLE:
+        case DOUBLE:
             return typeid(double);
             /*case RGB:
               return typeid(RGBPixel<unsigned char>);
@@ -204,7 +204,7 @@ const std::type_info& InrimageImageIO::ConvertToTypeInfo(itk::IOComponentEnum t)
         default:
             itkExceptionMacro("Invalid type: " << m_PixelType);
     }
-    return typeid(itk::IOComponentEnum::UNKNOWNCOMPONENTTYPE);
+    return typeid(UNKNOWNCOMPONENTTYPE);
 
 }
 
@@ -653,10 +653,10 @@ void InrimageImageIO::ReadImageInformation()
     }
 
     if (std::string(type, 0, strlen("unsigned")).compare("unsigned") == 0) {
-        if (pixsize == 8) this->SetComponentType(itk::IOComponentEnum::UCHAR);
-        else if (pixsize == 16) this->SetComponentType(itk::IOComponentEnum::USHORT);
-        else if (pixsize == 32) this->SetComponentType(itk::IOComponentEnum::UINT);
-        else if (pixsize == 64) this->SetComponentType(itk::IOComponentEnum::ULONG);
+        if (pixsize == 8) this->SetComponentType(UCHAR);
+        else if (pixsize == 16) this->SetComponentType(USHORT);
+        else if (pixsize == 32) this->SetComponentType(UINT);
+        else if (pixsize == 64) this->SetComponentType(ULONG);
         else {
             itk::ExceptionObject exception(__FILE__, __LINE__);
             exception.SetDescription("Pixel Size Not Recognized");
@@ -664,10 +664,10 @@ void InrimageImageIO::ReadImageInformation()
         }
     }
     else if (std::string(type, 0, strlen("signed")).compare("signed") == 0) {
-        if (pixsize == 8) this->SetComponentType(itk::IOComponentEnum::CHAR);
-        else if (pixsize == 16) this->SetComponentType(itk::IOComponentEnum::SHORT);
-        else if (pixsize == 32) this->SetComponentType(itk::IOComponentEnum::INT);
-        else if (pixsize == 64) this->SetComponentType(itk::IOComponentEnum::LONG);
+        if (pixsize == 8) this->SetComponentType(CHAR);
+        else if (pixsize == 16) this->SetComponentType(SHORT);
+        else if (pixsize == 32) this->SetComponentType(INT);
+        else if (pixsize == 64) this->SetComponentType(LONG);
         else {
             itk::ExceptionObject exception(__FILE__, __LINE__);
             exception.SetDescription("Pixel Size Not Recognized");
@@ -675,8 +675,8 @@ void InrimageImageIO::ReadImageInformation()
         }
     }
     else if (std::string(type, 0, strlen("float")).compare("float") == 0) {
-        if (pixsize == 32) this->SetComponentType(itk::IOComponentEnum::FLOAT);
-        else if (pixsize == 64) this->SetComponentType(itk::IOComponentEnum::DOUBLE);
+        if (pixsize == 32) this->SetComponentType(FLOAT);
+        else if (pixsize == 64) this->SetComponentType(DOUBLE);
         else {
             itk::ExceptionObject exception(__FILE__, __LINE__);
             exception.SetDescription("Pixel Size Not Recognized");
@@ -684,7 +684,7 @@ void InrimageImageIO::ReadImageInformation()
         }
     }
 
-    this->SetPixelType(itk::IOPixelEnum::SCALAR);
+    this->SetPixelType(SCALAR);
 
     if (0) {
         std::cout << "type " << type << std::endl;
@@ -712,8 +712,8 @@ void InrimageImageIO::ReadImageInformation()
             switch (this->GetComponentType()) {
                 default:
                     break;
-                case itk::IOComponentEnum::UCHAR:
-                    this->SetPixelType(itk::IOPixelEnum::RGB);
+                case UCHAR:
+                    this->SetPixelType(RGB);
                     this->SetNumberOfComponents(1);
                     break;
             }
@@ -722,8 +722,8 @@ void InrimageImageIO::ReadImageInformation()
             switch (this->GetComponentType()) {
                 default:
                     break;
-                case itk::IOComponentEnum::UCHAR:
-                    this->SetPixelType(itk::IOPixelEnum::RGBA);
+                case UCHAR:
+                    this->SetPixelType(RGBA);
                     this->SetNumberOfComponents(1);
                     break;
             }
@@ -839,24 +839,24 @@ InrimageImageIO
     char scale[20];
     switch (this->GetComponentType())
     {
-        case itk::IOComponentEnum::UCHAR:
-        case itk::IOComponentEnum::USHORT:
-        case itk::IOComponentEnum::UINT:
-        case itk::IOComponentEnum::ULONG:
+        case UCHAR:
+        case USHORT:
+        case UINT:
+        case ULONG:
             type = "unsigned fixed";
             sprintf(scale, "SCALE=2**0\n");
             break;
 
-        case itk::IOComponentEnum::CHAR:
-        case itk::IOComponentEnum::SHORT:
-        case itk::IOComponentEnum::INT:
-        case itk::IOComponentEnum::LONG:
+        case CHAR:
+        case SHORT:
+        case INT:
+        case LONG:
             type = "signed fixed";
             sprintf(scale, "SCALE=2**0\n");
             break;
 
-        case itk::IOComponentEnum::FLOAT:
-        case itk::IOComponentEnum::DOUBLE:
+        case FLOAT:
+        case DOUBLE:
             type = "float";
             scale[0] = '\0';
             break;
@@ -869,25 +869,25 @@ InrimageImageIO
     int pixsize = 8;
     switch (this->GetComponentType())
     {
-        case itk::IOComponentEnum::UCHAR:
-        case itk::IOComponentEnum::CHAR:
+        case UCHAR:
+        case CHAR:
             pixsize = 8;
             break;
 
-        case itk::IOComponentEnum::USHORT:
-        case itk::IOComponentEnum::SHORT:
+        case USHORT:
+        case SHORT:
             pixsize = 16;
             break;
 
-        case itk::IOComponentEnum::UINT:
-        case itk::IOComponentEnum::INT:
-        case itk::IOComponentEnum::FLOAT:
+        case UINT:
+        case INT:
+        case FLOAT:
             pixsize = 32;
             break;
 
-        case itk::IOComponentEnum::ULONG:
-        case itk::IOComponentEnum::LONG:
-        case itk::IOComponentEnum::DOUBLE:
+        case ULONG:
+        case LONG:
+        case DOUBLE:
             pixsize = 64;
             break;
 
@@ -897,7 +897,7 @@ InrimageImageIO
     }
 
     std::string endianness;
-    if (this->GetByteOrder() == itk::IOByteOrderEnum::LittleEndian)
+    if (this->GetByteOrder() == LittleEndian)
         endianness = "decm";
     else
         endianness = "sun";
@@ -1043,47 +1043,47 @@ InrimageImageIO
 
 void InrimageImageIO::SwapBytesIfNecessary(void* buffer, unsigned long numberOfPixels)
 {
-    if (ImageIOBase::GetByteOrder() == itk::IOByteOrderEnum::LittleEndian)
+    if (ImageIOBase::GetByteOrder() == LittleEndian)
     {
         switch (m_ComponentType)
         {
-            case itk::IOComponentEnum::CHAR:
+            case CHAR:
                 itk::ByteSwapper<char>::SwapRangeFromSystemToLittleEndian((char*)buffer,
                                                                      numberOfPixels);
                 break;
-            case itk::IOComponentEnum::UCHAR:
+            case UCHAR:
                 itk::ByteSwapper<unsigned char>::SwapRangeFromSystemToLittleEndian
                         ((unsigned char*)buffer, numberOfPixels);
                 break;
-            case itk::IOComponentEnum::SHORT:
+            case SHORT:
                 itk::ByteSwapper<short>::SwapRangeFromSystemToLittleEndian
                         ((short*)buffer, numberOfPixels);
                 break;
-            case itk::IOComponentEnum::USHORT:
+            case USHORT:
                 itk::ByteSwapper<unsigned short>::SwapRangeFromSystemToLittleEndian
                         ((unsigned short*)buffer, numberOfPixels);
                 break;
-            case itk::IOComponentEnum::INT:
+            case INT:
                 itk::ByteSwapper<int>::SwapRangeFromSystemToLittleEndian
                         ((int*)buffer, numberOfPixels);
                 break;
-            case itk::IOComponentEnum::UINT:
+            case UINT:
                 itk::ByteSwapper<unsigned int>::SwapRangeFromSystemToLittleEndian
                         ((unsigned int*)buffer, numberOfPixels);
                 break;
-            case itk::IOComponentEnum::LONG:
+            case LONG:
                 itk::ByteSwapper<long>::SwapRangeFromSystemToLittleEndian
                         ((long*)buffer, numberOfPixels);
                 break;
-            case itk::IOComponentEnum::ULONG:
+            case ULONG:
                 itk::ByteSwapper<unsigned long>::SwapRangeFromSystemToLittleEndian
                         ((unsigned long*)buffer, numberOfPixels);
                 break;
-            case itk::IOComponentEnum::FLOAT:
+            case FLOAT:
                 itk::ByteSwapper<float>::SwapRangeFromSystemToLittleEndian((float*)buffer,
                                                                       numberOfPixels);
                 break;
-            case itk::IOComponentEnum::DOUBLE:
+            case DOUBLE:
                 itk::ByteSwapper<double>::SwapRangeFromSystemToLittleEndian
                         ((double*)buffer, numberOfPixels);
                 break;
@@ -1097,43 +1097,43 @@ void InrimageImageIO::SwapBytesIfNecessary(void* buffer, unsigned long numberOfP
     {
         switch (m_ComponentType)
         {
-            case itk::IOComponentEnum::CHAR:
+            case CHAR:
                 itk::ByteSwapper<char>::SwapRangeFromSystemToBigEndian((char *)buffer,
                                                                   numberOfPixels);
                 break;
-            case itk::IOComponentEnum::UCHAR:
+            case UCHAR:
                 itk::ByteSwapper<unsigned char>::SwapRangeFromSystemToBigEndian
                         ((unsigned char *)buffer, numberOfPixels);
                 break;
-            case itk::IOComponentEnum::SHORT:
+            case SHORT:
                 itk::ByteSwapper<short>::SwapRangeFromSystemToBigEndian
                         ((short *)buffer, numberOfPixels);
                 break;
-            case itk::IOComponentEnum::USHORT:
+            case USHORT:
                 itk::ByteSwapper<unsigned short>::SwapRangeFromSystemToBigEndian
                         ((unsigned short *)buffer, numberOfPixels);
                 break;
-            case itk::IOComponentEnum::INT:
+            case INT:
                 itk::ByteSwapper<int>::SwapRangeFromSystemToBigEndian
                         ((int *)buffer, numberOfPixels);
                 break;
-            case itk::IOComponentEnum::UINT:
+            case UINT:
                 itk::ByteSwapper<unsigned int>::SwapRangeFromSystemToBigEndian
                         ((unsigned int *)buffer, numberOfPixels);
                 break;
-            case itk::IOComponentEnum::LONG:
+            case LONG:
                 itk::ByteSwapper<long>::SwapRangeFromSystemToBigEndian
                         ((long *)buffer, numberOfPixels);
                 break;
-            case itk::IOComponentEnum::ULONG:
+            case ULONG:
                 itk::ByteSwapper<unsigned long>::SwapRangeFromSystemToBigEndian
                         ((unsigned long *)buffer, numberOfPixels);
                 break;
-            case itk::IOComponentEnum::FLOAT:
+            case FLOAT:
                 itk::ByteSwapper<float>::SwapRangeFromSystemToBigEndian
                         ((float *)buffer, numberOfPixels);
                 break;
-            case itk::IOComponentEnum::DOUBLE:
+            case DOUBLE:
                 itk::ByteSwapper<double>::SwapRangeFromSystemToBigEndian
                         ((double *)buffer, numberOfPixels);
                 break;
