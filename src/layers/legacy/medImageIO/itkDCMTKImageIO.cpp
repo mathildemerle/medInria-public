@@ -54,8 +54,8 @@ DCMTKImageIO::DCMTKImageIO()
 {
     this->SetNumberOfDimensions(3);
     this->SetNumberOfComponents(1);
-    this->SetPixelType(IOPixelEnum::SCALAR);
-    this->SetComponentType(itk::IOComponentEnum::CHAR);
+    this->SetPixelType(SCALAR);
+    this->SetComponentType(CHAR);
 
     DcmRLEDecoderRegistration::registerCodecs();
     DJDecoderRegistration::registerCodecs();
@@ -356,11 +356,11 @@ void DCMTKImageIO::DetermineNumberOfPixelComponents()
 
     if( samplesPerPixel==1 )
     {
-        this->SetPixelType (itk::IOPixelEnum::SCALAR );
+        this->SetPixelType (SCALAR );
     }
     else
     {
-        this->SetPixelType ( itk::IOPixelEnum::RGB );
+        this->SetPixelType ( RGB );
     }
 }
 
@@ -373,7 +373,7 @@ void DCMTKImageIO::DeterminePixelType()
     
     if (condition.bad())
     {
-        this->SetComponentType(itk::IOComponentEnum::UNKNOWNCOMPONENTTYPE);
+        this->SetComponentType(UNKNOWNCOMPONENTTYPE);
         return;
     }
 
@@ -387,36 +387,36 @@ void DCMTKImageIO::DeterminePixelType()
             switch( dmp->getRepresentation() )
             {
                 case EPR_Uint8:
-                    this->SetComponentType (itk::IOComponentEnum::UCHAR );
+                    this->SetComponentType (UCHAR );
                     break;
 
                 case EPR_Sint8:
-                    this->SetComponentType (itk::IOComponentEnum::CHAR );
+                    this->SetComponentType (CHAR );
                     break;
 
                 case EPR_Uint16:
-                    this->SetComponentType (itk::IOComponentEnum::USHORT );
+                    this->SetComponentType (USHORT );
                     break;
 
                 case EPR_Sint16:
-                    this->SetComponentType (itk::IOComponentEnum::SHORT );
+                    this->SetComponentType (SHORT );
                     break;
 
                 case EPR_Uint32:
-                    this->SetComponentType (itk::IOComponentEnum::UINT );
+                    this->SetComponentType (UINT );
                     break;
 
                 case EPR_Sint32:
-                    this->SetComponentType (itk::IOComponentEnum::INT );
+                    this->SetComponentType (INT );
                     break;
 
                 default:
-                    this->SetComponentType (itk::IOComponentEnum::UNKNOWNCOMPONENTTYPE);
+                    this->SetComponentType (UNKNOWNCOMPONENTTYPE);
             }
         }
         else
         {
-            this->SetComponentType (itk::IOComponentEnum::UNKNOWNCOMPONENTTYPE);
+            this->SetComponentType (UNKNOWNCOMPONENTTYPE);
         }
     }
 }
@@ -780,31 +780,31 @@ void DCMTKImageIO::InternalRead (void* buffer, int slice, unsigned long pixelCou
     size_t length = pixelCount * GetNumberOfComponents();
     switch( this->GetComponentType() )
     {
-        case itk::IOComponentEnum::CHAR:
+        case CHAR:
             length *= sizeof(char);
             break;
 
-        case itk::IOComponentEnum::UCHAR:
+        case UCHAR:
             length *= sizeof(Uint8);
             break;
 
-        case itk::IOComponentEnum::SHORT:
+        case SHORT:
             length *= sizeof(Sint16);
             break;
 
-        case itk::IOComponentEnum::USHORT:
+        case USHORT:
             length *= sizeof(Uint16);
             break;
 
-        case itk::IOComponentEnum::INT:
+        case INT:
             length *= sizeof(Sint32);
             break;
 
-        case itk::IOComponentEnum::UINT:
+        case UINT:
             length *= sizeof(Uint32);
             break;
 
-        case itk::IOComponentEnum::DOUBLE:
+        case DOUBLE:
             length *= sizeof(Float64);
             break;
 

@@ -98,7 +98,6 @@ SET(ITKIO_LIBRARIES
 
 target_link_libraries(${TARGET_NAME}
   ${ITKIO_LIBRARIES}
-  ITKPDEDeformableRegistration
   Qt5::Core
   dtkLog
   dtkCoreSupport

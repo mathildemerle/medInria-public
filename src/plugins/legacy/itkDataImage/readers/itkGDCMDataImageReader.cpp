@@ -281,7 +281,7 @@ bool itkGDCMDataImageReader::readInformation(const QStringList &paths)
         std::ostringstream imagetypestring;
         imagetypestring << "itkDataImage";
 
-        if (d->io->GetPixelType() != itk::IOPixelEnum::SCALAR)
+        if (d->io->GetPixelType() != itk::ImageIOBase::SCALAR)
         {
             dtkDebug() << "Unsupported pixel type";
             return false;
@@ -289,34 +289,34 @@ bool itkGDCMDataImageReader::readInformation(const QStringList &paths)
 
         switch (d->io->GetComponentType())
         {
-        case itk::IOComponentEnum::UCHAR:
+        case itk::ImageIOBase::UCHAR:
             imagetypestring << "UChar";
             break;
-        case itk::IOComponentEnum::CHAR:
+        case itk::ImageIOBase::CHAR:
             imagetypestring << "Char";
             break;
-        case itk::IOComponentEnum::USHORT:
+        case itk::ImageIOBase::USHORT:
             imagetypestring << "UShort";
             break;
-        case itk::IOComponentEnum::SHORT:
+        case itk::ImageIOBase::SHORT:
             imagetypestring << "Short";
             break;
-        case itk::IOComponentEnum::UINT:
+        case itk::ImageIOBase::UINT:
             imagetypestring << "UInt";
             break;
-        case itk::IOComponentEnum::INT:
+        case itk::ImageIOBase::INT:
             imagetypestring << "Int";
             break;
-        case itk::IOComponentEnum::ULONG:
+        case itk::ImageIOBase::ULONG:
             imagetypestring << "ULong";
             break;
-        case itk::IOComponentEnum::LONG:
+        case itk::ImageIOBase::LONG:
             imagetypestring << "Long";
             break;
-        case itk::IOComponentEnum::FLOAT:
+        case itk::ImageIOBase::FLOAT:
             imagetypestring << "Float";
             break;
-        case itk::IOComponentEnum::DOUBLE:
+        case itk::ImageIOBase::DOUBLE:
             /**
       @todo Handle properly double pixel values.
       For the moment it is only handled in 3D, not in 4D, and it is very
