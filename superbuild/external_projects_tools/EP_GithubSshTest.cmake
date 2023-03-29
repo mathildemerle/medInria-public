@@ -62,21 +62,17 @@ execute_process(COMMAND ${SSH_BIN} -T git@github.com
 if (SSH_TEST_RESULT EQUAL 255) 
   set(SSH_PUB_KEY ${HOME_PATH}/.ssh/id_rsa.pub)
   if (NOT EXISTS ${SSH_PUB_KEY})
-	  message(FATAL_ERROR 
-	    "Could not find a public SSH key, you need to generate one." 
-	    )
+    file(READ ${SSH_PUB_KEY} SSH_PUB_KEY_VALUE)
+    message(FATAL_ERROR 
+      "Could not connect to GitHub using SSH public key (found here : ${SSH_PUB_KEY}) 
+      Add this key to your GitHub account ( https://github.com/settings/ssh ) : 
+      ${SSH_PUB_KEY_VALUE}" 
+      )
   else()
 	  message(STATUS 
 	    "Found the user's public SSH key..." 
 	    )
   endif()
-
-  file(READ ${SSH_PUB_KEY} SSH_PUB_KEY_VALUE)
-  message(FATAL_ERROR 
-    "Could not connect to GitHub using SSH public key (found here : ${SSH_PUB_KEY}) 
-    Add this key to your GitHub account ( https://github.com/settings/ssh ) : 
-    ${SSH_PUB_KEY_VALUE}" 
-    )
 else()
   message( STATUS "GitHub access successful !" )
 endif()
