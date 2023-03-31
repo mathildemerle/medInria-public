@@ -86,6 +86,9 @@ find_package(Qt5 REQUIRED COMPONENTS
 find_package(dtk REQUIRED)
 include_directories(${dtk_INCLUDE_DIRS})
 
+find_package(ITK REQUIRED)
+include_directories(${ITK_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS})
+
 ## #############################################################################
 ## enable c++ 17
 ## #############################################################################
