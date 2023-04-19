@@ -196,19 +196,22 @@ void vtkImageView3D::SetVolumeMapperToDefault()
 //----------------------------------------------------------------------------
 void vtkImageView3D::SetVolumeRayCastFunctionToComposite()
 {
-  VolumeMapper->SetBlendModeToComposite();
+    this->castLayers();
+    VolumeMapper->SetBlendModeToComposite();
 }
 
 //----------------------------------------------------------------------------
 void vtkImageView3D::SetVolumeRayCastFunctionToMaximumIntensityProjection()
 {
-  VolumeMapper->SetBlendModeToMaximumIntensity();
+    this->castLayers();
+    VolumeMapper->SetBlendModeToMaximumIntensity();
 }
 
 //----------------------------------------------------------------------------
 void vtkImageView3D::SetVolumeRayCastFunctionToMinimumIntensityProjection()
 {
-  VolumeMapper->SetBlendModeToMinimumIntensity();
+    this->castLayers();
+    VolumeMapper->SetBlendModeToMinimumIntensity();
 }
 
 //----------------------------------------------------------------------------
@@ -486,19 +489,19 @@ bool vtkImageView3D::data2DTreatment()
 void vtkImageView3D::SetInputLayer(vtkAlgorithmOutput* pi_poVtkAlgoOutput, vtkMatrix4x4 *matrix /*= 0*/, int layer /*= 0*/)
 {
     auto *poVtkAlgoOutputTmp = ResliceImageToInput(pi_poVtkAlgoOutput, matrix);
-    // cast it if needed
+
+    AddLayer(layer);
+
     int inputImgScalarType = static_cast<vtkImageAlgorithm*>(poVtkAlgoOutputTmp->GetProducer())->GetOutput()->GetScalarType();
     if (inputImgScalarType != GetMedVtkImageInfo()->scalarType)
     {
-        auto *cast = vtkImageCast::New();
-        cast->SetInputConnection(poVtkAlgoOutputTmp);
-        cast->SetOutputScalarType (GetMedVtkImageInfo()->scalarType);
-        cast->Update();
-
-        poVtkAlgoOutputTmp = cast->GetOutputPort();
+        LayerInfoVec[layer].NeedCast = true;
+    }
+    else
+    {
+        LayerInfoVec[layer].NeedCast = false;
     }
 
-    AddLayer(layer);
     GetImage3DDisplayForLayer(layer)->SetInputProducer(poVtkAlgoOutputTmp);
     auto image = static_cast<vtkImageAlgorithm*>(poVtkAlgoOutputTmp->GetProducer())->GetOutput();
     double *range = image->GetScalarRange();
@@ -524,23 +527,40 @@ void vtkImageView3D::SetFirstLayer(vtkAlgorithmOutput *pi_poInputAlgoImg, vtkMat
 //----------------------------------------------------------------------------
 void vtkImageView3D::InternalUpdate()
 {
-    bool multiLayers = LayerInfoVec.size()>1;
+    bool multiLayers = false;
     bool multichannelInput = (m_poInternalImageFromInput->GetScalarType() == VTK_UNSIGNED_CHAR &&
                               (m_poInternalImageFromInput->GetNumberOfScalarComponents() == 3 ||
                                m_poInternalImageFromInput->GetNumberOfScalarComponents() == 4 ));
 
+    if (this->RenderingMode == VOLUME_RENDERING) // if we are in VR mode, we need to cast.
+    {
+        castLayers();
+    }
+
     auto *appender = vtkImageAppendComponents::New();
+    int cpt = 0;
     if (LayerInfoVec.size()>0 && !multichannelInput)
     {
         // append all scalar buffer into the same image
         for (auto &it : this->LayerInfoVec)
         {
-            if (it.ImageDisplay->GetInputProducer())
+            if (it.ImageDisplay->GetVisibility() && it.ImageDisplay->GetInputProducer())
             {
+                cpt++;
                 appender->AddInputConnection(it.ImageDisplay->GetInputProducer()->GetOutputPort());
             }
         }
     }
+
+    if (cpt==0)
+    {
+        this->VolumeActor->SetVisibility(0);
+    }
+    else if (cpt>1)
+    {
+        multiLayers = true;
+    }
+
     appender->Update();
     appender->GetOutput();
     VolumeMapper->SetInputConnection( appender->GetOutputPort());
@@ -715,6 +735,7 @@ void vtkImageView3D::SetVisibility (int visibility, int layer)
     }
     GetImage3DDisplayForLayer(layer)->SetVisibility(visibility);
   }
+  this->InternalUpdate();
 }
 
 //----------------------------------------------------------------------------
@@ -1057,7 +1078,6 @@ void vtkImageView3D::RemoveLayer (int layer)
            SetRenderWindow(GetRenderWindow());
         }
 
-        InternalUpdate();
         // //////////////////////////////////////////////////////////////////////
         // Rebuild a layer if necessary
         if (LayerInfoVec.size() == 0)
@@ -1070,6 +1090,8 @@ void vtkImageView3D::RemoveLayer (int layer)
                 Modified();
             }
         }
+
+        InternalUpdate();
     }
 }
 
@@ -1209,4 +1231,32 @@ void  vtkImageView3D::initializeTransferFunctions(int pi_iLayer)
     alpha->Delete();
 }
 
+/**
+ * @brief Cast layers to layer 0 's type if necessary
+ * 
+ */
+void vtkImageView3D::castLayers()
+{
+    for (auto &it : this->LayerInfoVec)
+    {
+        if (it.NeedCast)
+        {
+            if (it.ImageDisplay->GetVisibility() && it.ImageDisplay->GetInputProducer())
+            {
+                int inputImgScalarType = static_cast<vtkImageAlgorithm*>(it.ImageDisplay->GetInputProducer())->GetOutput()->GetScalarType();
+                if (inputImgScalarType != GetMedVtkImageInfo()->scalarType)
+                {
+                    auto *cast = vtkImageCast::New();
+                    cast->SetInputConnection(it.ImageDisplay->GetInputProducer()->GetOutputPort());
+                    cast->SetOutputScalarType (GetMedVtkImageInfo()->scalarType);
+                    cast->Update();
+                    it.ImageDisplay->SetInputProducer(cast->GetOutputPort());
 
+                    // vtkColorTransferFunction *rgb   = this->GetDefaultColorTransferFunction();
+                    // vtkPiecewiseFunction     *alpha = this->GetDefaultOpacityTransferFunction();
+                    // this->SetTransferFunctions (rgb, alpha, i);
+                }
+            }
+        }
+    }
+}

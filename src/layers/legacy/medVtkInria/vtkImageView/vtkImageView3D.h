@@ -230,6 +230,8 @@ protected:
 
     vtkImage3DDisplay * GetImage3DDisplayForLayer(int layer) const;
 
+    void castLayers();
+
     // plane actors
     vtkImageActor* ActorX;
     vtkImageActor* ActorY;
@@ -283,6 +285,7 @@ protected:
 
     struct LayerInfo {
         vtkSmartPointer<vtkImage3DDisplay> ImageDisplay;
+        bool NeedCast;
     };
 
     vtkSmartPointer<vtkImageMapToColors>        PlanarWindowLevelX;
