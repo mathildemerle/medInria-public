@@ -1,3 +1,9 @@
+medInria 3.4:
+- Fix an incorrect zoom for some data displayed in a view. The zoom is now calculated with x and y dims, and not z
+- N4 Bias Correction process can stop now if the user wants to quit the application, it will stop at some algorithm checkpoints
+- Reslice toolbox: changing the dimension of spacing parameters does not zoom one of the views
+- Paint toolbox: the first click on the view quickly displays the drawing, instead of waiting for the mask to be created
+
 MUSICardio-LITE v3.3:
 
 Information:
