@@ -143,7 +143,19 @@ int main(int argc, char *argv[])
         // Process the actual command line arguments given by the user
         parser.process(application);
 
-        if (parser.isSet("center"))
+    #if !defined(_DEBUG)
+    bool show_splash = true;
+    #else
+    bool show_splash = false;
+    #endif
+
+    medSettingsManager* mnger = medSettingsManager::instance();
+
+    QStringList posargs;
+    for (int i=1;i<application.arguments().size();++i)
+    {
+        const QString arg = application.arguments().at(i);
+        if (arg.startsWith("--"))
         {
             int center = parser.value("center").toInt();
             medSettingsManager *mnger = medSettingsManager::instance();
