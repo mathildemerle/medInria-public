@@ -261,13 +261,13 @@ bool itkDataImageReaderBase::extractMetaData()
     {
         itk::MetaDataDictionary& metaDataDictionary = itkImage->GetMetaDataDictionary();
         std::vector<std::string> keys = metaDataDictionary.GetKeys();
-	    
+
         for (unsigned int i = 0; i < keys.size(); i++)
         {
             QString key = QString::fromStdString(keys[i]);
             std::string value;
             itk::ExposeMetaData(metaDataDictionary, keys[i], value);
-	    
+
             medMetaDataKeys::addKeyToChapter(key, "itk");
             QString metaDataKey = medMetaDataKeys::pivot(key, "itk");
             data()->setMetaData(metaDataKey, QString::fromStdString(value));

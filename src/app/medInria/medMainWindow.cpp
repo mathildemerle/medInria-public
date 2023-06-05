@@ -99,8 +99,7 @@ medMainWindow::medMainWindow ( QWidget *parent ) : QMainWindow ( parent ), d ( n
     d->currentArea = nullptr;
 
     //  Browser area.
-    d->browserArea = new medBrowserArea(this);
-    d->browserArea->setObjectName("medBrowserArea");
+    d->browserArea = nullptr;
 
     //  Workspace area.
     d->workspaceArea = new medWorkspaceArea (this);
@@ -110,11 +109,9 @@ medMainWindow::medMainWindow ( QWidget *parent ) : QMainWindow ( parent ), d ( n
     d->homepageArea = new medHomepageArea( this );
     d->homepageArea->setObjectName("medHomePageArea");
 
-
     //  Stack
     d->stack = new QStackedWidget(this);
     d->stack->addWidget(d->homepageArea);
-    d->stack->addWidget(d->browserArea);
     d->stack->addWidget(d->workspaceArea);
 
     // Shortcut to workspaces through CTRL+Space
@@ -159,7 +156,6 @@ medMainWindow::medMainWindow ( QWidget *parent ) : QMainWindow ( parent ), d ( n
     QObject::connect(medApplicationContext::instance()->getApp(), &medApplication::mouseGlobalClick, d->notifWindow, &medNotificationPaneWidget::clicked);
 
     initMenuBar(parent);
-
 }
 
 medMainWindow::~medMainWindow()
@@ -167,7 +163,6 @@ medMainWindow::~medMainWindow()
     delete d;
     d = nullptr;
 }
-
 
 void medMainWindow::initMenuBar(QWidget * parent)
 {
@@ -182,7 +177,6 @@ void medMainWindow::initMenuBar(QWidget * parent)
     menuNotif(menu_bar);
     menuAbout(menu_bar);
 
-
     // --- Prepare right corner menu
     QMenuBar *rightMenuBar = new QMenuBar(menu_bar);
     menu_bar->setCornerWidget(rightMenuBar);
@@ -190,7 +184,6 @@ void medMainWindow::initMenuBar(QWidget * parent)
     QAction* actionNotif = rightMenuBar->addAction("");
     actionNotif->setIcon(QIcon::fromTheme("notifications"));
     connect(actionNotif, &QAction::triggered, this, &medMainWindow::toggleNotificationPanel);
-
 
     // --- Fullscreen checkable action
     QIcon fullscreenIcon;
@@ -225,14 +218,18 @@ void medMainWindow::menuFile(QMenuBar * menu_bar)
     auto *actionOpenDicom = menuFile->addAction("Open DICOM");
     actionOpenDicom->setToolTip(tr("Choose a DICOM directory to import"));
     connect(actionOpenDicom, &QAction::triggered, this, &medMainWindow::openDicomFromSystem);
+
     menuFile->addAction("Save on disk");
 
     auto *actionBrowse     = menuFile->addAction("Browse data");
     connect(actionBrowse,    &QAction::triggered, this, &medMainWindow::switchToBrowserArea);
+
     menuFile->addSeparator();
     auto *actionGoHome = menuFile->addAction("Go to homepage");
     connect(actionGoHome,    &QAction::triggered, this, &medMainWindow::switchToHomepageArea);
+
     menuFile->addSeparator();
+
     auto *subMenuVisibilitySource = menuFile->addMenu("Source Visibility");
     
     QAction *virtualReprAction = subMenuVisibilitySource->addAction("Quick Access");
@@ -268,7 +265,6 @@ void medMainWindow::menuWorkspace(QMenuBar * menu_bar)
     menuWorkspaces->addSeparator();
 
     connect(researchWorkSpace, &QLineEdit::textEdited, this, &medMainWindow::filterWSMenu);
-
 
     medToolBoxFactory *tbFactory = medToolBoxFactory::instance();
     QList<medWorkspaceFactory::Details*> workspaceDetails = medWorkspaceFactory::instance()->workspaceDetailsSortedByName(true);
@@ -341,6 +337,7 @@ void medMainWindow::menuCapture(QMenuBar * menu_bar)
 
     connect(actionScreenshot, &QAction::triggered, this, &medMainWindow::captureScreenshot);
     connect(actionMovie, &QAction::triggered, this, &medMainWindow::captureVideo);
+
 }
 
 /**
@@ -353,7 +350,6 @@ void medMainWindow::menuSettings(QMenuBar * menu_bar)
     QMenu *menuSettings = menu_bar->addMenu("Settings");
 
     QAction *actionDataSources = menuSettings->addAction(tr("Data Sources"));
-
     connect(actionDataSources, &QAction::triggered, this, &medMainWindow::onShowDataSources);
 
     QAction *actionAreaSettings = menuSettings->addAction(tr("&Startup"));
@@ -362,7 +358,6 @@ void medMainWindow::menuSettings(QMenuBar * menu_bar)
 
 void medMainWindow::menuAbout(QMenuBar * menu_bar)
 {
-
     // --- About menu
     QMenu *menuAbout = menu_bar->addMenu("Help");
 
@@ -407,27 +402,28 @@ void medMainWindow::mousePressEvent ( QMouseEvent* event )
 
 void medMainWindow::restoreSettings()
 {
-    medSettingsManager * mnger = medSettingsManager::instance();
+    medSettingsManager &mnger = medSettingsManager::instance();
+    this->restoreState(mnger.value("medMainWindow", "state").toByteArray());
+    this->restoreGeometry(mnger.value("medMainWindow", "geometry").toByteArray());
 
-    this->restoreState(mnger->value("medMainWindow", "state").toByteArray());
-    this->restoreGeometry(mnger->value("medMainWindow", "geometry").toByteArray());
 }
 
 void medMainWindow::saveSettings()
 {
-    medSettingsManager *manager = medSettingsManager::instance();
     if(!this->isFullScreen())
     {
-        manager->setValue("medMainWindow", "state", this->saveState());
-        manager->setValue("medMainWindow", "geometry", this->saveGeometry());
+        medSettingsManager &manager = medSettingsManager::instance();
+        manager.setValue("medMainWindow", "state", this->saveState());
+        manager.setValue("medMainWindow", "geometry", this->saveGeometry());
+        manager.setValue("medMainWindow", "currentScreen", QApplication::desktop()->screenNumber(this));
+        // Keep the current screen for multiple-screens display
+        manager.setValue("medMainWindow", "currentScreen", QApplication::desktop()->screenNumber(this));
     }
-    // Keep the current screen for multiple-screens display
-    manager->setValue("medMainWindow", "currentScreen", QApplication::desktop()->screenNumber(this));
 }
 
 void medMainWindow::switchToDefaultWorkSpace()
 {
-    QString startupWorkspace = medSettingsManager::instance()->value("startup", "default_starting_area").toString();
+    QString startupWorkspace = medSettingsManager::instance().value("startup", "default_starting_area").toString();
 
     if (startupWorkspace == "Homepage")
     {
@@ -508,11 +504,11 @@ void medMainWindow::open(const medDataIndex &index)
 void medMainWindow::open(const QString & path)
 {
     QEventLoop loop;
-    QUuid uuid = medDataManager::instance()->importPath(path, false);
+    QUuid uuid = medDataManager::instance().importPath(path, false);
     if (!uuid.isNull())
     {
         d->expectedUuids.append(uuid);
-        connect(medDataManager::instance(), SIGNAL(dataImported(medDataIndex,QUuid)), this, SLOT(open_waitForImportedSignal(medDataIndex,QUuid)));
+        connect(&medDataManager::instance(), SIGNAL(dataImported(medDataIndex,QUuid)), this, SLOT(open_waitForImportedSignal(medDataIndex,QUuid)));
         while( d->expectedUuids.contains(uuid))
         {
             loop.processEvents(QEventLoop::ExcludeUserInputEvents);
@@ -532,7 +528,7 @@ void medMainWindow::open_waitForImportedSignal(medDataIndex index, QUuid uuid)
     if(d->expectedUuids.contains(uuid))
     {
         d->expectedUuids.removeAll(uuid);
-        disconnect(medDataManager::instance(),SIGNAL(dataImported(medDataIndex,QUuid)), this,SLOT(open_waitForImportedSignal(medDataIndex,QUuid)));
+        disconnect(&medDataManager::instance(),SIGNAL(dataImported(medDataIndex,QUuid)), this,SLOT(open_waitForImportedSignal(medDataIndex,QUuid)));
         if (index.isValid())
         {
             this->showWorkspace(medVisualizationWorkspace::staticIdentifier());
@@ -552,13 +548,13 @@ void medMainWindow::openFromSystem()
 
     dialog.setFileMode(QFileDialog::ExistingFile);
     dialog.setViewMode(QFileDialog::Detail);
-    dialog.restoreState(medSettingsManager::instance()->value("state", "openFromSystem").toByteArray());
-    dialog.restoreGeometry(medSettingsManager::instance()->value("geometry", "openFromSystem").toByteArray());
+    dialog.restoreState(medSettingsManager::instance().value("state", "openFromSystem").toByteArray());
+    dialog.restoreGeometry(medSettingsManager::instance().value("geometry", "openFromSystem").toByteArray());
     if (dialog.exec())
         path = dialog.selectedFiles().first();
 
-    medSettingsManager::instance()->setValue("state", "openFromSystem", dialog.saveState());
-    medSettingsManager::instance()->setValue("geometry", "openFromSystem", dialog.saveGeometry());
+    medSettingsManager::instance().setValue("state", "openFromSystem", dialog.saveState());
+    medSettingsManager::instance().setValue("geometry", "openFromSystem", dialog.saveGeometry());
 
     if (!path.isEmpty())
     {
@@ -574,13 +570,13 @@ void medMainWindow::openDicomFromSystem()
 
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setViewMode(QFileDialog::Detail);
-    dialog.restoreState(medSettingsManager::instance()->value("state", "openFromSystem").toByteArray());
-    dialog.restoreGeometry(medSettingsManager::instance()->value("geometry", "openFromSystem").toByteArray());
+    dialog.restoreState(medSettingsManager::instance().value("state", "openFromSystem").toByteArray());
+    dialog.restoreGeometry(medSettingsManager::instance().value("geometry", "openFromSystem").toByteArray());
     if (dialog.exec())
         path = dialog.selectedFiles().first();
 
-    medSettingsManager::instance()->setValue("state", "openFromSystem", dialog.saveState());
-    medSettingsManager::instance()->setValue("geometry", "openFromSystem", dialog.saveGeometry());
+    medSettingsManager::instance().setValue("state", "openFromSystem", dialog.saveState());
+    medSettingsManager::instance().setValue("geometry", "openFromSystem", dialog.saveGeometry());
 
     if (!path.isEmpty())
     {
@@ -854,7 +850,7 @@ void medMainWindow::setWallScreen (const bool full )
 void medMainWindow::setFullScreen (const bool full)
 {
     auto fullscreenAction = getCornerAction("Fullscreen");
-    if ( full )
+    if (full)
     {
         setFullscreenOn(fullscreenAction);
     }
@@ -867,7 +863,7 @@ void medMainWindow::setFullScreen (const bool full)
 void medMainWindow::toggleFullScreen()
 {
     auto fullscreenAction = getCornerAction("Fullscreen");
-    if ( !this->isFullScreen())
+    if (!this->isFullScreen())
     {
         setFullscreenOn(fullscreenAction);
     }
@@ -982,6 +978,12 @@ void medMainWindow::switchToBrowserArea()
 {
     if(d->currentArea != d->browserArea)
     {
+        if (d->browserArea == nullptr)
+        {
+            d->browserArea = new medBrowserArea(this);
+            d->browserArea->setObjectName("medBrowserArea");
+            d->stack->addWidget(d->browserArea);
+        }
         d->currentArea = d->browserArea;
 
         d->shortcutAccessWidget->updateSelected("Browse data");
