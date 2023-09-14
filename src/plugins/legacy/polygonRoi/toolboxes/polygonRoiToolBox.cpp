@@ -28,8 +28,6 @@
 #include <medMetaDataKeys.h>
 #include <medContours.h>
 
-const char *polygonRoiToolBox::generateBinaryImageButtonName = "generateBinaryImageButton";
-
 polygonRoiToolBox::polygonRoiToolBox(QWidget *parent ) :
     medAbstractSelectableToolBox(parent), activeDataIndex()
 {
@@ -48,10 +46,12 @@ polygonRoiToolBox::polygonRoiToolBox(QWidget *parent ) :
 
     auto layout = new QVBoxLayout();
     displayWidget->setLayout(layout);
+    displayWidget->setObjectName("displayWidget");
 
     auto *explanation = new QLabel(tr("Drop a data in the view and activate:"));
     explanation->setWordWrap(true);
     explanation->setStyleSheet("font: italic");
+    explanation->setObjectName("explanationLabel");
     layout->addWidget(explanation );
 
     activateTBButton = new QPushButton(tr("Activate Toolbox"));
@@ -67,7 +67,7 @@ polygonRoiToolBox::polygonRoiToolBox(QWidget *parent ) :
     connect(interpolate,SIGNAL(clicked(bool)) ,this,SLOT(interpolateCurve(bool)));
 
     auto repulsorLayout = new QHBoxLayout();
-    repulsorLabel = new QLabel("Correct contours");
+    repulsorLabel = new QLabel("Correct contours:");
     repulsorLayout->addWidget(repulsorLabel);
 
     repulsorTool = new QPushButton(tr("Repulsor"));
@@ -86,6 +86,7 @@ polygonRoiToolBox::polygonRoiToolBox(QWidget *parent ) :
     pMedToolBox = medToolBoxFactory::instance()->createToolBox(identifier);
     pMedToolBox->header()->hide();
     pMedToolBox->hide();
+    pMedToolBox->setObjectName("pMedToolBoxButton");
     layout->addWidget(pMedToolBox);
     connect(activateTBButton, SIGNAL(toggled(bool)), pMedToolBox, SLOT(setEnabled(bool)), Qt::UniqueConnection);
 
@@ -95,10 +96,12 @@ polygonRoiToolBox::polygonRoiToolBox(QWidget *parent ) :
     contoursActionLayout->addLayout(repulsorLayout);
 
     saveLabel = new QLabel("Save segmentations as:");
+    saveLabel->setObjectName("saveSegmentationsLabel");
+
     auto saveButtonsLayout = new QHBoxLayout();
     saveBinaryMaskButton = new QPushButton(tr("Mask(s)"));
     saveBinaryMaskButton->setToolTip("Import the current mask to the non persistent database");
-    saveBinaryMaskButton->setObjectName(generateBinaryImageButtonName);
+    saveBinaryMaskButton->setObjectName("generateBinaryImageButton");
     connect(saveBinaryMaskButton,SIGNAL(clicked()),this,SLOT(saveBinaryImage()));
     saveButtonsLayout->addWidget(saveBinaryMaskButton);
 
