@@ -1460,7 +1460,10 @@ void AlgorithmPaintToolBox::showButtons( bool value )
 {
     if (value)
     {
-        m_applyButton->show();
+        if (!m_applyButton->property("forceHide").toBool())
+        {
+            m_applyButton->show();
+        }
         m_clearMaskButton->show();
     }
     else
