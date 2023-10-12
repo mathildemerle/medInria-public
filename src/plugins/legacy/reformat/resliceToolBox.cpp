@@ -269,21 +269,24 @@ void resliceToolBox::updateView()
     if (view)
     {
         medAbstractLayeredView *layeredView = qobject_cast<medAbstractLayeredView*>(view);
-        if (dynamic_cast<medAbstractImageData*>(layeredView->layerData(layeredView->currentLayer())))
+        if (auto data = dynamic_cast<medAbstractImageData*>(layeredView->layerData(layeredView->currentLayer())))
         {
-            d->originalImage = layeredView->layerData(layeredView->currentLayer());
-
-            // Copy original image information and display them
-            vtkImageView2D *view2d = static_cast<medVtkViewBackend*>(layeredView->backend())->view2D;
-            auto imageInfo = view2d->GetMedVtkImageInfo();
-            d->spacing.clear();
-            d->dimensions.clear();
-            for (int i = 0; i < 3; i++)
+            if (data->Dimension() == 3)
             {
-                d->spacing.push_back(imageInfo->spacing[i]);
-                d->dimensions.push_back(imageInfo->dimensions[i]);
+                d->originalImage = data;
+
+                // Copy original image information and display them
+                vtkImageView2D *view2d = static_cast<medVtkViewBackend*>(layeredView->backend())->view2D;
+                auto imageInfo = view2d->GetMedVtkImageInfo();
+                d->spacing.clear();
+                d->dimensions.clear();
+                for (int i = 0; i < 3; i++)
+                {
+                    d->spacing.push_back(imageInfo->spacing[i]);
+                    d->dimensions.push_back(imageInfo->dimensions[i]);
+                }
+                displayInfoOnCurrentView();
             }
-            displayInfoOnCurrentView();
         }
     }
 }
