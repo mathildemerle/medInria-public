@@ -17,12 +17,12 @@
 
 #include <medAbstractDataFactory.h>
 #include <medAbstractLayeredView.h>
+#include <medDoubleParameterL.h>
 #include <medSliderSpinboxPair.h>
 #include <medTransform.h>
 #include <medUtilities.h>
 #include <medUtilitiesITK.h>
 #include <medVtkViewBackend.h>
-#include <medDoubleParameterL.h>
 
 #include <vtkCamera.h>
 #include <vtkCellPicker.h>
@@ -36,13 +36,13 @@
 #include <vtkPlaneSource.h>
 #include <vtkProperty.h>
 #include <vtkRenderer.h>
+#include <vtkRenderWindowInteractor.h>
 #include <vtkResliceCursor.h>
 #include <vtkResliceCursorActor.h>
 #include <vtkResliceCursorPolyDataAlgorithm.h>
 #include <vtkResliceCursorThickLineRepresentation.h>
 #include <vtkResliceCursorWidget.h>
 #include <vtkTransform.h>
-#include <vtkRenderWindowInteractor.h>
 
 class medResliceCursorCallback : public vtkCommand
 {
@@ -122,7 +122,10 @@ public:
         reformatViewer->getImagePlaneWidget(0)->GetInteractor()->GetRenderWindow()->Render();
     }
 
-    medResliceCursorCallback() {}
+    ~medResliceCursorCallback()
+    {
+        reformatViewer = nullptr;
+    }
 
     medResliceViewer *reformatViewer;
 };
@@ -167,7 +170,7 @@ medResliceViewer::medResliceViewer(medAbstractView *view, QWidget *parent): medA
     }
 
     // Position of the new views in tab
-    QGridLayout *gridLayout = new QGridLayout(parent);
+    QGridLayout *gridLayout = new QGridLayout();
     gridLayout->addWidget(views[2], 0, 0);
     gridLayout->addWidget(views[3], 0, 1);
     gridLayout->addWidget(views[1], 1, 0);
@@ -286,6 +289,7 @@ medResliceViewer::~medResliceViewer()
         planeWidget[i] = nullptr;
     }
     vtkViewData = nullptr;
+    inputData = nullptr;
 }
 
 QString medResliceViewer::identifier() const

@@ -147,6 +147,8 @@ vtkImageView2D::~vtkImageView2D()
   this->Command->Delete();
   this->OrientationAnnotation->Delete();
 
+  delete qtSignalHandler;
+  qtSignalHandler = nullptr;
 
   for (std::list<vtkDataSet2DWidget*>::iterator it3 = this->DataSetWidgets.begin();
       it3!=this->DataSetWidgets.end(); ++it3)
@@ -456,8 +458,14 @@ void vtkImageView2D::UpdateDisplayExtent()
   int *range = this->GetSliceRange();
   if (range)
   {
-    slice = std::max (slice, range[0]);
-    slice = std::min (slice, range[1]);
+      if (std::isdigit(range[0]))
+      {
+          slice = std::max (slice, range[0]);
+      }
+      if (std::isdigit(range[1]))
+      {
+          slice = std::min (slice, range[1]);
+      }
   }
 
   if (slice != this->Slice)

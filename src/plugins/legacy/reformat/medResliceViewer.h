@@ -12,18 +12,18 @@ PURPOSE.
 
 =========================================================================*/
 
+#include "resliceToolBox.h"
+
+#include <medAbstractView.h>
+#include <vtkImageView3D.h>
+
 #include <dtkCoreSupport/dtkSmartPointer.h>
 
 #include <itkImage.h>
 
-#include <medAbstractView.h>
-
 #include <QVTKOpenGLWidget.h>
 
-#include <resliceToolBox.h>
-
 #include <vtkImagePlaneWidget.h>
-#include <vtkImageView3D.h>
 #include <vtkResliceImageViewer.h>
 #include <vtkSmartPointer.h>
 
