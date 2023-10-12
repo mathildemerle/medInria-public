@@ -34,7 +34,8 @@ public:
     medResliceViewer *resliceViewer;
     dtkSmartPointer<medAbstractData> reformatedImage;
     QWidget *reformatOptions;
-    medVtkImageInfo* imageInfo;
+    std::vector<double> spacing;
+    std::vector<int> dimensions;
     medAbstractData *originalImage;
 };
 
@@ -137,12 +138,12 @@ resliceToolBox::resliceToolBox (QWidget *parent) : medAbstractSelectableToolBox 
     connect(d->b_stopReslice,SIGNAL(clicked()),this,SLOT(stopReformat()));
 
     d->resliceViewer = nullptr;
+    d->originalImage = nullptr;
 }
 resliceToolBox::~resliceToolBox()
 {
     delete d->resliceViewer;
     d->resliceViewer = nullptr;
-
     d->originalImage = nullptr;
 
     delete d;
@@ -272,9 +273,16 @@ void resliceToolBox::updateView()
         {
             d->originalImage = layeredView->layerData(layeredView->currentLayer());
 
-            // Get the original image information and display it
+            // Copy original image information and display them
             vtkImageView2D *view2d = static_cast<medVtkViewBackend*>(layeredView->backend())->view2D;
-            d->imageInfo = view2d->GetMedVtkImageInfo();
+            auto imageInfo = view2d->GetMedVtkImageInfo();
+            d->spacing.clear();
+            d->dimensions.clear();
+            for (int i = 0; i < 3; i++)
+            {
+                d->spacing.push_back(imageInfo->spacing[i]);
+                d->dimensions.push_back(imageInfo->dimensions[i]);
+            }
             displayInfoOnCurrentView();
         }
     }
@@ -284,17 +292,15 @@ void resliceToolBox::displayInfoOnCurrentView()
 {
     if (d->bySpacingOrSize->currentIndex() == 0) // Spacing
     {
-        double *spacing = d->imageInfo->spacing;
-        d->spacingOrSizeX->setValue(spacing[0]);
-        d->spacingOrSizeY->setValue(spacing[1]);
-        d->spacingOrSizeZ->setValue(spacing[2]);
+        d->spacingOrSizeX->setValue(d->spacing[0]);
+        d->spacingOrSizeY->setValue(d->spacing[1]);
+        d->spacingOrSizeZ->setValue(d->spacing[2]);
     }
     else // Dimension
     {
-        int *dimension = d->imageInfo->dimensions;
-        d->spacingOrSizeX->setValue(dimension[0]);
-        d->spacingOrSizeY->setValue(dimension[1]);
-        d->spacingOrSizeZ->setValue(dimension[2]);
+        d->spacingOrSizeX->setValue(d->dimensions[0]);
+        d->spacingOrSizeY->setValue(d->dimensions[1]);
+        d->spacingOrSizeZ->setValue(d->dimensions[2]);
     }
 }
 

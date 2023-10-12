@@ -85,7 +85,7 @@ protected:
     QWidget *viewBody;
     QVTKOpenGLWidget *views[4];
     dtkSmartPointer<medAbstractData> inputData;
-    double *outputSpacingOrSize;
+    std::vector<double> outputSpacingOrSize;
     unsigned char selectedView;
     vtkImageView3D *view3d;
     vtkSmartPointer<vtkImageData> vtkViewData;

@@ -143,7 +143,13 @@ medResliceViewer::medResliceViewer(medAbstractView *view, QWidget *parent): medA
     selectedView = 2;
 
     int *imageDims = view3d->GetMedVtkImageInfo()->dimensions;
-    outputSpacingOrSize  = view3d->GetMedVtkImageInfo()->spacing;
+
+    // Copy view information before it's destroyed, allowing to use outputSpacingOrSize later.
+    double *spacing = view3d->GetMedVtkImageInfo()->spacing;
+    for (int i = 0; i < 3; i++)
+    {
+        outputSpacingOrSize.push_back(spacing[i]);
+    }
 
     viewBody = new QWidget(parent);
 
@@ -388,7 +394,7 @@ void medResliceViewer::saveImage()
     // Apply resampling in mm
     if (reformaTlbx->findChild<QComboBox*>("bySpacingOrSize")->currentText() == "Spacing")
     {
-        reslicerTop->SetOutputSpacing(outputSpacingOrSize);
+        reslicerTop->SetOutputSpacing(outputSpacingOrSize.data());
     }
     reslicerTop->Update();
 
