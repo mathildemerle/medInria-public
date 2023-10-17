@@ -609,7 +609,7 @@ void polygonLabel::createMask(int label, QString &desc, bool originSrc)
     //    output->setMetaData(medMetaDataKeys::SeriesDescription.key(), desc);
     //}
     //
-    medDataManager::instance()->importData(output, originSrc);
+    medDataManager::instance().importData(output, originSrc);
 }
 
 void polygonLabel::SetMasterRoi()

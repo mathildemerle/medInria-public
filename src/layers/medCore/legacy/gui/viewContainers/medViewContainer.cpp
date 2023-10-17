@@ -43,7 +43,6 @@
 #include <medViewContainerSplitter.h>
 #include <medViewFactory.h>
 #include <medDataManager.h>
-#include <medSettingsManager.h>
 #include <medAbstractInteractor.h>
 #include <medPoolIndicatorL.h>
 #include <medTableWidgetChooser.h>
@@ -112,7 +111,7 @@ medViewContainer::medViewContainer(medViewContainerSplitter *parent): QFrame(par
     d->parent = parent;
 
     d->uuid = QUuid::createUuid();
-    medViewContainerManager::instance()->registerNewContainer(this);
+    medViewContainerManager::instance().registerNewContainer(this);
 
     d->view = nullptr;
     d->viewToolbar = nullptr;
@@ -284,7 +283,7 @@ medViewContainer::medViewContainer(medViewContainerSplitter *parent): QFrame(par
 medViewContainer::~medViewContainer()
 {
     removeInternView();
-    medViewContainerManager::instance()->unregisterContainer(this);
+    medViewContainerManager::instance().unregisterContainer(this);
 
     delete d;
     d = nullptr;
@@ -957,14 +956,14 @@ void medViewContainer::addData(medDataIndex const &index)
 
     if (index.isV2()) //TODO must be refactored
     {
-        int type = medDataManager::instance()->getDataType(index);
+        int type = medDataManager::instance().getDataType(index);
         if (type == 0 || type == 2)
         {
-            this->addData(medDataManager::instance()->retrieveData(index));
+            this->addData(medDataManager::instance().retrieveData(index));
         }
         else if (type == 1)
         {
-            auto clidrenList = medDataManager::instance()->getSubData(index);
+            auto clidrenList = medDataManager::instance().getSubData(index);
             for (auto & child : clidrenList)
             {
                 addData(child);
@@ -1060,13 +1059,13 @@ void medViewContainer::openFromSystem()
 
     dialog.setFileMode(QFileDialog::ExistingFile);
     dialog.setViewMode(QFileDialog::Detail);
-    dialog.restoreState(medSettingsManager::instance()->value("state", "openFromSystem").toByteArray());
-    dialog.restoreGeometry(medSettingsManager::instance()->value("geometry", "openFromSystem").toByteArray());
+    dialog.restoreState(medSettingsManager::instance().value("state", "openFromSystem").toByteArray());
+    dialog.restoreGeometry(medSettingsManager::instance().value("geometry", "openFromSystem").toByteArray());
     if(dialog.exec())
         path = dialog.selectedFiles().first();
 
-    medSettingsManager::instance()->setValue("state", "openFromSystem", dialog.saveState());
-    medSettingsManager::instance()->setValue("geometry", "openFromSystem", dialog.saveGeometry());
+    medSettingsManager::instance().setValue("state", "openFromSystem", dialog.saveState());
+    medSettingsManager::instance().setValue("geometry", "openFromSystem", dialog.saveGeometry());
 
     if (!path.isEmpty())
     {
@@ -1077,15 +1076,15 @@ void medViewContainer::openFromSystem()
 void medViewContainer::open(const QString & path)
 {
     d->expectedPaths.append(path);
-    connect(medDataManager::instance(), SIGNAL(dataImported(medDataIndex,QUuid)),  this, SLOT(open_waitForImportedSignal(medDataIndex,QUuid)));
-    medDataManager::instance()->importPath(path, false);
+    connect(&medDataManager::instance(), SIGNAL(dataImported(medDataIndex,QUuid)),  this, SLOT(open_waitForImportedSignal(medDataIndex,QUuid)));
+    medDataManager::instance().importPath(path, false);
 
 //    QEventLoop loop;
 //    connect(this, SIGNAL(importFinished()), &loop, SLOT(quit()), Qt::UniqueConnection);
 //    loop.exec();
 
     //  save last directory opened in settings.
-    medSettingsManager::instance()->setValue("path", "medViewContainer", path);
+    medSettingsManager::instance().setValue("path", "medViewContainer", path);
 }
 
 QString indexToFileSysPath(const QString &&index)
@@ -1109,7 +1108,7 @@ void medViewContainer::open_waitForImportedSignal(medDataIndex index, QUuid uuid
     if(d->expectedPaths.contains(indexToFileSysPath(index.asString())))
     {
         d->expectedPaths.removeAll(indexToFileSysPath(index.asString()));
-        disconnect(medDataManager::instance(),SIGNAL(dataImported(medDataIndex, QUuid)), this,SLOT(open_waitForImportedSignal(medDataIndex, QUuid)));
+        disconnect(&medDataManager::instance(),SIGNAL(dataImported(medDataIndex, QUuid)), this,SLOT(open_waitForImportedSignal(medDataIndex, QUuid)));
         if (index.isValid())
         {
             this->addData(index);
@@ -1195,7 +1194,7 @@ void medViewContainer::droppedDataReady(medDataIndex index, QUuid uuid)
     }
     if (bDone4All)
     {
-        disconnect(medDataManager::instance(), SIGNAL(dataImported(medDataIndex, QUuid)), this, SLOT(droppedDataReady(medDataIndex, QUuid)));
+        disconnect(&medDataManager::instance(), SIGNAL(dataImported(medDataIndex, QUuid)), this, SLOT(droppedDataReady(medDataIndex, QUuid)));
         d->oQuuidVect.clear();
     }
 }
@@ -1429,6 +1428,6 @@ void medViewContainer::printInConsole(QString message)
 void medViewContainer::displayMessageError(QString message)
 {
     printInConsole(message);
-    medMessageController::instance()->showError(message, 3000);
+    medMessageController::instance().showError(message, 3000);
 }
 
