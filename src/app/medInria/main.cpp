@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
         parser.process(application);
 
 
-    medSettingsManager* mnger = medSettingsManager::instance();
+    medSettingsManager &mnger = medSettingsManager::instance();
 
     QStringList posargs;
     for (int i=1;i<application.arguments().size();++i)
