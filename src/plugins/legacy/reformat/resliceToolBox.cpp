@@ -34,8 +34,8 @@ public:
     medResliceViewer *resliceViewer;
     dtkSmartPointer<medAbstractData> reformatedImage;
     QWidget *reformatOptions;
-    std::vector<double> spacing;
-    std::vector<int> dimensions;
+    std::array<double, 3> spacing;
+    std::array<int, 3> dimensions;
     medAbstractData *originalImage;
 };
 
@@ -278,13 +278,9 @@ void resliceToolBox::updateView()
                 // Copy original image information and display them
                 vtkImageView2D *view2d = static_cast<medVtkViewBackend*>(layeredView->backend())->view2D;
                 auto imageInfo = view2d->GetMedVtkImageInfo();
-                d->spacing.clear();
-                d->dimensions.clear();
-                for (int i = 0; i < 3; i++)
-                {
-                    d->spacing.push_back(imageInfo->spacing[i]);
-                    d->dimensions.push_back(imageInfo->dimensions[i]);
-                }
+                memcpy(d->spacing.data(),    imageInfo->spacing,    3*sizeof(double));
+                memcpy(d->dimensions.data(), imageInfo->dimensions, 3*sizeof(int));
+
                 displayInfoOnCurrentView();
             }
         }
