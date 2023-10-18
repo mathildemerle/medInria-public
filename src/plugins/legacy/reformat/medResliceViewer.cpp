@@ -146,10 +146,7 @@ medResliceViewer::medResliceViewer(medAbstractView *view, QWidget *parent): medA
 
     // Copy view information before it's destroyed, allowing to use outputSpacingOrSize later.
     double *spacing = view3d->GetMedVtkImageInfo()->spacing;
-    for (int i = 0; i < 3; i++)
-    {
-        outputSpacingOrSize.push_back(spacing[i]);
-    }
+    memcpy(outputSpacingOrSize.data(), spacing, 3*sizeof(double));
 
     viewBody = new QWidget(parent);
 
