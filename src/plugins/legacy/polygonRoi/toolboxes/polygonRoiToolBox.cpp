@@ -166,7 +166,14 @@ dtkPlugin* polygonRoiToolBox::plugin()
 
 medAbstractData *polygonRoiToolBox::processOutput()
 {
-    return processOutputs()[0];
+    medAbstractData *outputMask = nullptr;
+    auto outputsList = processOutputs();
+    if (!outputsList.isEmpty())
+    {
+        outputMask = outputsList[0];
+    }
+
+    return outputMask;
 }
 
 QList<dtkSmartPointer<medAbstractData> > polygonRoiToolBox::processOutputs()
