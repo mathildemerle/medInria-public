@@ -458,14 +458,8 @@ void vtkImageView2D::UpdateDisplayExtent()
   int *range = this->GetSliceRange();
   if (range)
   {
-      if (std::isdigit(range[0]))
-      {
-          slice = std::max (slice, range[0]);
-      }
-      if (std::isdigit(range[1]))
-      {
-          slice = std::min (slice, range[1]);
-      }
+    slice = std::max (slice, range[0]);
+    slice = std::min (slice, range[1]);
   }
 
   if (slice != this->Slice)
