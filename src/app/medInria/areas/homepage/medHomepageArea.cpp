@@ -124,7 +124,7 @@ medHomepageArea::medHomepageArea ( QWidget * parent ) : QWidget ( parent ), d ( 
     QLabel * medInriaLabel = new QLabel ( this );   
     
     // Themes
-    QVariant themeChosen = medSettingsManager::instance()->value("startup","theme");
+    QVariant themeChosen = medSettingsManager::instance().value("startup","theme");
     int themeIndex = themeChosen.toInt();
     QString qssLogoName;
     QString qssWarningColor;

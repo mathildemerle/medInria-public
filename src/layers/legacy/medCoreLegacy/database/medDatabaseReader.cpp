@@ -63,7 +63,7 @@ medAbstractData* medDatabaseReader::run()
     QVariant   studyDbId = d->index.studyId();
     QVariant  seriesDbId = d->index.seriesId();
 
-    QSqlDatabase dbConnection = medDataManager::instance()->controller()->getThreadSpecificConnection();
+    QSqlDatabase dbConnection = medDataManager::instance().controller()->getThreadSpecificConnection();
     QSqlQuery query(dbConnection);
 
     QString patientName, birthdate, gender, patientId;
@@ -78,7 +78,7 @@ medAbstractData* medDatabaseReader::run()
     query.prepare ( "SELECT name, birthdate, gender, patientId FROM patient WHERE id = :id" );
     query.bindValue ( ":id", patientDbId );
 
-    QMutexLocker mutexLocker(&medDataManager::instance()->controller()->getDatabaseMutex());
+    QMutexLocker mutexLocker(&medDataManager::instance().controller()->getDatabaseMutex());
 
     if ( !query.exec() )
     {

@@ -135,9 +135,7 @@ QString VarSegToolBox::s_name()
 
 dtkPlugin* VarSegToolBox::plugin()
 {
-    medPluginManager *pm = medPluginManager::instance();
-    dtkPlugin *plugin = pm->plugin("Variational Segmentation");
-    return plugin;
+    return medPluginManager::instance().plugin("Variational Segmentation");
 }
 
 void VarSegToolBox::updateLandmarksRenderer(QString key, QString value)
@@ -210,7 +208,7 @@ void VarSegToolBox::addBinaryImage()
         d->output->setData(img);
 
         medUtilities::setDerivedMetaData(d->output, d->originalInput, "VarSegMask");
-        medDataManager::instance()->importData(d->output, false);
+        medDataManager::instance().importData(d->output, false);
     }
 }
 
@@ -249,7 +247,7 @@ void VarSegToolBox::applyMaskToImage()
 void VarSegToolBox::displayOutput()
 {
     medUtilities::setDerivedMetaData(d->process->output(), d->originalInput, "VarSegApplied");
-    medDataManager::instance()->importData(d->process->output(), false);
+    medDataManager::instance().importData(d->process->output(), false);
 
     typedef itk::Image<unsigned char, 3> binaryType;
     binaryType::Pointer img = d->controller->GetBinaryImage();
