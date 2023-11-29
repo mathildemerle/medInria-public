@@ -101,7 +101,7 @@ medActionsToolBox::medActionsToolBox( QWidget *parent /*= 0*/, bool FILE_SYSTEM 
         auto thumbnailCreationSetting = new QCheckBox("Generate a thumbnail at import");
         thumbnailCreationSetting->setToolTip("Generating a thumbnail uses RAM, so it can be useful to disable it "
                                               "if you're short of memory and have import crashes.");
-        auto thumbnailValue = medSettingsManager::instance()->value("Browser", 
+        auto thumbnailValue = medSettingsManager::instance().value("Browser", 
                                                                    "thumbnail_creation_setting", 
                                                                    true).toBool(); // Default value to true
         thumbnailCreationSetting->setChecked(thumbnailValue);
@@ -201,7 +201,7 @@ medActionsToolBox::~medActionsToolBox()
 **/
 void medActionsToolBox::patientSelected(const medDataIndex& index)
 {
-    if( !(medDataManager::instance()->controllerForDataSource(index.dataSourceId())->isPersistent()) )
+    if( !(medDataManager::instance().controllerForDataSource(index.dataSourceId())->isPersistent()) )
     {
         updateButtons("Unsaved Patient");
     }
@@ -218,7 +218,7 @@ void medActionsToolBox::patientSelected(const medDataIndex& index)
 **/
 void medActionsToolBox::studySelected(const medDataIndex& index)
 {
-    if( !(medDataManager::instance()->controllerForDataSource(index.dataSourceId())->isPersistent()) )
+    if( !(medDataManager::instance().controllerForDataSource(index.dataSourceId())->isPersistent()) )
     {
         updateButtons("Unsaved Study");
     }
@@ -235,7 +235,7 @@ void medActionsToolBox::studySelected(const medDataIndex& index)
 **/
 void medActionsToolBox::seriesSelected(const medDataIndex& index)
 {
-    if( !(medDataManager::instance()->controllerForDataSource(index.dataSourceId())->isPersistent()) )
+    if( !(medDataManager::instance().controllerForDataSource(index.dataSourceId())->isPersistent()) )
     {
         updateButtons("Unsaved Series");
     }
@@ -367,5 +367,5 @@ void medActionsToolBox::initializeItemToActionsMap()
 
 void medActionsToolBox::thumbnailSettingClicked(bool state)
 {
-    medSettingsManager::instance()->setValue("Browser", "thumbnail_creation_setting", state);
+    medSettingsManager::instance().setValue("Browser", "thumbnail_creation_setting", state);
 }

@@ -153,7 +153,7 @@ medCropToolBox::~medCropToolBox()
 
 dtkPlugin* medCropToolBox::plugin()
 {
-    return medPluginManager::instance()->plugin("Reformat");
+    return medPluginManager::instance().plugin("Reformat");
 }
 
 medAbstractData* medCropToolBox::processOutput()
@@ -558,6 +558,6 @@ void medCropToolBoxPrivate::importOutput()
 {
     for(medAbstractData *output : outputData)
     {
-        medDataManager::instance()->importData(output, false);
+        medDataManager::instance().importData(output, false);
     }
 }
