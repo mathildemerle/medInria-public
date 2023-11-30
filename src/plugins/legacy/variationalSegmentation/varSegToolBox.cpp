@@ -17,6 +17,7 @@
 
 #include <medAbstractData.h>
 #include <medAbstractDataFactory.h>
+#include <medAbstractImageData.h>
 #include <medAbstractLayeredView.h>
 #include <medAbstractProcessLegacy.h>
 #include <medDataManager.h>
@@ -134,9 +135,7 @@ QString VarSegToolBox::s_name()
 
 dtkPlugin* VarSegToolBox::plugin()
 {
-    medPluginManager *pm = medPluginManager::instance();
-    dtkPlugin *plugin = pm->plugin("Variational Segmentation");
-    return plugin;
+    return medPluginManager::instance().plugin("Variational Segmentation");
 }
 
 void VarSegToolBox::updateLandmarksRenderer(QString key, QString value)
@@ -209,7 +208,7 @@ void VarSegToolBox::addBinaryImage()
         d->output->setData(img);
 
         medUtilities::setDerivedMetaData(d->output, d->originalInput, "VarSegMask");
-        medDataManager::instance()->importData(d->output, false);
+        medDataManager::instance().importData(d->output, false);
     }
 }
 
@@ -248,7 +247,7 @@ void VarSegToolBox::applyMaskToImage()
 void VarSegToolBox::displayOutput()
 {
     medUtilities::setDerivedMetaData(d->process->output(), d->originalInput, "VarSegApplied");
-    medDataManager::instance()->importData(d->process->output(), false);
+    medDataManager::instance().importData(d->process->output(), false);
 
     typedef itk::Image<unsigned char, 3> binaryType;
     binaryType::Pointer img = d->controller->GetBinaryImage();
@@ -283,7 +282,8 @@ void VarSegToolBox::updateView()
             medAbstractData *data = d->currentView->layerData(i);
             if(!data || data->identifier().contains("vtkDataMesh")
                     || !data->identifier().contains("itkDataImage") //avoid medVtkFibersData also
-                    || data->identifier().contains("itkDataImageVector"))
+                    || data->identifier().contains("itkDataImageVector")
+                    || (qobject_cast<medAbstractImageData*>(data)->Dimension() != 3))
             {
                 handleDisplayError(medAbstractProcessLegacy::DIMENSION_3D);
                 d->currentView = nullptr;

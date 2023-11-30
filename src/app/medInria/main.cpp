@@ -25,8 +25,6 @@
 
 #include <medMainWindow.h>
 #include <medApplication.h>
-#include <medSplashScreen.h>
-
 #include <medPluginManager.h>
 #include <medDataIndex.h>
 #include <medDataManager.h>
@@ -90,37 +88,9 @@ int main(int argc,char* argv[])
     fmt.setAlphaBufferSize(1);
     fmt.setStereo(false);
     fmt.setSamples(0);
-
     QSurfaceFormat::setDefaultFormat(fmt);
 
-    // this needs to be done before creating the QApplication object, as per the
-    // Qt doc, otherwise there are some edge cases where the style is not fully applied
-    //QApplication::setStyle("plastique");
     medApplication application(argc,argv);
-
-    // Themes
-    QVariant themeChosen = medSettingsManager::instance()->value("startup","theme");
-    int themeIndex = themeChosen.toInt();
-    QPixmap splashLogo;
-    switch (themeIndex)
-    {
-        case 0:
-        case 1:
-        case 2:
-        default:
-        {
-            splashLogo.load(":MUSICardio_logo_darkbackground_notext.png");
-            break;
-        }
-        case 3:
-        case 4:
-        {
-            splashLogo.load(":MUSICardio_logo_lightbackground_notext.png");
-            break;
-        }
-    }
-    splashLogo = splashLogo.scaled(914, 147, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    medSplashScreen splash(splashLogo);
 
     setlocale(LC_NUMERIC, "C");
     QLocale::setDefault(QLocale("C"));
@@ -138,18 +108,6 @@ int main(int argc,char* argv[])
                  << "[[--view] [files]]";
         return 1;
     }
-
-    // Do not show the splash screen in debug builds because it hogs the
-    // foreground, hiding all other windows. This makes debugging the startup
-    // operations difficult.
-
-    #if !defined(_DEBUG)
-    bool show_splash = true;
-    #else
-    bool show_splash = false;
-    #endif
-
-    medSettingsManager* mnger = medSettingsManager::instance();
 
     QStringList posargs;
     for (int i=1;i<application.arguments().size();++i)
@@ -186,8 +144,8 @@ int main(int argc,char* argv[])
     const bool DirectView = dtkApplicationArgumentsContain(&application,"--view") || posargs.size()!=0;
 
     int runningMedInria = 0;
-    if (DirectView) {
-        show_splash = false;
+    if (DirectView)
+    {
         for (QStringList::const_iterator i=posargs.constBegin();i!=posargs.constEnd();++i) {
             const QString& message = QString("/open ")+*i;
             runningMedInria = application.sendMessage(message);
@@ -199,17 +157,7 @@ int main(int argc,char* argv[])
     if (runningMedInria)
         return 0;
 
-    if (show_splash)
-    {
-        QObject::connect(medPluginManager::instance(),SIGNAL(loaded(QString)),
-                         &application,SLOT(redirectMessageToSplash(QString)) );
-        QObject::connect(&application,SIGNAL(showMessage(const QString&)),
-                         &splash,SLOT(showMessage(const QString&)) );
-        splash.show();
-        splash.showMessage("Loading plugins...");
-    }
-
-    medDataManager::instance()->setDatabaseLocation();
+    medDataManager::instance().setDatabaseLocation();
 
 #if(USE_PYTHON)
     pyncpp::Manager pythonManager;
@@ -245,8 +193,8 @@ int main(int argc,char* argv[])
     }
 #endif
 
-    medPluginManager::instance()->setVerboseLoading(true);
-    medPluginManager::instance()->initialize();
+    medPluginManager::instance().setVerboseLoading(true);
+    medPluginManager::instance().initialize();
 
     //Use Qt::WA_DeleteOnClose attribute to be sure to always have only one closeEvent.
     medMainWindow *mainwindow = new medMainWindow;
@@ -255,7 +203,7 @@ int main(int argc,char* argv[])
     if (DirectView)
         mainwindow->setStartup(medMainWindow::WorkSpace,posargs);
 
-    bool fullScreen = medSettingsManager::instance()->value("startup", "fullscreen", false).toBool();
+    bool fullScreen = medSettingsManager::instance().value("startup", "fullscreen", false).toBool();
     
     const bool hasFullScreenArg   = application.arguments().contains("--fullscreen");
     const bool hasNoFullScreenArg = application.arguments().contains("--no-fullscreen");
@@ -292,9 +240,6 @@ int main(int argc,char* argv[])
        QGLFormat::setDefaultFormat(format);
     }
 
-    if (show_splash)
-        splash.finish(mainwindow);
-
 #if(USE_PYTHON)
     if(!pythonErrorMessage.isEmpty())
     {
@@ -303,7 +248,7 @@ int main(int argc,char* argv[])
     }
 #endif
 
-    if (medPluginManager::instance()->plugins().isEmpty()) {
+    if (medPluginManager::instance().plugins().isEmpty()) {
         QMessageBox::warning(mainwindow,
                              QObject::tr("No plugin loaded"),
                              QObject::tr("Warning : no plugin loaded successfully."));
@@ -322,7 +267,7 @@ int main(int argc,char* argv[])
     //  Start main loop.
     const int status = application.exec();
 
-    medPluginManager::instance()->uninitialize();
+    medPluginManager::instance().uninitialize();
 
     return status;
 }

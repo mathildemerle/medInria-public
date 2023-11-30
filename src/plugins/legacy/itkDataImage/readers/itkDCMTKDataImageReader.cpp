@@ -41,7 +41,7 @@ namespace itk {
         itkTypeMacro(DCMTKDataImageReaderCommand, Command)
             itkNewMacro(Self)
 
-            void Execute(Object *caller, const EventObject &event);
+        void Execute(Object *caller, const EventObject &event);
         void Execute(const Object *caller, const EventObject &event);
 
         void SetDataImageReader(dtkAbstractDataReader* reader) { m_Reader = reader; }
@@ -192,7 +192,7 @@ itkDCMTKDataImageReader::itkDCMTKDataImageReader() : dtkAbstractDataReader(), d(
 itkDCMTKDataImageReader::~itkDCMTKDataImageReader()
 {
     delete d;
-    d = 0;
+    d = nullptr;
 }
 
 
