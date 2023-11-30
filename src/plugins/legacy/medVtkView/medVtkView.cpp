@@ -57,6 +57,9 @@
 class medVtkViewPrivate
 {
 public:
+    // internal state
+    vtkImageView *currentView; //2d or 3d depending on the navigator orientation.
+
     vtkInteractorStyle *interactorStyle2D;
 
     // views
@@ -80,6 +83,9 @@ public:
 medVtkView::medVtkView(QObject* parent): medAbstractImageView(parent),
     d(new medVtkViewPrivate)
 {
+    // setup initial internal state of the view
+    d->currentView = nullptr;
+
     d->interactorStyle2D = nullptr;
 
     // construct render window
@@ -189,7 +195,6 @@ medVtkView::~medVtkView()
         d->renWin->SetOffScreenRendering(0);
     d->renWin->Delete();
     delete d->viewWidget;
-    delete d->mainWindow;
 
     delete d;
 }

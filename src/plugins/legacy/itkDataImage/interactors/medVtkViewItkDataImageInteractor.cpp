@@ -222,7 +222,6 @@ bool medVtkViewItkDataImageInteractor::SetViewInput(medAbstractData* data, int l
             {
                 d->view2d->SetInput(poVtkAlgoOutputPort, poMatrix, layer);
                 d->view3d->SetInput(poVtkAlgoOutputPort, poMatrix, layer);
-                poMatrix->Delete();
             }
         }
     }
