@@ -357,7 +357,6 @@ void medCropToolBox::resetBoxPlace()
         d->view3D->GetBoxWidget()->PlaceWidget(d->minInitialPositionBox[0], d->maxInitialPositionBox[0], 
                                             d->minInitialPositionBox[1], d->maxInitialPositionBox[1],
                                             d->minInitialPositionBox[2], d->maxInitialPositionBox[2]);
-        d->borderWidget->GetCurrentRenderer()->GetRenderWindow()->Render();
         d->updateBorderWidgetIfVisible();
     }
 }
