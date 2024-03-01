@@ -141,9 +141,9 @@ medCropToolBox::medCropToolBox(QWidget* parent)
     cropToolBoxLayout->addWidget(d->saveButton);
     connect(d->saveButton, SIGNAL(clicked()), this, SLOT(saveCrop()));
 
-    d->resetButton = new QPushButton("Reset", this);
+    d->resetButton = new QPushButton("Reset Box", this);
     d->resetButton->setToolTip("Reset the cropping box");
-    d->resetButton->setObjectName("Reset");
+    d->resetButton->setObjectName("ResetBox");
     cropToolBoxLayout->addWidget(d->resetButton);
     connect(d->resetButton, &QPushButton::clicked, this, &medCropToolBox::resetBoxPlace);
 
