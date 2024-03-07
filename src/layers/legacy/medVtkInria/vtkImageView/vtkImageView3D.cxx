@@ -271,11 +271,7 @@ bool vtkImageView3D::GetShade()
 //----------------------------------------------------------------------------
 void vtkImageView3D::SetupVolumeRendering()
 {
-#ifdef __APPLE__
-  VolumeMapper->SetRequestedRenderMode( vtkSmartVolumeMapper::RayCastRenderMode );
-#else
   VolumeMapper->SetRequestedRenderMode( vtkSmartVolumeMapper::DefaultRenderMode );
-#endif
 
   this->SetCroppingModeToInside();
 

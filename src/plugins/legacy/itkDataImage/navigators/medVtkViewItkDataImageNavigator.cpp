@@ -79,12 +79,12 @@ medVtkViewItkDataImageNavigator::medVtkViewItkDataImageNavigator(medAbstractView
     connect(d->mode3DParameter, SIGNAL(valueChanged(QString)), this, SLOT(setMode3D(QString)));
 
     d->renderer3DParameter = new medStringListParameterL("Renderer", this);
+    d->renderer3DParameter->addItem("Default");
     d->renderer3DParameter->addItem("GPU");
 #ifdef MED_USE_OSPRAY_4_VR_BY_CPU
     d->renderer3DParameter->addItem("OSPRay / CPU");
 #endif //MED_USE_OSPRAY_4_VR_BY_CPU
     d->renderer3DParameter->addItem("Ray Cast");
-    d->renderer3DParameter->addItem("Default");
     connect(d->renderer3DParameter, SIGNAL(valueChanged(QString)), this, SLOT(setRenderer(QString)));
 
     d->croppingParameter = new medBoolParameterL("Cropping", this);
@@ -194,7 +194,7 @@ void medVtkViewItkDataImageNavigator::setMode3D(QString mode)
     if ( mode == "VR" )
     {
         d->view3d->SetRenderingModeToVR();
-        d->view3d->SetVolumeRayCastFunctionToComposite();
+        d->view3d->SetVolumeMapperToDefault();
 
         d->actorXMSRParameter->hide();
         d->actorYMSRParameter->hide();
