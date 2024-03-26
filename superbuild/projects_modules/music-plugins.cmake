@@ -41,7 +41,7 @@ function(music_plugins_project)
     if (NOT USE_SYSTEM_${external_project})
 
         set(git_url ${GITHUB_PREFIX}mathildemerle/music.git)
-        set(git_tag realtime4.0.1)
+        set(git_tag testZ)
 
         set(cmake_args
             ${ep_common_cache_args}
@@ -67,7 +67,7 @@ function(music_plugins_project)
             -Dqwt_ROOT:PATH=${qwt_ROOT}
             -Dtetgen_ROOT:PATH=${tetgen_ROOT}
             -DQuaZip-Qt5_ROOT:PATH=${quazip_ROOT}
-            -DZLIB_ROOT:PATH=${zlib_ROOT}
+            -Dzlib_ROOT:PATH=${zlib_ROOT}
             -DUSE_RealTimeWorkspace=${USE_RealTimeWorkspace}
             )
 
