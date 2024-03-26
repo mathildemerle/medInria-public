@@ -67,7 +67,7 @@ function(music_plugins_project)
             -Dqwt_ROOT:PATH=${qwt_ROOT}
             -Dtetgen_ROOT:PATH=${tetgen_ROOT}
             -DQuaZip-Qt5_ROOT:PATH=${quazip_ROOT}
-            -DZLIB_ROOT:PATH=${zlib_ROOT}
+            -Dzlib_ROOT:PATH=${zlib_ROOT}
             -DUSE_RealTimeWorkspace=${USE_RealTimeWorkspace}
             )
 
