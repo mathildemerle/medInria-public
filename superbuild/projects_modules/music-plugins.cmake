@@ -61,6 +61,7 @@ function(music_plugins_project)
             -Dopenssl_ROOT:FILEPATH=${openssl_ROOT}
             -DOPENSSL_ROOT_DIR:FILEPATH=${OPENSSL_ROOT_DIR} 
             -DOPENSSL_BUILD:FILEPATH=${OPENSSL_BUILD}
+            -DEigen3_ROOT:PATH=${eigen_ROOT}
             -Dmmg_ROOT:PATH=${mmg_ROOT}
             -DQWT_INCLUDE_DIR:PATH=${qwt_INCLUDE_DIR}
             -Dqwt_ROOT:PATH=${qwt_ROOT}

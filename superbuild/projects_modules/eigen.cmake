@@ -75,7 +75,7 @@ ExternalProject_Add_Step(${ep} post_install
 ## Set variable to provide infos about the project
 ## #############################################################################
 
-set(${ep}_ROOT ${EP_PATH_SOURCE}/${ep} PARENT_SCOPE)
+set(${ep}_ROOT ${build_path} PARENT_SCOPE)
 
 endif()
 
