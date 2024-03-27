@@ -72,8 +72,7 @@ ExternalProject_Add(${ep}
 ## Set variable to provide infos about the project
 ## #############################################################################
 
-ExternalProject_Get_Property(${ep} binary_dir)
-set(${ep}_ROOT ${binary_dir} PARENT_SCOPE)
+set(${ep}_ROOT ${build_path} PARENT_SCOPE)
 
 ## #############################################################################
 ## Add custom targets
