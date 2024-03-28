@@ -7,7 +7,7 @@ set(ep quazip)
 ## #############################################################################
 
 list(APPEND ${ep}_dependencies
-     zlib)
+     ZLIB)
   
 ## #############################################################################
 ## Prepare the project
@@ -48,12 +48,11 @@ set(cmake_args
   -DCMAKE_CXX_FLAGS:STRING=${${ep}_cxx_flags}
   -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}
   -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-  # to find zlib 
-  -DCMAKE_PREFIX_PATH:FILEPATH=${zlib_ROOT}
+  # to find ZLIB 
+  -DCMAKE_PREFIX_PATH:FILEPATH=${ZLIB_ROOT}
+  -DZLIB_ROOT:PATH=${ZLIB_ROOT}
   # to find Qt5
   -DQt5_DIR=${Qt5_DIR}
-  # to find zlib
-  -Dzlib_ROOT:PATH=${zlib_ROOT}
 )
 
 ## #############################################################################

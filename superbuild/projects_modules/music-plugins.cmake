@@ -13,7 +13,7 @@ function(music_plugins_project)
         eigen
         qwt
         quazip
-        zlib
+        ZLIB
         )
 
     if (${USE_RealTimeWorkspace})
@@ -67,7 +67,7 @@ function(music_plugins_project)
             -Dqwt_ROOT:PATH=${qwt_ROOT}
             -Dtetgen_ROOT:PATH=${tetgen_ROOT}
             -DQuaZip-Qt5_ROOT:PATH=${quazip_ROOT}
-            -Dzlib_ROOT:PATH=${zlib_ROOT}
+            -DZLIB_ROOT:PATH=${ZLIB_ROOT}
             -DUSE_RealTimeWorkspace=${USE_RealTimeWorkspace}
             )
 
@@ -113,7 +113,7 @@ function(music_plugins_project)
 if (WIN32)
     get_property(GENERATOR_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
     if(${GENERATOR_MULTI_CONFIG})
-        file(TO_NATIVE_PATH ${zlib_ROOT} ZLIB_BIN_BASE)
+        file(TO_NATIVE_PATH ${ZLIB_ROOT} ZLIB_BIN_BASE)
         set(CONFIG_MODE $<$<CONFIG:debug>:Debug>$<$<CONFIG:release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>)  
         set(MED_BIN_BASE ${MED_BIN_BASE}\\${CONFIG_MODE}\\bin)  
   
