@@ -1,5 +1,7 @@
 MUSICardio 4.0.1:
 - Fix Python module installation bug on macOS.
+- Fix Real Time compilation on Ubuntu/Fedora/macOS and Windows.
+- Fix a pop-up problem with wrongly imported pipeline scripts.
 
 MUSICardio 4.0:
 - Put back the Pipelines workspace.

@@ -107,7 +107,7 @@ list(APPEND
   ${TTK_ROOT}/bin/Release
   ${dtk_ROOT}/bin/Release
   ${RPI_ROOT}/bin/Release
-  ${zlib_ROOT}/Release
+  ${ZLIB_ROOT}/Release
   )
 
 set(CPACK_INSTALL_CMAKE_PROJECTS
@@ -122,7 +122,7 @@ file(GLOB_RECURSE vtk_files LIST_DIRECTORIES true \"${VTK_ROOT}/bin/*.dll\")
 file(GLOB_RECURSE dtk_files LIST_DIRECTORIES true \"${dtk_ROOT}/bin/*.dll\")
 file(GLOB_RECURSE dcm_files LIST_DIRECTORIES true \"${QtDCM_ROOT}/bin/*.dll\")
 file(GLOB_RECURSE qt5_files LIST_DIRECTORIES true \"${QT_BINARY_DIR}/*.dll\")
-file(GLOB_RECURSE zlib_files LIST_DIRECTORIES true \"${zlib_ROOT}/*.dll\")
+file(GLOB_RECURSE zlib_files LIST_DIRECTORIES true \"${ZLIB_ROOT}/*.dll\")
 list(APPEND files \${itk_files})
 list(APPEND files \${vtk_files})
 list(APPEND files \${dtk_files})

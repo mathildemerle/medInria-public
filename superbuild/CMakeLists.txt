@@ -110,7 +110,7 @@ if(USE_MUSIC_PLUGINS)
         qwt
         mmg
         tetgen
-        zlib
+        ZLIB
         quazip
         )
 endif()

@@ -1,6 +1,6 @@
-function(zlib_project)
+function(ZLIB_project)
 
-    set(external_project zlib)
+    set(external_project ZLIB)
 
     list(APPEND ${external_project}_dependencies
         )

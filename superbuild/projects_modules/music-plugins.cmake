@@ -13,7 +13,7 @@ function(music_plugins_project)
         eigen
         qwt
         quazip
-        zlib
+        ZLIB
         )
 
     if (${USE_RealTimeWorkspace})
@@ -40,8 +40,8 @@ function(music_plugins_project)
 
     if (NOT USE_SYSTEM_${external_project})
 
-        set(git_url ${GITHUB_PREFIX}Inria-Asclepios/music.git)
-        set(git_tag master)
+        set(git_url ${GITHUB_PREFIX}mathildemerle/music.git)
+        set(git_tag realtime4.0.1)
 
         set(cmake_args
             ${ep_common_cache_args}
@@ -57,17 +57,17 @@ function(music_plugins_project)
             -DBoost_INCLUDE_DIR=${Boost_INCLUDE_DIR}
             -Djsoncons_ROOT:FILEPATH=${jsoncons_ROOT}
             -Dasio_ROOT:FILEPATH=${asio_ROOT}
-            -Dwebsocketpp_ROOT:FILEPATH=${websocketpp_DIR}
-            -Dopenssl_ROOT:FILEPATH=${openssl_DIR}
+            -Dwebsocketpp_ROOT:FILEPATH=${websocketpp_ROOT}
+            -Dopenssl_ROOT:FILEPATH=${openssl_ROOT}
             -DOPENSSL_ROOT_DIR:FILEPATH=${OPENSSL_ROOT_DIR} 
             -DOPENSSL_BUILD:FILEPATH=${OPENSSL_BUILD}
             -DEigen3_ROOT:PATH=${eigen_ROOT}
             -Dmmg_ROOT:PATH=${mmg_ROOT}
             -DQWT_INCLUDE_DIR:PATH=${qwt_INCLUDE_DIR}
-            -DQWT_ROOT:PATH=${qwt_ROOT}
+            -Dqwt_ROOT:PATH=${qwt_ROOT}
             -Dtetgen_ROOT:PATH=${tetgen_ROOT}
             -DQuaZip-Qt5_ROOT:PATH=${quazip_ROOT}
-            -DZLIB_ROOT:PATH=${zlib_ROOT}
+            -DZLIB_ROOT:PATH=${ZLIB_ROOT}
             -DUSE_RealTimeWorkspace=${USE_RealTimeWorkspace}
             )
 
@@ -113,7 +113,7 @@ function(music_plugins_project)
 if (WIN32)
     get_property(GENERATOR_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
     if(${GENERATOR_MULTI_CONFIG})
-        file(TO_NATIVE_PATH ${zlib_ROOT} ZLIB_BIN_BASE)
+        file(TO_NATIVE_PATH ${ZLIB_ROOT} ZLIB_BIN_BASE)
         set(CONFIG_MODE $<$<CONFIG:debug>:Debug>$<$<CONFIG:release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>)  
         set(MED_BIN_BASE ${MED_BIN_BASE}\\${CONFIG_MODE}\\bin)  
   
