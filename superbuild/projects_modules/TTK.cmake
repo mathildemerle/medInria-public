@@ -71,6 +71,7 @@ set(cmake_args
 set(cmake_cache_args
   -DVTK_ROOT:FILEPATH=${VTK_ROOT}
   -DITK_ROOT:FILEPATH=${ITK_ROOT}
+  -DCMAKE_INSTALL_PREFIX:PATH=${EP_INSTALL_PREFIX}/${ep}
   )
 
 
@@ -103,6 +104,7 @@ ExternalProject_Add(${ep}
 
 ExternalProject_Get_Property(${ep} binary_dir)
 set(${ep}_ROOT ${binary_dir} PARENT_SCOPE)
+set(${ep}_DIR  ${binary_dir}/lib/cmake/TTK PARENT_SCOPE)
   
 endif() #NOT USE_SYSTEM_ep
 
