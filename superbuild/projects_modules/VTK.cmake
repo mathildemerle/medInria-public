@@ -129,6 +129,12 @@ if(USE_Python)
         set(python_executable "${pyncpp_ROOT}/python${python_version}/pythonw$<$<CONFIG:Debug>:_d>.exe")
         set(python_include "${pyncpp_ROOT}/python${python_version}/include")
         set(python_library "${pyncpp_ROOT}/python${python_version}/libs/python${python_version}$<$<CONFIG:Debug>:_d>.lib")
+
+        if(CMAKE_BUILD_TYPE_externals_projects STREQUAL "Debug")
+            set(IS_DEBUG ON)
+        else()
+            set(IS_DEBUG OFF)
+        endif()
     endif()
     list(APPEND cmake_args
         -DVTK_WRAP_PYTHON:BOOL=ON
@@ -139,6 +145,10 @@ if(USE_Python)
         -DPYTHON_INCLUDE_DIR:PATH=${python_include}
         -DPYTHON_LIBRARY:PATH=${python_library}
         )
+    message(STATUS "IS_DEBUG: ${IS_DEBUG}")
+    if(IS_DEBUG AND NOT UNIX)
+      list(APPEND cmake_args -DVTK_WINDOWS_PYTHON_DEBUGGABLE:BOOL=${IS_DEBUG})
+    endif()
 endif()
 
 ## #############################################################################
