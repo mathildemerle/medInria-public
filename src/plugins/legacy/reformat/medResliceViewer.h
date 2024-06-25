@@ -21,7 +21,7 @@ PURPOSE.
 
 #include <itkImage.h>
 
-#include <QVTKOpenGLWidget.h>
+#include <QVTKOpenGLNativeWidget.h>
 
 #include <vtkImagePlaneWidget.h>
 #include <vtkResliceImageViewer.h>
@@ -83,7 +83,7 @@ protected:
     vtkSmartPointer<vtkImagePlaneWidget> planeWidget[3];
     double planeNormal[3][3];
     QWidget *viewBody;
-    QVTKOpenGLWidget *views[4];
+    QVTKOpenGLNativeWidget *views[4];
     dtkSmartPointer<medAbstractData> inputData;
     std::array<double, 3> outputSpacingOrSize;
     unsigned char selectedView;
