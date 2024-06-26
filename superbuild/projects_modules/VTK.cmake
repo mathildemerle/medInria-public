@@ -140,7 +140,7 @@ if(USE_Python)
         -DVTK_WRAP_PYTHON:BOOL=ON
         -DModule_vtkPython:BOOL=ON
         -DModule_vtkWrappingTools:BOOL=ON
-        -DVTK_PYTHON_VERSION:STRING=${python_version}
+        -DVTK_PYTHON_VERSION:STRING=${PYTHON_VERSION_MAJOR}
         -DPYTHON_EXECUTABLE:PATH=${python_executable}
         -DPYTHON_INCLUDE_DIR:PATH=${python_include}
         -DPYTHON_LIBRARY:PATH=${python_library}

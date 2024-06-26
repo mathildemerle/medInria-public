@@ -20,7 +20,7 @@ set(TARGET_NAME medVtkInria)
 ## #############################################################################
 
 find_package(VTK REQUIRED COMPONENTS RenderingVolumeOpenGL2 InteractionWidgets RenderingAnnotation 
-  InteractionStyle ImagingStatistics IOLegacy)
+  InteractionStyle ImagingStatistics IOLegacy RenderingVolume)
 include_directories(${VTK_INCLUDE_DIRS})
 
 find_package(OpenGL REQUIRED)

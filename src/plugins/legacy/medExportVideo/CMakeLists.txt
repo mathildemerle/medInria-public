@@ -31,7 +31,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 ## #############################################################################
 
 if(${USE_FFmpeg})
-  set (VTK_FFmpeg_MODULE vtkIOFFMPEG)
+  set (VTK_FFmpeg_MODULE IOFFMPEG)
   set (VTK_FFmpeg_MODULE_LIB VTK::IOFFMPEG)
   add_definitions(-DMED_USE_FFmpeg)
 endif()
@@ -42,7 +42,7 @@ include_directories(${dtk_INCLUDE_DIRS})
 find_package(ITK REQUIRED COMPONENTS ITKCommon)
 include(${ITK_USE_FILE})
 
-find_package(VTK REQUIRED COMPONENTS vtkCommonCore vtkImagingSources ${VTK_FFmpeg_MODULE} vtkIOImage vtkRenderingQt vtkIOMovie)
+find_package(VTK REQUIRED COMPONENTS CommonCore ImagingSources ${VTK_FFmpeg_MODULE} IOImage RenderingQt IOMovie)
 include_directories(${VTK_INCLUDE_DIRS})
 
 ## #############################################################################
