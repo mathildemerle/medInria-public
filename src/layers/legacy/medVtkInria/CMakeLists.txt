@@ -98,6 +98,7 @@ target_link_libraries(${TARGET_NAME}
   VTK::ImagingStencil
   VTK::FiltersGeometry
   VTK::vtksys
+  VTK::RenderingVolume
   )
 
 vtk_module_autoinit(TARGETS ${TARGET_NAME} MODULES ${VTK_LIBRARIES})
