@@ -78,7 +78,7 @@ public:
             
             itkIndex = img->TransformPhysicalPointToIndex(itkPoint);
             typename ImageType::PixelType pixelValue = img->GetPixel(itkIndex);
-            if (!std::isnan(pixelValue))
+            if (!std::isnan(static_cast<double>(pixelValue)))
             {
                 interpolatedValues->SetValue(i, static_cast<double>(pixelValue));
             }
