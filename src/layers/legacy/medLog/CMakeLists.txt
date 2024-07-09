@@ -29,7 +29,6 @@ include(${ITK_USE_FILE})
 
 # find vtk
 find_package(VTK REQUIRED COMPONENTS CommonCore)
-include_directories(${VTK_INCLUDE_DIRS})
 
 vtk_module_autoinit(TARGETS ${TARGET_NAME} MODULES VTK::CommonCore)
 

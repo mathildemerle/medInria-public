@@ -7,7 +7,6 @@ set(TARGET_NAME ttkTensorScalarMapsProcessPlugin)
 find_package(TTK REQUIRED COMPONENTS ITKTensor ttkAlgorithms)
 
 find_package(VTK REQUIRED COMPONENTS RenderingCore)
-include_directories(${VTK_INCLUDE_DIRS})
 
 find_package(ITK REQUIRED COMPONENTS ITKCommon)
 include(${ITK_USE_FILE})

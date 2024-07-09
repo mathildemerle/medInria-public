@@ -34,7 +34,6 @@ include_directories(${dtk_INCLUDE_DIRS})
 
 find_package(VTK REQUIRED COMPONENTS ImagingCore IOLegacy IOXML RenderingCore RenderingOpenGL2
     InteractionWidgets CommonDataModel FiltersParallel)
-include_directories(${VTK_INCLUDE_DIRS})
 
 find_package(ITK REQUIRED COMPONENTS ITKCommon ITKVtkGlue)
 include(${ITK_USE_FILE})
@@ -110,8 +109,7 @@ target_link_libraries(${TARGET_NAME}
   TTK::ITKTensor
   ITKCommon
   ITKVtkGlue
-  VTK::CommonDataModel
-  VTK::FiltersParallel
+  ${VTK_LIBRARIES}
   )
 
 vtk_module_autoinit(TARGETS ${TARGET_NAME} MODULES ${VTK_LIBRARIES})
