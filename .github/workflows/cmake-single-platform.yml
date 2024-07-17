@@ -12,7 +12,7 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   QT5_DIR: "/usr/local/opt/qt@5/lib/cmake/Qt5"
-  OpenMP_ROOT: "/usr/local/Cellar/libomp/17.0.6"
+  OpenMP_ROOT: "/usr/local/Cellar/libomp/18.1.8"
 
 jobs:
   build:
@@ -24,10 +24,11 @@ jobs:
 
     - name: Install dependencies
       run: |
+        # brew info cmake
         brew install qt@5
         brew install boost
-        brew install libomp
-        brew info libomp
+        # brew info swig
+        # brew info libomp        
         pip3 install dmgbuild
 
     - name: Set up Git
