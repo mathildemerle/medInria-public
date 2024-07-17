@@ -42,16 +42,18 @@ public:
 };
 
 // /////////////////////////////////////////////////////////////////
-// medDatabaseNonPersitentController
+// medDatabaseNonPersistentController
 // /////////////////////////////////////////////////////////////////
 
-medDatabaseNonPersistentController*  medDatabaseNonPersistentController::s_instance = nullptr;
+std::unique_ptr<medDatabaseNonPersistentController> medDatabaseNonPersistentController::s_instance = nullptr;
 
-medDatabaseNonPersistentController* medDatabaseNonPersistentController::instance() {
-    if ( ! s_instance) {
-        s_instance = new medDatabaseNonPersistentController();
+medDatabaseNonPersistentController &medDatabaseNonPersistentController::instance()
+{
+    if(!s_instance)
+    {
+        s_instance = std::unique_ptr<medDatabaseNonPersistentController>(new medDatabaseNonPersistentController());
     }
-    return s_instance;
+    return *s_instance.get();
 }
 
 int medDatabaseNonPersistentController::patientId(bool increment)
@@ -91,7 +93,7 @@ void medDatabaseNonPersistentController::insert(medDataIndex index, medDatabaseN
 void medDatabaseNonPersistentController::importPath(const QString& file,const QUuid & importUuid, bool /*indexWithoutCopying*/)
 {
     medDatabaseNonPersistentImporter * importer = new medDatabaseNonPersistentImporter(file,importUuid);
-    medMessageProgress * message = medMessageController::instance()->showProgress(tr("Opening file item"));
+    medMessageProgress * message = medMessageController::instance().showProgress(tr("Opening file item"));
 
     connect(importer, SIGNAL(progressed(int)),    message, SLOT(setProgress(int)));
     connect(importer, SIGNAL(dataImported(medDataIndex,QUuid)), this, SIGNAL(dataImported(medDataIndex,QUuid)));
@@ -99,9 +101,9 @@ void medDatabaseNonPersistentController::importPath(const QString& file,const QU
     connect(importer, SIGNAL(success(QObject *)), message, SLOT(success()));
     connect(importer, SIGNAL(failure(QObject *)), message, SLOT(failure()));
     connect(importer, SIGNAL(showError(const QString&,unsigned int)),
-            medMessageController::instance(),SLOT(showError(const QString&,unsigned int)));
+            &medMessageController::instance(),SLOT(showError(const QString&,unsigned int)));
 
-    medJobManagerL::instance()->registerJobItem(importer);
+    medJobManagerL::instance().registerJobItem(importer);
     QThreadPool::globalInstance()->start(importer);
 }
 
@@ -117,7 +119,7 @@ medDatabaseNonPersistentController::medDatabaseNonPersistentController(): d(new 
     d->seriesIndex  = nonPersistentDataStartingIndex();
 }
 
-medDatabaseNonPersistentController::~medDatabaseNonPersistentController(void)
+medDatabaseNonPersistentController::~medDatabaseNonPersistentController()
 {
     qDeleteAll(d->items);
 
@@ -132,10 +134,10 @@ bool medDatabaseNonPersistentController::isConnected() const
 }
 
 void medDatabaseNonPersistentController::importData(medAbstractData *data,
-                                                    const QUuid & callerUuid)
+                                                    const QUuid & callerUuid, bool allowDuplicateSeriesName)
 {
     medDatabaseNonPersistentImporter * importer = new medDatabaseNonPersistentImporter(data,callerUuid);
-    medMessageProgress * message = medMessageController::instance()->showProgress("Importing data item");
+    medMessageProgress * message = medMessageController::instance().showProgress("Importing data item");
 
     connect(importer, SIGNAL(progressed(int)),    message, SLOT(setProgress(int)));
     connect(importer, SIGNAL(dataImported(medDataIndex,QUuid)), this, SIGNAL(dataImported(medDataIndex,QUuid)));
@@ -143,9 +145,9 @@ void medDatabaseNonPersistentController::importData(medAbstractData *data,
     connect(importer, SIGNAL(success(QObject *)), message, SLOT(success()));
     connect(importer, SIGNAL(failure(QObject *)), message, SLOT(failure()));
     connect(importer, SIGNAL(showError(const QString&,unsigned int)),
-            medMessageController::instance(),SLOT(showError(const QString&,unsigned int)));
+            &medMessageController::instance(),SLOT(showError(const QString&,unsigned int)));
 
-    medJobManagerL::instance()->registerJobItem(importer);
+    medJobManagerL::instance().registerJobItem(importer);
     QThreadPool::globalInstance()->start(importer);
 }
 
@@ -367,6 +369,32 @@ QList<medDataIndex> medDatabaseNonPersistentController::series( const medDataInd
     return ret;
 }
 
+QStringList medDatabaseNonPersistentController::series(const QString &seriesName, const QString &studyId) const
+{
+    QStringList seriesNames;
+    medDatabaseNonPersistentItem *item;
+    for (medDataIndex index : d->items.keys())
+    {
+        if (index.isValidForSeries())
+        {
+            item = d->items.value(index);
+            if (studyId.isEmpty())
+            {
+                if (item->seriesName().startsWith(seriesName))
+                    seriesNames << item->seriesName();
+            }
+            else
+            {
+                if (item->studyId()==studyId && item->seriesName().startsWith(seriesName))
+                {
+                    seriesNames << item->seriesName();
+                }
+            }
+        }
+    }
+    return seriesNames;
+}
+
 QPixmap medDatabaseNonPersistentController::thumbnail(const medDataIndex &index) const
 {
     if (d->items.contains(index)) {
@@ -585,7 +613,7 @@ medDataIndex medDatabaseNonPersistentController::moveSeries(const medDataIndex& 
     return newIndex;
 }
 
-medAbstractData* medDatabaseNonPersistentController::retrieve(const medDataIndex& index) const
+medAbstractData* medDatabaseNonPersistentController::retrieve(const medDataIndex& index, bool readFullData) const
 {
     // Lookup item in hash table.
     medDatabaseNonPersistentControllerPrivate::DataHashMapType::const_iterator it( d->items.find(index) );

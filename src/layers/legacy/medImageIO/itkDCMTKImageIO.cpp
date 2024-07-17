@@ -54,8 +54,8 @@ DCMTKImageIO::DCMTKImageIO()
 {
     this->SetNumberOfDimensions(3);
     this->SetNumberOfComponents(1);
-    this->SetPixelType(SCALAR);
-    this->SetComponentType(CHAR);
+    this->SetPixelType(IOPixelEnum::SCALAR);
+    this->SetComponentType(itk::IOComponentEnum::CHAR);
 
     DcmRLEDecoderRegistration::registerCodecs();
     DJDecoderRegistration::registerCodecs();
@@ -295,16 +295,7 @@ void DCMTKImageIO::ReadImageInformation()
 
     double startLocation = *l;
     double endLocation   = *lle;
-    int locSign = endLocation>startLocation?1.0:-1.0;
-
-    // just check first volume
-    int startIndex = m_FilenameToIndexMap[ m_LocationToFilenamesMap.lower_bound ( *l )->second ];
-    int endIndex   = m_FilenameToIndexMap[ m_LocationToFilenamesMap.lower_bound ( *lle )->second ];
-
-    double startSlice = this->GetZPositionForImage ( startIndex );
-    double endSlice   = this->GetZPositionForImage ( endIndex );
-
-    int sliceDirection = endSlice>=startSlice?locSign:-locSign;
+    int sliceDirection = endLocation>startLocation?1.0:-1.0;
 
     /**
        Now order filenames such that we can read them sequentially and build the 3D/4D volume.
@@ -365,11 +356,11 @@ void DCMTKImageIO::DetermineNumberOfPixelComponents()
 
     if( samplesPerPixel==1 )
     {
-        this->SetPixelType ( SCALAR );
+        this->SetPixelType (itk::IOPixelEnum::SCALAR );
     }
     else
     {
-        this->SetPixelType ( RGB );
+        this->SetPixelType ( itk::IOPixelEnum::RGB );
     }
 }
 
@@ -382,7 +373,7 @@ void DCMTKImageIO::DeterminePixelType()
     
     if (condition.bad())
     {
-        this->SetComponentType(UNKNOWNCOMPONENTTYPE);
+        this->SetComponentType(itk::IOComponentEnum::UNKNOWNCOMPONENTTYPE);
         return;
     }
 
@@ -396,36 +387,36 @@ void DCMTKImageIO::DeterminePixelType()
             switch( dmp->getRepresentation() )
             {
                 case EPR_Uint8:
-                    this->SetComponentType ( UCHAR );
+                    this->SetComponentType (itk::IOComponentEnum::UCHAR );
                     break;
 
                 case EPR_Sint8:
-                    this->SetComponentType ( CHAR );
+                    this->SetComponentType (itk::IOComponentEnum::CHAR );
                     break;
 
                 case EPR_Uint16:
-                    this->SetComponentType ( USHORT );
+                    this->SetComponentType (itk::IOComponentEnum::USHORT );
                     break;
 
                 case EPR_Sint16:
-                    this->SetComponentType ( SHORT );
+                    this->SetComponentType (itk::IOComponentEnum::SHORT );
                     break;
 
                 case EPR_Uint32:
-                    this->SetComponentType ( UINT );
+                    this->SetComponentType (itk::IOComponentEnum::UINT );
                     break;
 
                 case EPR_Sint32:
-                    this->SetComponentType ( INT );
+                    this->SetComponentType (itk::IOComponentEnum::INT );
                     break;
 
                 default:
-                    this->SetComponentType (UNKNOWNCOMPONENTTYPE);
+                    this->SetComponentType (itk::IOComponentEnum::UNKNOWNCOMPONENTTYPE);
             }
         }
         else
         {
-            this->SetComponentType (UNKNOWNCOMPONENTTYPE);
+            this->SetComponentType (itk::IOComponentEnum::UNKNOWNCOMPONENTTYPE);
         }
     }
 }
@@ -599,11 +590,11 @@ void DCMTKImageIO::DetermineOrigin()
     int startIndex = m_FilenameToIndexMap[ m_LocationToFilenamesMap.lower_bound ( *m_LocationSet.begin() )->second ];
     int endIndex   = m_FilenameToIndexMap[ m_LocationToFilenamesMap.lower_bound ( *m_LocationSet.rbegin() )->second ];
 
-    double startZ = this->GetZPositionForImage (startIndex);
-    double endZ   = this->GetZPositionForImage (endIndex);
+    double startPosition = this->GetPositionOnStackingAxisForImage (startIndex);
+    double endPosition   = this->GetPositionOnStackingAxisForImage (endIndex);
 
     int index = startIndex;
-    if (endZ<startZ)
+    if (endPosition<startPosition)
     {
         index = endIndex;
     }
@@ -679,29 +670,35 @@ void DCMTKImageIO::DetermineOrientation()
     }
 }
 
-
-double DCMTKImageIO::GetZPositionForImage (int index)
+double DCMTKImageIO::GetPositionOnStackingAxisForImage (int index)
 {
-    std::string s_position = this->GetMetaDataValueString("(0020,0032)", index);
-    double zpos = 0.0;
-    double junk;
-    std::istringstream is_stream( s_position.c_str() );
-    if (!(is_stream >> junk) )
+    // Get maximum absolute value, which is the closest to an axis
+    auto result = std::max_element(m_Direction[2].begin(), m_Direction[2].end(), [](double a, double b)
     {
-        itkWarningMacro ( << "Cannot convert string to double: " << s_position.c_str() << std::endl );
-    }
-    if (!(is_stream >> junk) )
-    {
-        itkWarningMacro ( << "Cannot convert string to double: " << s_position.c_str() << std::endl );
-    }
-    if (!(is_stream >> zpos))
-    {
-        itkWarningMacro ( << "Cannot convert string to double: " << s_position.c_str() << std::endl );
-    }
+        return std::abs(a) < std::abs(b);
+    });
 
-    return zpos;
+    // Index of the value in the vector
+    auto principalAxisIndex = std::distance(m_Direction[2].begin(), result);
+
+    return GetPositionFromPrincipalAxisIndex(index, principalAxisIndex);
 }
 
+double DCMTKImageIO::GetPositionFromPrincipalAxisIndex(int index, int principalAxisIndex)
+{
+    std::string s_position = this->GetMetaDataValueString("(0020,0032)", index);
+    if (s_position.empty())
+    {
+        itkWarningMacro ( << "Tag (0020,0032) (ImageOrigin) was not found, assuming 0.0/0.0/0.0" << std::endl);
+        return 0.0;
+    }
+
+    // Convert string metadata to vector of double
+    std::stringstream lineStream(s_position);
+    std::vector<double> positionVector(std::istream_iterator<double>(lineStream), {});
+
+    return positionVector[principalAxisIndex];
+}
 
 double DCMTKImageIO::GetSliceLocation(std::string imagePosition)
 {
@@ -773,31 +770,31 @@ void DCMTKImageIO::InternalRead (void* buffer, int slice, unsigned long pixelCou
     size_t length = pixelCount * GetNumberOfComponents();
     switch( this->GetComponentType() )
     {
-        case CHAR:
+        case itk::IOComponentEnum::CHAR:
             length *= sizeof(char);
             break;
 
-        case UCHAR:
+        case itk::IOComponentEnum::UCHAR:
             length *= sizeof(Uint8);
             break;
 
-        case SHORT:
+        case itk::IOComponentEnum::SHORT:
             length *= sizeof(Sint16);
             break;
 
-        case USHORT:
+        case itk::IOComponentEnum::USHORT:
             length *= sizeof(Uint16);
             break;
 
-        case INT:
+        case itk::IOComponentEnum::INT:
             length *= sizeof(Sint32);
             break;
 
-        case UINT:
+        case itk::IOComponentEnum::UINT:
             length *= sizeof(Uint32);
             break;
 
-        case DOUBLE:
+        case itk::IOComponentEnum::DOUBLE:
             length *= sizeof(Float64);
             break;
 
@@ -935,6 +932,24 @@ std::string DCMTKImageIO::GetNumberOfStudyRelatedSeries() const
 std::string DCMTKImageIO::GetStudyDate() const
 {
     std::string name = this->GetMetaDataValueString ( "(0008,0020)", 0 );
+    return name;
+}
+
+std::string DCMTKImageIO::GetStudyTime() const
+{
+    std::string name = this->GetMetaDataValueString ( "(0008,0030)", 0 );
+    return name;
+}
+
+std::string DCMTKImageIO::GetSeriesDate() const
+{
+    std::string name = this->GetMetaDataValueString ( "(0008,0021)", 0 );
+    return name;
+}
+
+std::string DCMTKImageIO::GetSeriesTime() const
+{
+    std::string name = this->GetMetaDataValueString ( "(0008,0031)", 0 );
     return name;
 }
 

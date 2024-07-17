@@ -146,8 +146,10 @@
         <file>pixmaps/radio-disabled.png</file>
         <file>pixmaps/radio-checked-disabled.png</file>
         <file>pixmaps/plus-button.png</file>
-        <file>pixmaps/plus.png</file>
-        <file>pixmaps/minus.png</file>
+        <file>pixmaps/plus_white.png</file>
+        <file>pixmaps/minus_white.png</file>
+        <file>pixmaps/plus_black.png</file>
+        <file>pixmaps/minus_black.png</file>
         <file>pixmaps/checkbox-disabled.png</file>
         <file>pixmaps/checkbox-checked-disabled.png</file>
         <file>pixmaps/arrow-top-disabled.png</file>
@@ -162,12 +164,14 @@
         <file>icons/adjust_size_grey.png</file>
         <file>icons/movie.png</file>
         <file>icons/movie_grey.png</file>
-        <file>icons/saveScene.png</file>
-        <file>icons/saveScene_grey.png</file>
+        <file>icons/saveScene_white.png</file>
+        <file>icons/saveScene_black.png</file>
         <file>icons/scene.png</file>
 
         <file>../../../../LICENSE_MUSICardio.txt</file>
-        <file>MUSICardio_logo_light-notext.png</file>
+        <file>../../../../LICENSES_EXT.txt</file>
+        <file>MUSICardio-2023-lightfont-notext-darkback-margin10.png</file>
+        <file>MUSICardio-2023-darkfont-notext-whiteback-margin10.png</file>
         <file>MUSICardio_logo_light.png</file>
         <file>MUSICardio_logo_small_light.png</file>
         <file>MUSICardio_logo_dark.png</file>
@@ -212,5 +216,15 @@
         <file>icons/adjust_size_grey_blue.png</file>
         <file>pixmaps/radio_blue.png</file>
         <file>music_darkGrey.qss</file>
+        <file>icons/stack_white.png</file>
+        <file>icons/stack_black.png</file>
+        <file>icons/magnifier_white.png</file>
+        <file>icons/magnifier_black.png</file>
+        <file>icons/pan_white.svg</file>
+        <file>icons/pan_black.svg</file>
+        <file>icons/ruler_white.png</file>
+        <file>icons/ruler_black.png</file>
+        <file>icons/contrast_white.png</file>
+        <file>icons/contrast_black.png</file>
     </qresource>
 </RCC>

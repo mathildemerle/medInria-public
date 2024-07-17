@@ -39,7 +39,7 @@ if (NOT USE_SYSTEM_${ep})
 ## Set up versioning control
 ## #############################################################################
 
-set(git_url git://git.dcmtk.org/dcmtk.git)
+set(git_url ${GITHUB_PREFIX}DCMTK/dcmtk.git)
 set(git_tag DCMTK-3.6.2)
 
 
@@ -114,7 +114,6 @@ ExternalProject_Add(${ep}
   CMAKE_ARGS ${cmake_args}
   DEPENDS ${${ep}_dependencies}
   INSTALL_COMMAND ""
-  BUILD_ALWAYS 1
   )
 
 ## #############################################################################
@@ -122,7 +121,7 @@ ExternalProject_Add(${ep}
 ## #############################################################################
 
 ExternalProject_Get_Property(${ep} binary_dir)
-set(${ep}_DIR ${binary_dir} PARENT_SCOPE)
+set(${ep}_ROOT ${binary_dir} PARENT_SCOPE)
 
 endif() #NOT USE_SYSTEM_ep
 

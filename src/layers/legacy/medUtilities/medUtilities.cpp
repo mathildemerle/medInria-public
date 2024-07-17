@@ -31,15 +31,22 @@
 
 #include <gdcmUIDGenerator.h>
 
-void medUtilities::setDerivedMetaData(medAbstractData* derived, medAbstractData* original, QString derivationDescription, bool queryForDescription)
+void medUtilities::setDerivedMetaData(medAbstractData* derived, medAbstractData* original, QString derivationDescription, bool queryForDescription, bool outputSchema)
 {
     copyMetaDataIfEmpty(derived, original, metaDataKeysToCopyForDerivedData(derived));
 
     if (derivationDescription != "")
     {
         QString newSeriesDescription;
-        newSeriesDescription = original->metadata(medMetaDataKeys::SeriesDescription.key());
-        newSeriesDescription += " (" + derivationDescription + ")";
+        if (outputSchema)
+        {
+            newSeriesDescription = original->metadata(medMetaDataKeys::SeriesDescription.key());
+            newSeriesDescription += " (" + derivationDescription + ")";
+        }
+        else
+        {
+            newSeriesDescription = derivationDescription;
+        }
         derived->setMetaData(medMetaDataKeys::SeriesDescription.key(), newSeriesDescription);
     }
     else
@@ -88,6 +95,8 @@ QStringList medUtilities::metaDataKeysToCopyForDerivedData(medAbstractData* deri
          << medMetaDataKeys::Referee.key()
          << medMetaDataKeys::StudyDate.key()
          << medMetaDataKeys::StudyTime.key()
+         << medMetaDataKeys::SeriesDate.key()
+         << medMetaDataKeys::SeriesTime.key()
          << medMetaDataKeys::Modality.key()
          << medMetaDataKeys::Performer.key()
          << medMetaDataKeys::Report.key()
@@ -279,6 +288,33 @@ void medUtilities::computeMeanAndVariance(QList<double> samples,
     *variance = tmpVar;
 }
 
+void medUtilities::computeMedian(QList<double> samples,
+                                 double* median)
+{
+    int size = samples.size();
+
+    if (size == 0)
+    {
+        *median = 0.0;  // Undefined, really.
+    }
+    else if (size == 1)
+    {
+        *median = samples[0];
+    }
+    else
+    {
+        qSort(samples.begin(), samples.end());
+        if (size % 2 == 0)
+        {
+            *median = (samples[size / 2 - 1] + samples[size / 2]) / 2.0;
+        }
+        else
+        {
+            *median = samples[size / 2];
+        }
+    }
+}
+
 int medUtilities::getDevicePixelRatio(QMouseEvent* mouseEvent)
 {
     int devicePixelRatio = 1;
@@ -288,5 +324,20 @@ int medUtilities::getDevicePixelRatio(QMouseEvent* mouseEvent)
     int screenNumber = QApplication::desktop()->screenNumber(mouseEvent->globalPos());
     devicePixelRatio = QGuiApplication::screens().at(screenNumber)->devicePixelRatio();
 #endif
+    return devicePixelRatio;
+}
+
+/**
+ * @brief Get the screen pixel ratio according to the current view
+ * 
+ * @param view a current view to get the screen ratio from
+ * @return int the screen pixel ratio
+ */
+int medUtilities::getDevicePixelRatio(medAbstractView *view)
+{
+    auto * widgetView = view->viewWidget();
+    auto positionView = widgetView->mapToGlobal({widgetView->width()/2,0});
+    int devicePixelRatio = QGuiApplication::screenAt(positionView)->devicePixelRatio();
+
     return devicePixelRatio;
 }

@@ -38,6 +38,7 @@
 #include <medVector3DParameterL.h>
 #include <medAbstractImageData.h>
 #include <medCompositeParameterL.h>
+#include <medSettingsManager.h>
 
 #include <QFormLayout>
 #include <QSlider>
@@ -204,7 +205,7 @@ bool medVtkViewItkDataImageInteractor::SetViewInput(medAbstractData* data, int l
 {
     bool bRes = true;
 
-    auto *poOldConv = m_poConv;
+    auto *poOldConv = m_poConv; // is deleted later in method to avoid uninitialized m_poConv
     m_poConv = vtkItkConversionInterface::createInstance(data);
 
     if (m_poConv)
@@ -222,6 +223,7 @@ bool medVtkViewItkDataImageInteractor::SetViewInput(medAbstractData* data, int l
                 d->view2d->SetInput(poVtkAlgoOutputPort, poMatrix, layer);
                 d->view3d->SetInput(poVtkAlgoOutputPort, poMatrix, layer);
             }
+            poMatrix->Delete();
         }
     }
     else
@@ -286,9 +288,29 @@ void medVtkViewItkDataImageInteractor::initParameters(medAbstractImageData* data
     createSlicingParam();
 
     d->enableWindowLevelParameter = new medBoolParameterL("Windowing", this);
-    d->enableWindowLevelParameter->setIcon(QIcon (":/icons/wlww.png"));
     d->enableWindowLevelParameter->setToolTip (tr("Windowing"));
     connect(d->enableWindowLevelParameter, SIGNAL(valueChanged(bool)), this, SLOT(enableWindowLevel(bool)));
+
+    // Themes
+    QVariant themeChosen = medSettingsManager::instance().value("startup","theme");
+    int themeIndex = themeChosen.toInt();
+    switch (themeIndex)
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 4:
+        default:
+        {
+            d->enableWindowLevelParameter->setIcon(QIcon (":/icons/contrast_white.png"));
+            break;
+        }
+        case 3:
+        {
+            d->enableWindowLevelParameter->setIcon(QIcon (":/icons/contrast_black.png"));
+            break;
+        }
+    }
 
     d->enableInterpolation = new medBoolParameterL("Interpolate", this);
     d->enableInterpolation->setToolTip("Active interpolation\n shortcut is :\n key 'n'");

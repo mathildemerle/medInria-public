@@ -123,7 +123,7 @@ class MEDVTKDATAMESHBASE_EXPORT vtkMetaDataSetSequence: public vtkMetaDataSet
   */
   vtkGetMacro (SequenceDuration, double)
 
-  virtual const char* GetDataSetType() const override
+  const char* GetDataSetType() const override
   {
     return "Sequence";
   }
@@ -206,9 +206,9 @@ class MEDVTKDATAMESHBASE_EXPORT vtkMetaDataSetSequence: public vtkMetaDataSet
   */
   void CopyInformation (vtkMetaDataSet* metadataset) override;
 
-  virtual double* GetCurrentScalarRange();
+  virtual void GetCurrentScalarRange(double range[2]);
 
-  double* GetScalarRange(QString attributeName = QString()) override;
+  void GetScalarRange(double range[2], QString attributeName = QString("")) override;
 
   vtkGetMacro (CurrentId, int);
   

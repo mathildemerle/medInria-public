@@ -17,12 +17,12 @@
 
 #include <medAbstractDataFactory.h>
 #include <medAbstractLayeredView.h>
+#include <medDoubleParameterL.h>
 #include <medSliderSpinboxPair.h>
 #include <medTransform.h>
 #include <medUtilities.h>
 #include <medUtilitiesITK.h>
 #include <medVtkViewBackend.h>
-#include <medDoubleParameterL.h>
 
 #include <vtkCamera.h>
 #include <vtkCellPicker.h>
@@ -36,13 +36,13 @@
 #include <vtkPlaneSource.h>
 #include <vtkProperty.h>
 #include <vtkRenderer.h>
+#include <vtkRenderWindowInteractor.h>
 #include <vtkResliceCursor.h>
 #include <vtkResliceCursorActor.h>
 #include <vtkResliceCursorPolyDataAlgorithm.h>
 #include <vtkResliceCursorThickLineRepresentation.h>
 #include <vtkResliceCursorWidget.h>
 #include <vtkTransform.h>
-#include <vtkRenderWindowInteractor.h>
 
 class medResliceCursorCallback : public vtkCommand
 {
@@ -122,7 +122,10 @@ public:
         reformatViewer->getImagePlaneWidget(0)->GetInteractor()->GetRenderWindow()->Render();
     }
 
-    medResliceCursorCallback() {}
+    ~medResliceCursorCallback()
+    {
+        reformatViewer = nullptr;
+    }
 
     medResliceViewer *reformatViewer;
 };
@@ -140,7 +143,10 @@ medResliceViewer::medResliceViewer(medAbstractView *view, QWidget *parent): medA
     selectedView = 2;
 
     int *imageDims = view3d->GetMedVtkImageInfo()->dimensions;
-    outputSpacing  = view3d->GetMedVtkImageInfo()->spacing;
+
+    // Copy view information before it's destroyed, allowing to use outputSpacingOrSize later.
+    double *spacing = view3d->GetMedVtkImageInfo()->spacing;
+    memcpy(outputSpacingOrSize.data(), spacing, 3*sizeof(double));
 
     viewBody = new QWidget(parent);
 
@@ -156,6 +162,7 @@ medResliceViewer::medResliceViewer(medAbstractView *view, QWidget *parent): medA
         riw[i]->SetRenderWindow(renderWindow);
         riw[i]->GetRenderer()->SetBackground(0,0,0); // black background
     }
+    riw[selectedView]->GetRenderer()->SetBackground(0.3,0,0);
 
     // Build views
     for (int i = 0; i < 4; i++)
@@ -167,7 +174,7 @@ medResliceViewer::medResliceViewer(medAbstractView *view, QWidget *parent): medA
     }
 
     // Position of the new views in tab
-    QGridLayout *gridLayout = new QGridLayout(parent);
+    QGridLayout *gridLayout = new QGridLayout();
     gridLayout->addWidget(views[2], 0, 0);
     gridLayout->addWidget(views[3], 0, 1);
     gridLayout->addWidget(views[1], 1, 0);
@@ -286,6 +293,7 @@ medResliceViewer::~medResliceViewer()
         planeWidget[i] = nullptr;
     }
     vtkViewData = nullptr;
+    inputData = nullptr;
 }
 
 QString medResliceViewer::identifier() const
@@ -382,9 +390,9 @@ void medResliceViewer::saveImage()
     reslicerTop->SetInterpolationModeToLinear();
 
     // Apply resampling in mm
-    if (reformaTlbx->findChild<QComboBox*>("bySpacingOrDimension")->currentText() == "Spacing")
+    if (reformaTlbx->findChild<QComboBox*>("bySpacingOrSize")->currentText() == "Spacing")
     {
-        reslicerTop->SetOutputSpacing(outputSpacing);
+        reslicerTop->SetOutputSpacing(outputSpacingOrSize.data());
     }
     reslicerTop->Update();
 
@@ -426,44 +434,48 @@ void medResliceViewer::saveImage()
     emit imageReformatedGenerated();
 }
 
-void medResliceViewer::thickSlabChanged(double val)
+void medResliceViewer::askedSpacingOrSizeChange(double val)
 {
     medDoubleParameterL * doubleParam = qobject_cast<medDoubleParameterL*>(QObject::sender());
-
     auto spinBoxSender = doubleParam? doubleParam->getSpinBox() : nullptr;
-
     if (spinBoxSender)
     {
-        double x, y, z;
-        riw[2]->GetResliceCursor()->GetThickness(x,y,z);
+        auto changeFormat = reformaTlbx->findChild<QComboBox*>("bySpacingOrSize")->currentText();
+        auto accessibleName = spinBoxSender->accessibleName();
 
-        if (spinBoxSender->accessibleName()=="SpacingX")
+        if (changeFormat == "Spacing")
         {
-            if (reformaTlbx->findChild<QComboBox*>("bySpacingOrDimension")->currentText() == "Spacing")
+            double x, y, z;
+            riw[2]->GetResliceCursor()->GetThickness(x,y,z);
+
+            // The three windows share the same reslice cursor
+            if (accessibleName == "SpacingOrSizeX")
             {
-                riw[0]->GetResliceCursor()->SetThickness(val,y,z); //the three windows share the same reslice cursor
+                riw[0]->GetResliceCursor()->SetThickness(val,y,z);
             }
-            outputSpacing[0] = val;
+            else if (accessibleName == "SpacingOrSizeY")
+            {
+                riw[0]->GetResliceCursor()->SetThickness(x,val,z);
+            }
+            else if (accessibleName == "SpacingOrSizeZ")
+            {
+                riw[0]->GetResliceCursor()->SetThickness(x,y,val);
+            }
         }
 
-        if (spinBoxSender->accessibleName()=="SpacingY")
+        // For spacing or size changes
+        if (accessibleName == "SpacingOrSizeX")
         {
-            if (reformaTlbx->findChild<QComboBox*>("bySpacingOrDimension")->currentText() == "Spacing")
-            {
-                riw[0]->GetResliceCursor()->SetThickness(x,val,z); //the three windows share the same reslice cursor
-            }
-            outputSpacing[1] = val;
+            outputSpacingOrSize[0] = val;
         }
-
-        if (spinBoxSender->accessibleName()=="SpacingZ")
+        else if (accessibleName == "SpacingOrSizeY")
         {
-            if (reformaTlbx->findChild<QComboBox*>("bySpacingOrDimension")->currentText() == "Spacing")
-            {
-                riw[0]->GetResliceCursor()->SetThickness(x,y,val); //the three windows share the same reslice cursor
-            }
-            outputSpacing[2] = val;
+            outputSpacingOrSize[1] = val;
         }
-        this->render();
+        else if (accessibleName == "SpacingOrSizeZ")
+        {
+            outputSpacingOrSize[2] = val;
+        }
     }
 }
 
@@ -496,18 +508,15 @@ bool medResliceViewer::eventFilter(QObject *object, QEvent *event)
     {
         for(int i=0; i<3; i++)
         {
+            riw[i]->GetRenderer()->SetBackground(0,0,0);
             if (views[i]==object)
             {
                 selectedView = i;
             }
         }
-        return false;
+        riw[selectedView]->GetRenderer()->SetBackground(0.3,0,0);
     }
-
-    if (event->type() == QEvent::FocusOut)
-    {
-        return false;
-    }
+    
     return false;
 }
 
@@ -732,7 +741,7 @@ void medResliceViewer::generateOutput(vtkImageReslice* reslicer, QString destTyp
     outputData->setData(filter->GetOutput());
 
     // Apply resampling in pix
-    if (reformaTlbx->findChild<QComboBox*>("bySpacingOrDimension")->currentText() == "Dimension")
+    if (reformaTlbx->findChild<QComboBox*>("bySpacingOrSize")->currentText() == "Size")
     {
         applyResamplingPix();
     }
@@ -753,9 +762,9 @@ void medResliceViewer::applyResamplingPix()
 {
     resampleProcess *resamplePr = new resampleProcess();
     resamplePr->setInput(outputData);
-    resamplePr->setParameter(outputSpacing[0], 0);
-    resamplePr->setParameter(outputSpacing[1], 1);
-    resamplePr->setParameter(outputSpacing[2], 2);
+    resamplePr->setParameter(outputSpacingOrSize[0], 0);
+    resamplePr->setParameter(outputSpacingOrSize[1], 1);
+    resamplePr->setParameter(outputSpacingOrSize[2], 2);
     resamplePr->update();
 
     outputData = resamplePr->output();

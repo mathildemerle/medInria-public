@@ -15,7 +15,7 @@
 
 #include <itkConnectedThresholdImageFilter.h>
 #include <itkDanielssonDistanceMapImageFilter.h>
-#include <itkExceptionObject.h>
+#include <itkMacro.h>
 #include <itkExtractImageFilter.h>
 #include <itkImageLinearIteratorWithIndex.h>
 #include <itkImageSliceIteratorWithIndex.h>
@@ -102,6 +102,9 @@ public:
 
             if (m_paintState != PaintState::Wand)
             {
+                // Update the cursor size for painting
+                m_cb->activateCustomedCursor();
+
                 // add current state to undo stack
                 bool isInside;
                 MaskType::IndexType index;
@@ -447,8 +450,8 @@ AlgorithmPaintToolBox::AlgorithmPaintToolBox(QWidget *parent ) :
     dataButtonsLayout->addWidget(m_clearMaskButton);
     layout->addLayout(dataButtonsLayout);
 
-    connect (m_strokeButton, SIGNAL(pressed()), this, SLOT(activateStroke ()));
-    connect (m_magicWandButton, SIGNAL(pressed()),this,SLOT(activateMagicWand()));
+    connect (m_strokeButton,    SIGNAL(toggled(bool)), this, SLOT(activateStroke(bool)));
+    connect (m_magicWandButton, SIGNAL(toggled(bool)), this, SLOT(activateMagicWand(bool)));
     connect (m_clearMaskButton, SIGNAL(pressed()), this, SLOT(clear()));
     connect (m_applyButton, SIGNAL(pressed()),this, SLOT(import()));
 
@@ -504,6 +507,11 @@ AlgorithmPaintToolBox::AlgorithmPaintToolBox(QWidget *parent ) :
 AlgorithmPaintToolBox::~AlgorithmPaintToolBox()
 {
     setOfPaintBrushRois.clear();
+
+    if (m_imageData && m_maskAnnotationData)
+    {
+        m_imageData->removeAttachedData(m_maskAnnotationData);
+    }
 }
 
 medAbstractData* AlgorithmPaintToolBox::processOutput()
@@ -542,26 +550,63 @@ void AlgorithmPaintToolBox::updateMagicWandComputation()
     }
 }
 
-void AlgorithmPaintToolBox::activateStroke()
+void AlgorithmPaintToolBox::activateStroke(bool checked)
 {
     m_wandInfo->hide();
 
-    if ( this->m_strokeButton->isChecked() )
+    if (!checked)
     {
         deactivateCustomedCursor(); // Deactivate painting cursor
         this->m_viewFilter->removeFromAllViews();
         m_paintState = (PaintState::None);
         updateButtons();
-        return;
     }
-    setPaintState(PaintState::Stroke);
-    updateButtons();
-    this->m_magicWandButton->setChecked(false);
-    addViewEventFilter(m_viewFilter);
-    addBrushSize_shortcut->setEnabled(true);
-    reduceBrushSize_shortcut->setEnabled(true);
+    else
+    {
+        this->m_magicWandButton->setChecked(false);
+        setPaintState(PaintState::Stroke);
+        updateButtons();
+        addViewEventFilter(m_viewFilter);
+        addBrushSize_shortcut->setEnabled(true);
+        reduceBrushSize_shortcut->setEnabled(true);
 
-    activateCustomedCursor(); // Add circular cursor for painting
+        setCurrentView(currentView);
+
+        if (!m_imageData)
+        {
+            this->setData(currentView->layerData(0));
+        }
+        if (!m_imageData)
+        {
+            qWarning() << "Could not set data";
+            return;
+        }
+
+        if(!currentView->contains(m_maskAnnotationData))
+        {
+            m_maskAnnotationData->setMetaData("SeriesDescription", "mask");
+            currentView->addLayer(m_maskAnnotationData);
+            for(medAbstractInteractor* interactor : currentView->layerInteractors(getWorkspace()->getSelectedLayerIndices()[0]))
+            {
+                if (interactor->identifier() == "medAnnotationInteractor")
+                {
+                    for(medAbstractParameterL* parameter : interactor->linkableParameters())
+                    {
+                        if (parameter->name() == "Opacity")
+                        {
+                            qobject_cast<medDoubleParameterL*>(parameter)->setValue(0.4);
+                        }
+                    }
+                }
+            }
+
+            // Update Mouse Interaction ToolBox
+            currentView->setCurrentLayer(0);
+            getWorkspace()->updateMouseInteractionToolBox();
+        }
+
+        activateCustomedCursor(); // Add circular cursor for painting
+    }
 }
 
 void AlgorithmPaintToolBox::activateCustomedCursor()
@@ -581,8 +626,9 @@ void AlgorithmPaintToolBox::activateCustomedCursor()
     // Get radius size of the brush in mm
     double radiusSize = (double)(m_brushSizeSlider->value());
 
-    // Adapt to scale of view (zoom, crop, etc)
-    double radiusSizeDouble = radiusSize * currentView->scale();
+    // Adapt to scale of view (zoom, crop, screen ratio, etc)
+    int devicePixelRatio = medUtilities::getDevicePixelRatio(currentView);
+    double radiusSizeDouble = radiusSize * currentView->scale() / devicePixelRatio;
 
     int radiusSizeInt = floor(radiusSizeDouble + 0.5);
 
@@ -617,21 +663,23 @@ void AlgorithmPaintToolBox::deactivateCustomedCursor()
     currentView->viewWidget()->setCursor(Qt::CrossCursor);
 }
 
-void AlgorithmPaintToolBox::activateMagicWand()
+void AlgorithmPaintToolBox::activateMagicWand(bool checked)
 {
-    if ( this->m_magicWandButton->isChecked() )
+    if (!checked)
     {
         this->m_viewFilter->removeFromAllViews();
         m_paintState = (PaintState::None);
         newSeed(); // accept the current growth
         updateButtons();
-        return;
     }
-    setPaintState(PaintState::Wand);
-    updateButtons();
-    this->m_strokeButton->setChecked(false);
-    addViewEventFilter(m_viewFilter);
-    deactivateCustomedCursor();
+    else
+    {
+        this->m_strokeButton->setChecked(false);
+        setPaintState(PaintState::Wand);
+        updateButtons();
+        addViewEventFilter(m_viewFilter);
+        deactivateCustomedCursor();
+    }
 }
 
 void AlgorithmPaintToolBox::updateMagicWandComputationSpeed()
@@ -719,7 +767,7 @@ void AlgorithmPaintToolBox::import()
     medAbstractData *output = dynamic_cast<medAbstractData*>(m_maskData->clone());
 
     copyMetaData(output, m_imageData);
-    medDataManager::instance()->importData(output, false);
+    medDataManager::instance().importData(output, false);
 
     maskHasBeenSaved = true;
 }
@@ -790,6 +838,10 @@ void AlgorithmPaintToolBox::updateView()
                 }
             }
         }
+    }
+    else
+    {
+        showButtons(false);
     }
 }
 
@@ -1041,7 +1093,7 @@ void AlgorithmPaintToolBox::updateWandRegion(medAbstractImageView *view, QVector
             (m_imageData->identifier().contains("Vector"))||
             (m_imageData->identifier().contains("2")))
     {
-        medMessageController::instance()->showError(tr("Magic wand option is only available for 3D images"),3000);
+        medMessageController::instance().showError(tr("Magic wand option is only available for 3D images"),3000);
         return;
     }
 
@@ -1246,23 +1298,12 @@ AlgorithmPaintToolBox::GenerateMinMaxValuesFromImage ()
 
 void AlgorithmPaintToolBox::updateStroke(ClickAndMoveEventFilter * filter, medAbstractImageView * view)
 {
-    setCurrentView(view);
     if ( !isMask2dOnSlice() )
     {
         return;
     }
 
     const double radius = m_brushSizeSlider->value(); // in image units.
-
-    if ( !m_imageData )
-    {
-        this->setData(view->layerData(0));
-    }
-    if (!m_imageData)
-    {
-        qWarning() << "Could not set data";
-        return;
-    }
 
     QVector3D newPoint = filter->points().back();
 
@@ -1368,29 +1409,6 @@ void AlgorithmPaintToolBox::updateStroke(ClickAndMoveEventFilter * filter, medAb
     m_itkMask->GetPixelContainer()->Modified();
     m_itkMask->SetPipelineMTime(m_itkMask->GetMTime());
 
-    if(!view->contains(m_maskAnnotationData))
-    {
-        m_maskAnnotationData->setMetaData("SeriesDescription", "mask");
-        view->addLayer(m_maskAnnotationData);
-        for(medAbstractInteractor* interactor : view->layerInteractors(getWorkspace()->getSelectedLayerIndices()[0]))
-        {
-            if (interactor->identifier() == "medAnnotationInteractor")
-            {
-                for(medAbstractParameterL* parameter : interactor->linkableParameters())
-                {
-                    if (parameter->name() == "Opacity")
-                    {
-                        qobject_cast<medDoubleParameterL*>(parameter)->setValue(0.4);
-                    }
-                }
-            }
-        }
-
-        // Update Mouse Interaction ToolBox
-        view->setCurrentLayer(0);
-        getWorkspace()->updateMouseInteractionToolBox();
-    }
-
     if ( slicingParameter )
     {
         slicingParameter->getSlider()->addTick(currentIdSlice);
@@ -1453,16 +1471,10 @@ bool AlgorithmPaintToolBox::isMask2dOnSlice()
 
 void AlgorithmPaintToolBox::showButtons( bool value )
 {
-    if (value)
-    {
-        m_applyButton->show();
-        m_clearMaskButton->show();
-    }
-    else
-    {
-        m_applyButton->hide();
-        m_clearMaskButton->hide();
-    }
+    bool forceHide = m_applyButton->property("forceHide").toBool();
+    m_applyButton->setVisible(value && !forceHide);
+
+    m_clearMaskButton->setVisible(value);
 }
 
 void AlgorithmPaintToolBox::updateButtons()
@@ -1478,7 +1490,7 @@ void AlgorithmPaintToolBox::updateButtons()
         m_labelColorWidget->hide();
         m_strokeLabelSpinBox->hide();
         m_colorLabel->hide();
-        return;
+        m_removeSeedButton->hide();
     }
     else
     {
@@ -1494,6 +1506,7 @@ void AlgorithmPaintToolBox::updateButtons()
             m_wand3DRealTime->show();
             m_wandInfo->show();
             m_brushSizeSlider->hide();
+            m_removeSeedButton->show();
         }
         else if ( m_paintState == PaintState::Stroke )
         {
@@ -1502,6 +1515,7 @@ void AlgorithmPaintToolBox::updateButtons()
             m_wandUpperThresholdSlider->hide();
             m_wand3DCheckbox->hide();
             m_wand3DRealTime->hide();
+            m_removeSeedButton->hide();
         }
     }
 }
@@ -1517,9 +1531,7 @@ void AlgorithmPaintToolBox::updateMouseInteraction()
 
 dtkPlugin* AlgorithmPaintToolBox::plugin()
 {
-    medPluginManager* pm = medPluginManager::instance();
-    dtkPlugin* plugin = pm->plugin ( "Algorithm Paint" );
-    return plugin;
+    return medPluginManager::instance().plugin("Algorithm Paint");
 }
 
 void AlgorithmPaintToolBox::setParameter(int channel, int value)
@@ -1826,8 +1838,17 @@ void AlgorithmPaintToolBox::clearMask()
         m_redoStacks->remove(currentView);
     }
 
-    showButtons(false);
     resetToolbox();
+
+    if (m_addButton->isVisible())
+    {
+        m_addButton->setEnabled(false);
+    }
+
+    if (m_eraseButton->isVisible())
+    {
+        m_eraseButton->setEnabled(false);
+    }
 }
 
 void AlgorithmPaintToolBox::resetToolbox()
@@ -1836,15 +1857,10 @@ void AlgorithmPaintToolBox::resetToolbox()
 
     if ( this->m_strokeButton->isChecked() )
     {
-        m_paintState = (PaintState::None);
-        updateButtons();
         m_strokeButton->setChecked(false);
     }
     else if ( this->m_magicWandButton->isChecked() )
     {
-        m_paintState = (PaintState::None);
-        newSeed(); // accept the current growth
-        updateButtons();
         m_magicWandButton->setChecked(false);
     }
 
@@ -2516,7 +2532,7 @@ void AlgorithmPaintToolBox::addViewEventFilter( medViewEventFilter *filter)
 {
     for(QUuid uuid : this->getWorkspace()->tabbedViewContainers()->containersSelected())
     {
-        medViewContainer *container = medViewContainerManager::instance()->container(uuid);
+        medViewContainer *container = medViewContainerManager::instance().container(uuid);
         if(container)
         {
             filter->installOnView(container->view());

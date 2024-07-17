@@ -1,6 +1,97 @@
-MUSICardio v3.0.0:
-- New name: MUSICardio
-- MUSICardio core is now on medInria 3.x.x
+MUSICardio 4.0.4:
+- Fix some plugins wrongly loaded on Windows.
+
+MUSICardio 4.0.3:
+- Switch to Ubuntu 22.
+- PolygonROI: update icons, fix a glitch when users change ROI label, hide label panel in pipelines.
+- Histogram Analysis: enhance memory management and remove useless computation.
+- Pipelines: correct arithmetic filters computation. 
+
+MUSICardio 4.0.2:
+- Fix drawing problem in pipelines with custom step of PolygonROI.
+
+MUSICardio 4.0.1:
+- Fix Python module installation bug on macOS.
+- Fix Real Time compilation on Ubuntu/Fedora/macOS and Windows.
+- Fix a pop-up problem with wrongly imported pipeline scripts.
+
+MUSICardio 4.0:
+- Put back the Pipelines workspace.
+MUSICardio 4 provides its own embedded Python 3.10 interpreter. This facilitates the development of Python scripts and components within the application. 
+A Python console and plugin API will be added in an upcoming version. Contact us at music-dev@inria.fr to discuss how this Python integration can help you.
+Check the Pipelines documentation to see if your scripts need to be updated: https://music-test.inria.fr/musicardio/ in Development menu, or you can ask the team to help you.
+Main change: switch "from medPipelineObjectWrapper import *" and "from medPipeline import *" to "from mscPipeline import *".
+- Toolboxes in the application have been updated to fit the new Pipelines system.
+- We worked on the stability of the application concerning database connections and memory leaks.
+- Fix Paint toolbox widgets when the user switches from Paint/Erase to Magic Wand or clear the view.
+- Fix a freeze in PolygonROI toolbox if the user contours outside the image borders.
+- Fix the "clear" button to effectivaly clear the view.
+- Stop some toolboxes compatible with 3D data if the user is using 4D data.
+- Small enhancement of the GUI of Histogram Analysis, and debug a crash leaving the toolbox without creating containers.
+- Video: default frame rate a 24.
+- DICOM: handle if the origin is missing.
+- Switch to Fedora 37.
+
+medInria 3.4:
+- Fix an incorrect zoom for some data displayed in a view. The zoom is now calculated with x and y dims, and not z
+- N4 Bias Correction process can stop now if the user wants to quit the application, it will stop at some algorithm checkpoints
+- Reslice toolbox: changing the dimension of spacing parameters does not zoom one of the views
+- Paint toolbox: the first click on the view quickly displays the drawing, instead of waiting for the mask to be created
+- Update loading window logo at application start, and speed up the start removing text display
+- Fix a bug with inrimage data type
+- We have done some work to avoid memory leaks to get a more stable application
+- Solve some graphical problem with settings widgets
+- Add a setting in Browser to deactivate or activate the computation of thumbnail at import. Deactivation uses less RAM, if needed
+- Avoid a crash importing wrong version of VTK files
+
+MUSICardio-LITE v3.3:
+
+Information:
+- The application has a new name: MUSICardio
+- MUSICardio core is now on medInria 3.3 and includes all its new features and fixes
+- MUSICardio 3.3 is a LITE version which do not include the pipeline system. We will release a future version with the pipelines system and a wide use of Python
+- MUSICardio 3.3 is compatible with Ubuntu 20.04, Fedora 33, macOS 10.15 and Windows 10
+- Concerning the Non Local Means plugins, users are asked to use the plugin directly from the medInria binary: https://med.inria.fr/ for now
+
+Fixes and enhancements: 
+- Solve a crash in Convert Mesh To Mask with empty landmarks
+- Solve a crash closing layers in CatheterManagerToolBox
+- Fem inverse problem: add Finite Element Method to solve inverse problem
+- Fem inverse problem: possibility to choose different conductivity depending on the zone
+- Fem inverse problem: add open MP loop
+- Add Boolean operation toolbox: compute the difference, the union or the intersection between 2 meshes
+- Add MinThickness toolbox: impose a minimum distance between 2 meshes. The second mesh is modified to impose this distance moreover 
+this minimum distance is apply only on specified (label) part of the mesh
+- Solve a bug in DataInterpolation switching from a map to a mesh
+- Plot tool: add interpolation button
+- MeshInteractor: automatic change of selection mode when attribute changes
+- EP maps: Carto Reader now reads zipped archives, and read the header to determine if it's a CARTO file or not
+- Add DICOM export plugin
+- Add DICOM Rt Export plugin: write DICOMS that are compatible with Varian Eclipse RT planning suite
+- Add MaskToRtStruct toolbox, a toolbox that exports masks to DICOM RT structures
+- EP map: fix Rhythmia study import (out-of-bound reading and writing in some cases)
+- Mesh Utility: bug fix + improvements, uses robust algorithm provided by tetgen for triangle-triangle intersection, mesh consistency check, etc
+- Catheter: support new ablation message, improve undo calibration Point, calibration's Tag management is simpler to use
+- Add Radiotherapy planning workspace
+- Add Transmural Paint: experimental toolbox that creates transmural masks from painted (or selected in any way) cells on the epi mesh
+- ApplyTransform toolbox: catheter electrode and sensor positions are now transformed
+- Coronary Segmentation becomes Vessel Segmentation
+- Solve crashes in Channelness and Laplacian toolboxes with wrong input data 
+
+medInria 3.3:
+- Fix mirrored DICOM images problem
+- Fix a bug in Paint toolbox with Retina screens
+- Clear some toolboxes view when the user switches to an other one
+- Add vtu reader and writer for mesh of type unstructured grid
+- Check the version of the vtk file to avoid crash due to the new format introduced in vtk 9
+- ManualRegistration, avoid duplication in outputs
+- Reslice, solve crashs after removing a data in view
+- PolygonROI, solve graphical/ergonomy pb and crashes (split, clear)
+- Variational Segmentation: enhance GUI, solve a spacing error on output masks
+- BUGFIX 3.3.1: [Four-views] solve crash closing the views
+- BUGFIX 3.3.2: 
+    * Avoid corruption of exported/imported dcm with odd axis
+    * Fix errors with view tabs if the user switch 2 of them, or remove some of them
 
 medInria 3.2:
 - Add some tooltips in view navigator

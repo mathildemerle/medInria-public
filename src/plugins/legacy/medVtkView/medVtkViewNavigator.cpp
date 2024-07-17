@@ -35,6 +35,7 @@
 #include <medVector2DParameterL.h>
 #include <medVector3DParameterL.h>
 #include <medCompositeParameterL.h>
+#include <medSettingsManager.h>
 #include <medStringListParameterL.h>
 #include <medTimeLineParameterL.h>
 
@@ -177,24 +178,47 @@ medVtkViewNavigator::medVtkViewNavigator(medAbstractView *parent) :
     d->showAnnotatedCubeParameter->setValue(true);
 
     d->enableZooming = new medBoolParameterL("Zooming", this);
-    d->enableZooming->setIcon(QIcon (":/icons/magnify.png"));
     d->enableZooming->setToolTip(tr("Zooming"));
     connect(d->enableZooming, SIGNAL(valueChanged(bool)), this, SLOT(enableZooming(bool)));
     
     d->enablePanning = new medBoolParameterL("Pan",this);
-    d->enablePanning->setIcon(QIcon (":/icons/pan.svg"));
     d->enablePanning->setToolTip(tr("Pan"));
     connect(d->enablePanning, SIGNAL(valueChanged(bool)), this, SLOT(enablePanning(bool)));
 
     d->enableSlicing = new medBoolParameterL("Slicing", this);
-    d->enableSlicing->setIcon(QIcon (":/icons/stack.png"));
     d->enableSlicing->setToolTip(tr("Slicing"));
     connect(d->enableSlicing, SIGNAL(valueChanged(bool)), this, SLOT(enableSlicing(bool)));
-
+ 
     d->enableMeasuring = new medBoolParameterL("Measuring", this);
-    d->enableMeasuring->setIcon (QIcon (":/icons/length.png"));
     d->enableMeasuring->setToolTip(tr("Measuring"));
     connect(d->enableMeasuring, SIGNAL(valueChanged(bool)), this, SLOT(enableMeasuring(bool)));
+
+    // Themes
+    QVariant themeChosen = medSettingsManager::instance().value("startup","theme");
+    int themeIndex = themeChosen.toInt();
+    switch (themeIndex)
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 4:
+        default:
+        {
+            d->enableZooming->setIcon(QIcon (":/icons/magnifier_white.png"));
+            d->enablePanning->setIcon(QIcon (":/icons/pan_white.svg"));
+            d->enableSlicing->setIcon(QIcon (":/icons/stack_white.png"));
+            d->enableMeasuring->setIcon (QIcon (":/icons/ruler_white.png"));
+            break;
+        }
+        case 3:
+        {
+            d->enableZooming->setIcon(QIcon (":/icons/magnifier_black.png"));
+            d->enablePanning->setIcon(QIcon (":/icons/pan_black.svg"));
+            d->enableSlicing->setIcon(QIcon (":/icons/stack_black.png"));
+            d->enableMeasuring->setIcon (QIcon (":/icons/ruler_black.png"));
+            break;
+        }
+    }
 
     d->parameters << d->orientationParameter
                     << this->zoomParameter()
@@ -564,7 +588,7 @@ bool medVtkViewNavigator::setRotationAngle(double angle)
 
     foreach(medDataIndex index, d->parent->dataList())
     {
-        medAbstractData *data = medDataManager::instance()->retrieveData(index);
+        medAbstractData *data = medDataManager::instance().retrieveData(index);
 
         // We only apply rotation on meshes
         if (data && data->identifier().contains("vtkDataMesh") )

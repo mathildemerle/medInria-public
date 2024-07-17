@@ -162,9 +162,7 @@ bool manualRegistrationToolBox::registered()
 
 dtkPlugin* manualRegistrationToolBox::plugin()
 {
-    medPluginManager* pm = medPluginManager::instance();
-    dtkPlugin* plugin = pm->plugin ( "Manual Registration" );
-    return plugin;
+    return medPluginManager::instance().plugin("Manual Registration");
 }
 
 void manualRegistrationToolBox::updateView()
@@ -359,6 +357,7 @@ void manualRegistrationToolBox::computeRegistration()
             runProcess->setProcess (d->process);
             connect (runProcess, SIGNAL (success(QObject*)), this, SLOT(retrieveProcessOutputAndUpdateViews()));
             this->addConnectionsAndStartJob(runProcess);
+            enableOnProcessSuccessImportOutput(runProcess, false);
         }
     }
 }
@@ -465,7 +464,7 @@ void manualRegistrationToolBox::constructContainers(medTabbedViewContainers* tab
 
         d->leftContainer = tabContainers->insertNewTab(0,"ManualRegistration");
         tabContainers->setCurrentIndex(0);
-        d->leftContainer->addData(d->currentView->layerData(0));//
+        d->leftContainer->addData(d->currentView->layerData(0));
         qobject_cast<medAbstractImageView*>(d->leftContainer->view())->windowLevelParameter(0)->setValues(windowing0);
 
         d->bottomContainer = d->leftContainer->splitHorizontally();
@@ -473,11 +472,12 @@ void manualRegistrationToolBox::constructContainers(medTabbedViewContainers* tab
         qobject_cast<medAbstractImageView*>(d->bottomContainer->view())->windowLevelParameter(0)->setValues(windowing0);
         d->bottomContainer->addData(d->currentView->layerData(1));
         qobject_cast<medAbstractImageView*>(d->bottomContainer->view())->windowLevelParameter(1)->setValues(windowing1);
-        tabContainers->containersInTab(0);
 
         d->rightContainer = d->leftContainer->splitVertically();
         d->rightContainer->addData(d->currentView->layerData(1));
         qobject_cast<medAbstractImageView*>(d->rightContainer->view())->windowLevelParameter(0)->setValues(windowing1);
+
+        tabContainers->adjustContainersSize();
 
         d->leftContainer->setUserSplittable(false);
         d->rightContainer->setUserSplittable(false);

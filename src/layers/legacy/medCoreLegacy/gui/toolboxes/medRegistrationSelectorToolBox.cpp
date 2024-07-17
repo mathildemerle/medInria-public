@@ -91,9 +91,9 @@ medRegistrationSelectorToolBox::medRegistrationSelectorToolBox(QWidget *parent, 
 
     //Connect Message Controller:
     connect(this,SIGNAL(showError(const QString&,unsigned int)),
-            medMessageController::instance(),SLOT(showError(const QString&,unsigned int)));
+            &medMessageController::instance(),SLOT(showError(const QString&,unsigned int)));
     connect(this,SIGNAL(showInfo(const QString&,unsigned int)),
-            medMessageController::instance(),SLOT(showInfo(const QString&,unsigned int)));
+            &medMessageController::instance(),SLOT(showInfo(const QString&,unsigned int)));
 }
 
 medRegistrationSelectorToolBox::~medRegistrationSelectorToolBox(void)
@@ -122,15 +122,17 @@ medAbstractData *medRegistrationSelectorToolBox::movingData(void)
 void medRegistrationSelectorToolBox::changeCurrentToolBox(int index)
 {
     medSelectorToolBox::changeCurrentToolBox(index);
-
-    connect (currentToolBox(), SIGNAL (success()),this,SLOT(enableSelectorToolBox()));
-    connect (currentToolBox(), SIGNAL (failure()),this,SLOT(enableSelectorToolBox()));
-
     d->nameOfCurrentAlgorithm = this->comboBox()->itemData(index).toString();
 
-    if (!d->undoRedoProcess && !d->undoRedoToolBox)
+    if (currentToolBox())
     {
-        connect(currentToolBox(), SIGNAL(success()), this, SLOT(handleOutput()));
+        connect (currentToolBox(), SIGNAL (success()),this,SLOT(enableSelectorToolBox()));
+        connect (currentToolBox(), SIGNAL (failure()),this,SLOT(enableSelectorToolBox()));
+
+        if (!d->undoRedoProcess && !d->undoRedoToolBox)
+        {
+            connect(currentToolBox(), SIGNAL(success()), this, SLOT(handleOutput()));
+        }
     }
 }
 
@@ -351,7 +353,7 @@ void medRegistrationSelectorToolBox::handleOutput(typeOfOperation type, QString 
     output->setMetaData ( medMetaDataKeys::SeriesID.key(), generatedID );
 
     if (type==algorithm)
-        medDataManager::instance()->importData(output);
+        medDataManager::instance().importData(output);
 
     d->movingData = output;
     emit movingDataRegistered(output);

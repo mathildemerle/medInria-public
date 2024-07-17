@@ -18,8 +18,8 @@
 #include <medAbstractDataFactory.h>
 #include <medCore.h>
 #include <medDatabaseSettingsWidget.h>
+#include <medDevelopmentSettingsWidget.h>
 #include <medDataManager.h>
-#include <medDatabaseController.h>
 #include <medDiffusionWorkspace.h>
 #include <medFilteringWorkspace.h>
 #include <medLogger.h>
@@ -38,6 +38,7 @@ class medApplicationPrivate
 public:
     medMainWindow *mainWindow;
     QStringList systemOpenInstructions;
+    QSplashScreen *splashScreen;
 };
 
 // /////////////////////////////////////////////////////////////////
@@ -49,6 +50,34 @@ medApplication::medApplication(int & argc, char**argv) :
     d(new medApplicationPrivate)
 {
     d->mainWindow = nullptr;
+
+    // Themes
+    QVariant themeChosen = medSettingsManager::instance().value("startup","theme");
+    int themeIndex = themeChosen.toInt();
+    QPixmap splashLogo;
+    switch (themeIndex)
+    {
+        case 0:
+        case 1:
+        case 2:
+        default:
+        {
+            splashLogo.load(":MUSICardio-2023-lightfont-notext-darkback-margin10.png");
+            break;
+        }
+        case 3:
+        case 4:
+        {
+            splashLogo.load(":MUSICardio-2023-darkfont-notext-whiteback-margin10.png");
+            break;
+        }
+    }
+    splashLogo = splashLogo.scaled(719, 87, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    d->splashScreen = new QSplashScreen(splashLogo,
+                                        Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+    d->splashScreen->setAttribute(Qt::WA_DeleteOnClose, true);
+    d->splashScreen->show();
+    this->processEvents();
 
     this->setApplicationName(PROJECT_NAME); /*Beware, change database path*/
     this->setApplicationVersion(MEDINRIA_VERSION);
@@ -64,7 +93,10 @@ medApplication::medApplication(int & argc, char**argv) :
     QApplication::setStyle(QStyleFactory::create("fusion"));
 
     // Expiration Date
-    QDate expiryDate = QDate::fromString(QString(MEDINRIA_BUILD_DATE), "dd_MM_yyyy").addYears(1);
+    QDate expiryDate = QDate::fromString(QString(MEDINRIA_BUILD_DATE), "dd_MM_yyyy")
+                                        .addMonths(EXPIRATION_TIME);
+    qInfo() << "Expiration Date: " << qPrintable(expiryDate.toString());
+
     if ( ! expiryDate.isValid() || QDate::currentDate() > expiryDate)
     {
         QString expiredInfo = "This copy of ";
@@ -77,10 +109,6 @@ medApplication::medApplication(int & argc, char**argv) :
         msg.exec();
         ::exit(1);
     }
-
-    // Themes
-    QVariant themeChosen = medSettingsManager::instance()->value("startup","theme");
-    int themeIndex = themeChosen.toInt();
 
     QString qssFile;
     switch (themeIndex)
@@ -144,6 +172,9 @@ void medApplication::setMainWindow(medMainWindow *mw)
     QVariant var = QVariant::fromValue((QObject*)d->mainWindow);
     this->setProperty("MainWindow",var);
     d->systemOpenInstructions.clear();
+
+    // Wait until the app is displayed to close itself
+    d->splashScreen->finish(d->mainWindow); 
 }
 
 void medApplication::redirectMessageToSplash(const QString &message)
@@ -165,14 +196,6 @@ void medApplication::initialize()
 {
     qRegisterMetaType<medDataIndex>("medDataIndex");
 
-    //  Setting up database connection
-    if ( ! medDatabaseController::instance()->createConnection())
-    {
-        qDebug() << "Unable to create a connection to the database";
-    }
-
-    medDataManager::initialize();
-
     // Registering different workspaces
     medWorkspaceFactory * viewerWSpaceFactory = medWorkspaceFactory::instance();
     viewerWSpaceFactory->registerWorkspace<medVisualizationWorkspace>();
@@ -183,6 +206,7 @@ void medApplication::initialize()
     medSettingsWidgetFactory* settingsWidgetFactory = medSettingsWidgetFactory::instance();
     settingsWidgetFactory->registerSettingsWidget<medStartupSettingsWidget>();
     settingsWidgetFactory->registerSettingsWidget<medDatabaseSettingsWidget>();
+    settingsWidgetFactory->registerSettingsWidget<medDevelopmentSettingsWidget>();
 
     //Register annotations
     medAbstractDataFactory * datafactory = medAbstractDataFactory::instance();

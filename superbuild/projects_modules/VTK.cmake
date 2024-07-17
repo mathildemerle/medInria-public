@@ -21,6 +21,10 @@ set(ep VTK)
 if(${USE_FFmpeg})
   list(APPEND ${ep}_dependencies ffmpeg)
 endif()
+
+if(USE_Python)
+  list(APPEND ${ep}_dependencies pyncpp)
+endif()
   
 ## #############################################################################
 ## Prepare the project
@@ -76,8 +80,11 @@ set(cmake_args
   -DModule_vtkGUISupportQtOpenGL=ON
   -DModule_vtkRenderingOSPRay:BOOL=${USE_OSPRay}
   -DVTK_QT_VERSION=5
-  -DQt5_DIR=${Qt5_DIR}
   -DVTK_USE_OGGTHEORA_ENCODER:BOOL=ON # OGV Export
+  )
+  
+set(cmake_cache_args
+  -DQt5_DIR:FILEPATH=${Qt5_DIR}
   )
 
 if(USE_OSPRay)
@@ -111,6 +118,29 @@ if(${USE_FFmpeg})
     )
 endif()
 
+if(USE_Python)
+    if(UNIX)
+        set(python_version "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
+        set(python_executable "${pyncpp_ROOT}/lib/python${python_version}/bin/python${python_version}")
+        set(python_include "${pyncpp_ROOT}/lib/python${python_version}/include/python${python_version}")
+        set(python_library "${pyncpp_ROOT}/lib/python${python_version}/lib/libpython${python_version}${CMAKE_SHARED_LIBRARY_SUFFIX}")
+    else()
+        set(python_version "${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR}")
+        set(python_executable "${pyncpp_ROOT}/python${python_version}/pythonw$<$<CONFIG:Debug>:_d>.exe")
+        set(python_include "${pyncpp_ROOT}/python${python_version}/include")
+        set(python_library "${pyncpp_ROOT}/python${python_version}/libs/python${python_version}$<$<CONFIG:Debug>:_d>.lib")
+    endif()
+    list(APPEND cmake_args
+        -DVTK_WRAP_PYTHON:BOOL=ON
+        -DModule_vtkPython:BOOL=ON
+        -DModule_vtkWrappingTools:BOOL=ON
+        -DVTK_PYTHON_VERSION:STRING=${python_version}
+        -DPYTHON_EXECUTABLE:PATH=${python_executable}
+        -DPYTHON_INCLUDE_DIR:PATH=${python_include}
+        -DPYTHON_LIBRARY:PATH=${python_library}
+        )
+endif()
+
 ## #############################################################################
 ## Check if patch has to be applied
 ## #############################################################################
@@ -136,9 +166,9 @@ ExternalProject_Add(${ep}
   CMAKE_GENERATOR ${gen}
   CMAKE_GENERATOR_PLATFORM ${CMAKE_GENERATOR_PLATFORM}
   CMAKE_ARGS ${cmake_args}
+  CMAKE_CACHE_ARGS ${cmake_cache_args}
   DEPENDS ${${ep}_dependencies}
   INSTALL_COMMAND ""
-  BUILD_ALWAYS 1
   )
   
 ## #############################################################################
@@ -146,7 +176,7 @@ ExternalProject_Add(${ep}
 ## #############################################################################
 
 ExternalProject_Get_Property(${ep} binary_dir)
-set(${ep}_DIR ${binary_dir} PARENT_SCOPE)
+set(${ep}_ROOT ${binary_dir} PARENT_SCOPE)
 
 endif() #NOT USE_SYSTEM_ep
 

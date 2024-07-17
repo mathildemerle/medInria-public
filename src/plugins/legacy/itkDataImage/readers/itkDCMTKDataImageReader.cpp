@@ -19,13 +19,13 @@
 
 #include <itkDCMTKImageIO.h>
 
+#include <itkCommonEnums.h>
+#include <itkImageIOBase.h>
 #include <itkImageFileReader.h>
 #include <itkRGBPixel.h>
 #include <itkMetaDataDictionary.h>
 #include <itkObjectFactoryBase.h>
 #include <itkCommand.h>
-
-#include <itkMetaDataObject.h>
 
 // implement an observer
 namespace itk {
@@ -43,7 +43,7 @@ namespace itk {
         itkTypeMacro(DCMTKDataImageReaderCommand, Command)
             itkNewMacro(Self)
 
-            void Execute(Object *caller, const EventObject &event);
+        void Execute(Object *caller, const EventObject &event);
         void Execute(const Object *caller, const EventObject &event);
 
         void SetDataImageReader(dtkAbstractDataReader* reader) { m_Reader = reader; }
@@ -194,7 +194,7 @@ itkDCMTKDataImageReader::itkDCMTKDataImageReader() : dtkAbstractDataReader(), d(
 itkDCMTKDataImageReader::~itkDCMTKDataImageReader()
 {
     delete d;
-    d = 0;
+    d = nullptr;
 }
 
 
@@ -303,42 +303,42 @@ bool itkDCMTKDataImageReader::readInformation(const QStringList& paths)
         std::ostringstream imagetypestring;
         imagetypestring << "itkDataImage";
 
-        if (d->io->GetPixelType() == itk::ImageIOBase::SCALAR)
+        if (d->io->GetPixelType() == itk::IOPixelEnum::SCALAR)
         {
             switch (d->io->GetComponentType())
             {
-            case itk::ImageIOBase::UCHAR:
+            case itk::IOComponentEnum::UCHAR:
                 imagetypestring << "UChar";
                 break;
-            case itk::ImageIOBase::CHAR:
+            case itk::IOComponentEnum::CHAR:
                 imagetypestring << "Char";
                 break;
-            case itk::ImageIOBase::USHORT:
+            case itk::IOComponentEnum::USHORT:
                 imagetypestring << "UShort";
                 break;
-            case itk::ImageIOBase::SHORT:
+            case itk::IOComponentEnum::SHORT:
                 imagetypestring << "Short";
                 break;
-            case itk::ImageIOBase::UINT:
+            case itk::IOComponentEnum::UINT:
                 imagetypestring << "UInt";
                 break;
-            case itk::ImageIOBase::INT:
+            case itk::IOComponentEnum::INT:
                 imagetypestring << "Int";
                 break;
-            case itk::ImageIOBase::ULONG:
+            case itk::IOComponentEnum::ULONG:
                 imagetypestring << "ULong";
                 break;
-            case itk::ImageIOBase::LONG:
+            case itk::IOComponentEnum::LONG:
                 imagetypestring << "Long";
                 break;
-            case itk::ImageIOBase::FLOAT:
+            case itk::IOComponentEnum::FLOAT:
                 imagetypestring << "Float";
                 break;
-            case itk::ImageIOBase::DOUBLE:
+            case itk::IOComponentEnum::DOUBLE:
                 imagetypestring << "Double";
                 break;
             default:
-                qDebug() << "Unrecognized component type: " << d->io->GetComponentType();
+                qDebug() << "Unrecognized component type: " << static_cast<int>(d->io->GetComponentType());
                 return false;
             }
 
@@ -347,12 +347,12 @@ bool itkDCMTKDataImageReader::readInformation(const QStringList& paths)
             if (medData)
                 this->setData(medData);
         }
-        else if (d->io->GetPixelType() == itk::ImageIOBase::RGB)
+        else if (d->io->GetPixelType() == itk::IOPixelEnum::RGB)
         {
 
             switch (d->io->GetComponentType())
             {
-            case itk::ImageIOBase::UCHAR:
+            case itk::IOComponentEnum::UCHAR:
                 medData = medAbstractDataFactory::instance()->create("itkDataImageRGB3");
 
                 if (medData)
@@ -379,6 +379,7 @@ bool itkDCMTKDataImageReader::readInformation(const QStringList& paths)
         medData->setMetaData(medMetaDataKeys::Age.key(),         d->io->GetPatientAge().c_str());
         medData->setMetaData(medMetaDataKeys::BirthDate.key(),   d->io->GetPatientDOB().c_str());
         medData->setMetaData(medMetaDataKeys::Gender.key(),      d->io->GetPatientSex().c_str());
+        medData->setMetaData(medMetaDataKeys::PatientID.key(), QString::fromLatin1(d->io->GetPatientID().c_str()));
         medData->setMetaData(medMetaDataKeys::Description.key(), QString::fromLatin1(d->io->GetScanOptions().c_str()));
 
         // STUDY
@@ -389,7 +390,9 @@ bool itkDCMTKDataImageReader::readInformation(const QStringList& paths)
         medData->setMetaData(medMetaDataKeys::Institution.key(),      QString::fromLatin1(d->io->GetInstitution().c_str()));
         medData->setMetaData(medMetaDataKeys::Referee.key(),          QString::fromLatin1(d->io->GetReferringPhysicianName().c_str()));
         //StudyDate
+        medData->setMetaData(medMetaDataKeys::StudyDate.key(),        QString::fromLatin1(d->io->GetStudyDate().c_str()));
         //StudyTime
+        medData->setMetaData(medMetaDataKeys::StudyTime.key(),        QString::fromLatin1(d->io->GetStudyTime().c_str()));
 
         // SERIES
         //SeriesID
@@ -401,7 +404,9 @@ bool itkDCMTKDataImageReader::readInformation(const QStringList& paths)
         medData->setMetaData(medMetaDataKeys::Protocol.key(),          QString::fromLatin1(d->io->GetProtocolName().c_str()));
         medData->setMetaData(medMetaDataKeys::SeriesDescription.key(), QString::fromLatin1(d->io->GetSeriesDescription().c_str()));
         //SeriesDate
+        medData->setMetaData(medMetaDataKeys::SeriesDate.key(),        QString::fromLatin1(d->io->GetSeriesDate().c_str()));
         //SeriesTime
+        medData->setMetaData(medMetaDataKeys::SeriesTime.key(),       QString::fromLatin1(d->io->GetSeriesTime().c_str()));
         //SeriesThumbnail
 
         // IMAGE

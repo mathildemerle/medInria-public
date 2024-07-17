@@ -17,6 +17,7 @@
 
 #include <medAbstractData.h>
 #include <medAbstractDataFactory.h>
+#include <medAbstractImageData.h>
 #include <medAbstractLayeredView.h>
 #include <medAbstractProcessLegacy.h>
 #include <medDataManager.h>
@@ -24,6 +25,7 @@
 #include <medRunnableProcess.h>
 #include <medTabbedViewContainers.h>
 #include <medUtilities.h>
+#include <medViewContainer.h>
 #include <medVtkViewBackend.h>
 
 #include <varSegToolBox.h>
@@ -39,7 +41,6 @@ class VarSegToolBoxPrivate
 public:
     vtkLandmarkSegmentationController *controller;
     medAbstractLayeredView *currentView;
-    medAbstractLayeredView *originalView;
     QList<medAbstractLayeredView*> medViews;
     QList<vtkImageView2D*> *views2D;
     QList<vtkImageView3D*> *views3D;
@@ -51,7 +52,6 @@ public:
     dtkSmartPointer<medAbstractData> output;
     int inputSize[3];
     bool segOn;
-    bool mprOn;
     dtkSmartPointer <medAbstractProcessLegacy> process;
 };
 
@@ -77,7 +77,8 @@ VarSegToolBox::VarSegToolBox(QWidget *parent )
     d->binaryImageButton->setToolTip("Import the current mask to the non persistent database");
     d->binaryImageButton->setObjectName("binaryImageButton");
 
-    d->applyMaskButton = new QPushButton(tr("Apply segmentation"), displayWidget);
+    d->applyMaskButton = new QPushButton(tr("Apply and Save Segmentation"), displayWidget);
+    d->applyMaskButton->setToolTip("Apply the mask to the image, save the segmentation");
     d->applyMaskButton->setObjectName("applyMaskButton");
 
     enableButtons(false);
@@ -87,8 +88,8 @@ VarSegToolBox::VarSegToolBox(QWidget *parent )
     layout->addWidget(outside);
     layout->addWidget(on);
     layout->addWidget(deleteLabel);
-    layout->addWidget(d->applyMaskButton);
     layout->addWidget(d->binaryImageButton);
+    layout->addWidget(d->applyMaskButton);
 
     connect(d->segButton,         SIGNAL(toggled(bool)), this, SLOT(segmentation(bool)), Qt::UniqueConnection);
     connect(d->binaryImageButton, SIGNAL(clicked()),     this, SLOT(addBinaryImage()),   Qt::UniqueConnection);
@@ -97,9 +98,7 @@ VarSegToolBox::VarSegToolBox(QWidget *parent )
     d->controller = vtkLandmarkSegmentationController::New();
     d->output = medAbstractDataFactory::instance()->createSmartPointer("itkDataImageUChar3");
     d->currentView = nullptr;
-    d->originalView = nullptr;
     d->segOn = false;
-    d->mprOn = false;
 
     d->views2D = new QList<vtkImageView2D*>();
     d->views3D = new QList<vtkImageView3D*>();
@@ -136,9 +135,7 @@ QString VarSegToolBox::s_name()
 
 dtkPlugin* VarSegToolBox::plugin()
 {
-    medPluginManager *pm = medPluginManager::instance();
-    dtkPlugin *plugin = pm->plugin("Variational Segmentation");
-    return plugin;
+    return medPluginManager::instance().plugin("Variational Segmentation");
 }
 
 void VarSegToolBox::updateLandmarksRenderer(QString key, QString value)
@@ -210,8 +207,8 @@ void VarSegToolBox::addBinaryImage()
     {
         d->output->setData(img);
 
-        medUtilities::setDerivedMetaData(d->output, d->originalInput, "variational segmentation");
-        medDataManager::instance()->importData(d->output, false);
+        medUtilities::setDerivedMetaData(d->output, d->originalInput, "VarSegMask");
+        medDataManager::instance().importData(d->output, false);
     }
 }
 
@@ -237,6 +234,7 @@ void VarSegToolBox::applyMaskToImage()
             runProcess->setProcess (d->process);
             connect (runProcess, SIGNAL (success  (QObject*)), this, SLOT(displayOutput()), Qt::UniqueConnection);
             this->addConnectionsAndStartJob(runProcess);
+            enableOnProcessSuccessImportOutput(runProcess, false);
         }
         else
         {
@@ -248,25 +246,22 @@ void VarSegToolBox::applyMaskToImage()
 
 void VarSegToolBox::displayOutput()
 {
+    medUtilities::setDerivedMetaData(d->process->output(), d->originalInput, "VarSegApplied");
+    medDataManager::instance().importData(d->process->output(), false);
+
     typedef itk::Image<unsigned char, 3> binaryType;
     binaryType::Pointer img = d->controller->GetBinaryImage();
     if (img)
     {
         d->output->setData(img);
-        medUtilities::setDerivedMetaData(d->output, d->originalInput, "variational segmentation");
+        medUtilities::setDerivedMetaData(d->output, d->originalInput, "VarSegMask");
     }
 
-    for(int i = 0;i<d->medViews.size();i++)
-    {
-        d->medViews[i]->addLayer(d->process->output());
-        d->medViews[i]->removeLayer(0);
-    }
-
-    if (d->mprOn && d->originalView)
-    {
-        d->originalView->addLayer(d->process->output());
-        d->originalView->removeLayer(0);
-    }
+    medTabbedViewContainers *tabbedViewContainers = getWorkspace()->tabbedViewContainers();
+    medViewContainer *viewContainer = tabbedViewContainers->containersInTab(tabbedViewContainers->currentIndex()).at(0);
+    viewContainer->removeView();
+    viewContainer->setMultiLayered(true);
+    viewContainer->addData(d->process->output());
 }
 
 void VarSegToolBox::updateView()
@@ -287,13 +282,18 @@ void VarSegToolBox::updateView()
             medAbstractData *data = d->currentView->layerData(i);
             if(!data || data->identifier().contains("vtkDataMesh")
                     || !data->identifier().contains("itkDataImage") //avoid medVtkFibersData also
-                    || data->identifier().contains("itkDataImageVector"))
+                    || data->identifier().contains("itkDataImageVector")
+                    || (qobject_cast<medAbstractImageData*>(data)->Dimension() != 3))
             {
                 handleDisplayError(medAbstractProcessLegacy::DIMENSION_3D);
                 d->currentView = nullptr;
                 return;
             }
         }
+    }
+    else
+    {
+        d->currentView = nullptr;
     }
 }
 
@@ -315,33 +315,11 @@ void VarSegToolBox::startSegmentation()
     d->views2D->clear();
     d->views3D->clear();
 
-    if (!d->mprOn)
-    {
-        connect(d->currentView, SIGNAL(propertySet(QString,QString)), this, SLOT(updateLandmarksRenderer(QString,QString)), Qt::UniqueConnection);
-        connect(d->currentView, SIGNAL(closed()), this, SLOT(manageClosingView()), Qt::UniqueConnection);
-        if (d->currentView->property("Orientation")=="3D")
-        {
-            d->controller->setMode3D(true);
-        }
-        else
-        {
-            d->controller->setMode3D(false);
-        }
-    }
+    connect(d->currentView, SIGNAL(propertySet(QString,QString)), this, SLOT(updateLandmarksRenderer(QString,QString)), Qt::UniqueConnection);
+    connect(d->currentView, SIGNAL(closed()), this, SLOT(manageClosingView()), Qt::UniqueConnection);
 
     vtkCollection *interactorcollection = vtkCollection::New();
-    if (d->mprOn)
-    {
-        for(int i=0; i<4; i++)
-        {
-            interactorcollection->AddItem(static_cast<medVtkViewBackend*>(d->medViews[i]->backend())->renWin->GetInteractor());
-        }
-    }
-    else
-    {
-        interactorcollection->AddItem(static_cast<medVtkViewBackend*>(d->currentView->backend())->renWin->GetInteractor());
-    }
-    
+    interactorcollection->AddItem(static_cast<medVtkViewBackend*>(d->currentView->backend())->renWin->GetInteractor());
     d->controller->SetInteractorCollection(interactorcollection);
     interactorcollection->Delete();
 
@@ -425,12 +403,10 @@ void VarSegToolBox::startSegmentation()
     
     d->controller->SetInput(smallerImage);
     
-    if (!d->mprOn)
-    {
-        d->medViews.append(d->currentView);
-        d->views2D->append(static_cast<medVtkViewBackend*>(d->currentView->backend())->view2D);
-        d->views3D->append(static_cast<medVtkViewBackend*>(d->currentView->backend())->view3D);
-    }
+    d->medViews.append(d->currentView);
+    d->views2D->append(static_cast<medVtkViewBackend*>(d->currentView->backend())->view2D);
+    d->views3D->append(static_cast<medVtkViewBackend*>(d->currentView->backend())->view3D);
+
     for (int i = 0; i<d->medViews.size(); i++)
     {
         d->views2D->at(i)->AddDataSet (d->controller->GetOutput());
@@ -461,7 +437,6 @@ VarSegToolBox::castImageToType(medAbstractData *inputData)
 void VarSegToolBox::manageClosingView()
 {
     d->currentView = nullptr;
-    d->originalView = nullptr;
     d->medViews.clear();
     endSegmentation();
 }

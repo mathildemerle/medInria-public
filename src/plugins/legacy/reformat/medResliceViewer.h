@@ -12,18 +12,18 @@ PURPOSE.
 
 =========================================================================*/
 
+#include "resliceToolBox.h"
+
+#include <medAbstractView.h>
+#include <vtkImageView3D.h>
+
 #include <dtkCoreSupport/dtkSmartPointer.h>
 
 #include <itkImage.h>
 
-#include <medAbstractView.h>
-
 #include <QVTKOpenGLWidget.h>
 
-#include <resliceToolBox.h>
-
 #include <vtkImagePlaneWidget.h>
-#include <vtkImageView3D.h>
 #include <vtkResliceImageViewer.h>
 #include <vtkSmartPointer.h>
 
@@ -63,7 +63,7 @@ public slots:
     virtual void render();
 
     void saveImage();
-    void thickSlabChanged(double);
+    void askedSpacingOrSizeChange(double);
     void extentChanged(int);
     bool eventFilter(QObject *object, QEvent *event);
 
@@ -85,7 +85,7 @@ protected:
     QWidget *viewBody;
     QVTKOpenGLWidget *views[4];
     dtkSmartPointer<medAbstractData> inputData;
-    double *outputSpacing;
+    std::array<double, 3> outputSpacingOrSize;
     unsigned char selectedView;
     vtkImageView3D *view3d;
     vtkSmartPointer<vtkImageData> vtkViewData;

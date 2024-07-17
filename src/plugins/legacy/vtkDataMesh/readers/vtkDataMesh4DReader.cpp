@@ -13,6 +13,7 @@
 
 #include "vtkDataMesh4DReader.h"
 #include "vtkDataManagerReader.h"
+#include "vtkDataMeshHelper.h"
 
 #include <medAbstractData.h>
 #include <medAbstractDataFactory.h>
@@ -46,14 +47,14 @@ QStringList vtkDataMesh4DReader::s_handled()
 
 bool vtkDataMesh4DReader::canRead (const QString& path)
 {
-    return this->reader->CanReadFile (path.toLatin1().constData());
+    return this->reader->CanReadFile (path.toUtf8().constData());
 }
 
 bool vtkDataMesh4DReader::readInformation (const QString& path)
 {
   
     medAbstractData *medData = dynamic_cast<medAbstractData*>(this->data());
-    this->reader->SetFileName (path.toLatin1().constData());
+    this->reader->SetFileName (path.toUtf8().constData());
   
     if (!medData)
     {
@@ -87,12 +88,19 @@ bool vtkDataMesh4DReader::read (const QString& path)
             return false;
         }
 
-        this->reader->SetFileName (path.toLatin1().constData());
+        this->reader->SetFileName (path.toUtf8().constData());
         this->reader->Update();
 
         vtkMetaDataSetSequence* sequence = vtkMetaDataSetSequence::SafeDownCast (this->reader->GetOutput()->GetMetaDataSet ((unsigned int)0));
         if (sequence && sequence->GetNumberOfMetaDataSets() > 0)
         {
+            for (int i = 0; i < sequence->GetNumberOfMetaDataSets(); ++i)
+            {
+                vtkMetaDataSet* metaDataSet = sequence->GetMetaDataSet(i);
+                // convert invalid value to NaN
+                DataMeshHelper::prepareMetaDataForAsciiReadOrWrite(metaDataSet, false);
+            }
+
             if (!extractMetaData(sequence->GetMetaDataSet(0)))
             {
                 qDebug() << metaObject()->className() << ": no metadata found in " << path;

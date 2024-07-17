@@ -12,6 +12,7 @@
 =========================================================================*/
 
 #include "vtkDataMeshReader.h"
+#include "vtkDataMeshHelper.h"
 
 #include <medAbstractData.h>
 #include <medAbstractDataFactory.h>
@@ -86,6 +87,10 @@ bool vtkDataMeshReader::read(const QString& path)
         try
         {
             dataSet->Read(path.toLocal8Bit().constData());
+
+            // convert invalid value to NaN
+            DataMeshHelper::prepareMetaDataForAsciiReadOrWrite(dataSet, false);
+
             medData->setData(dataSet);
 
             if (!extractMetaData(path, dataSet))

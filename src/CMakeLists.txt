@@ -13,21 +13,22 @@
 #
 ################################################################################
 
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.19)
 
 if(NOT DEFINED ${medInria_VERSION})
-    set(medInria_VERSION 3.0.0)
+    set(medInria_VERSION 4.0.4)
 endif()
 
 project(medInria VERSION ${medInria_VERSION})
 
-
-## #############################################################################
-## Set version
-## #############################################################################
-
 string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UP)
-add_definitions(-D${PROJECT_NAME_UP}_VERSION="${${PROJECT_NAME}_VERSION}")
+
+set(${PROJECT_NAME}_IDENTIFIER fr.inria.${PROJECT_NAME})
+
+add_compile_definitions(
+  ${PROJECT_NAME_UP}_VERSION="${${PROJECT_NAME}_VERSION}"
+  ${PROJECT_NAME_UP}_IDENTIFIER="${${PROJECT_NAME}_IDENTIFIER}"
+  )
 
 ## #############################################################################
 ## Macro
@@ -65,6 +66,11 @@ option(USE_FFmpeg
   )
 endif()
 
+option(USE_Python
+  "Build with Python support"
+  ON
+  )
+
 ## #############################################################################
 ## Find package
 ## #############################################################################
@@ -86,6 +92,10 @@ find_package(Qt5 REQUIRED COMPONENTS
 find_package(dtk REQUIRED)
 include_directories(${dtk_INCLUDE_DIRS})
 
+if(USE_Python)
+    find_package(pyncpp REQUIRED COMPONENTS CPP_API Qt5)
+endif()
+
 ## #############################################################################
 ## enable c++ 17
 ## #############################################################################
@@ -93,6 +103,15 @@ include_directories(${dtk_INCLUDE_DIRS})
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MACOSX_RPATH OFF)
+
+## #############################################################################
+## Global policies
+## #############################################################################
+
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.10.0")
+    # Prevent warning of generated files not being moc'd
+    cmake_policy(SET CMP0071 NEW)
+endif()
 
 ## #############################################################################
 ## Additionals modules
@@ -114,6 +133,8 @@ include(set_exe_install_rules)
 include(set_lib_install_rules)
 include(set_lib_properties_variables)
 include(set_plugin_install_rules)
+include(set_external_resources)
+include(import_external_resources)
 
 include(add_plugins)
 if(APPLE)

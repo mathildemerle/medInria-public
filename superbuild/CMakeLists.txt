@@ -12,6 +12,24 @@
 ################################################################################
 
 ## #############################################################################
+## Options
+## #############################################################################
+
+option(USE_DTKIMAGING "Use DTK imaging layer" OFF )
+
+option(USE_OSPRay "Use OSPRay for CPU VR" OFF )
+
+option(USE_Python "Build with Python support" ON)
+
+option(USE_MUSIC_PLUGINS "Build MUSIC plugins" ON)
+
+option(USE_RealTimeWorkspace "Build the real time workspace and linked externals libraries" OFF)
+
+if (NOT WIN32)
+  option(USE_FFmpeg "Build with FFmpeg video export support" OFF)
+endif()
+
+## #############################################################################
 ## Add packages
 ## #############################################################################
 
@@ -30,6 +48,24 @@ find_package(Qt5 REQUIRED COMPONENTS
 
 find_package(Boost REQUIRED)
 
+if(USE_Python AND UNIX)
+    if(APPLE)
+        set(default_root_dir "/usr/local/opt/openssl")
+    else()
+        set(default_root_dir)
+    endif()
+    set(OPENSSL_ROOT_DIR ${default_root_dir} CACHE PATH "Root directory of OpenSSL.")
+    find_package(OpenSSL COMPONENTS SSL)
+endif()
+
+if(USE_MUSIC_PLUGINS)
+    find_package(OpenMP REQUIRED)
+
+    if(NOT OpenMP_CXX_FOUND)
+        message(FATAL_ERROR "OpenMP not found. It may have to be manually installed, with OpenMP_ROOT set to the installation path.")
+    endif()
+endif()
+
 ## #############################################################################
 ## Add exteral projects
 ## #############################################################################
@@ -43,17 +79,20 @@ find_package(Boost REQUIRED)
 #   * otherwise use download and compile locally the package as an external 
 #     module.
 
-option(USE_DTKIMAGING "Use DTK imaging layer" OFF )
-
-option(USE_OSPRay "Use OSPRay for CPU VR" OFF )
-
 if (NOT WIN32)
-  option(USE_FFmpeg "Build with FFmpeg video export support" OFF)
   if (${USE_FFmpeg})
       list(APPEND external_projects ffmpeg)
   endif()
 endif()
-  
+
+set(EXPIRATION_TIME "12" CACHE STRING "After X months the copy will expire")
+
+if (USE_Python)
+    list(APPEND external_projects
+        pyncpp
+        )
+endif()
+
 list(APPEND external_projects
      VTK
      ITK
@@ -63,17 +102,28 @@ list(APPEND external_projects
      QtDCM
      dtk
      LogDemons
-     jsoncons
-     asio
-     websocketpp
-     openssl
-     eigen
-     qwt
-     mmg
-     tetgen
-     zlib
-     quazip
      )
+
+if(USE_MUSIC_PLUGINS)
+    list(APPEND external_projects
+        eigen
+        qwt
+        mmg
+        tetgen
+        ZLIB
+        quazip
+        )
+endif()
+
+# Realtime
+if (${USE_RealTimeWorkspace})
+    list(APPEND external_projects
+        jsoncons
+        asio
+        websocketpp
+        openssl
+    )
+endif() 
 
 if (USE_DTKIMAGING)
     list(APPEND external_projects
@@ -83,8 +133,13 @@ endif()
 
 list(APPEND external_projects
      medInria
-     music-plugins
     )
+
+if(USE_MUSIC_PLUGINS)
+    list(APPEND external_projects
+         music-plugins
+        )
+endif()
 
 if (USE_OSPRay)
 SET(ospray_DIR CACHE PATH "The directory containing a CMAKE configuration file for OSPRay")
@@ -104,8 +159,6 @@ set(CMAKE_BUILD_TYPE_medInria Debug CACHE STRING "Build type configuration speci
 ## #############################################################################
 set(medInria_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 set(medInria_BINARY_DIR ${CMAKE_BINARY_DIR}/medInria-build)
-set(medInria_STAMP_DIR ${CMAKE_BINARY_DIR}/medInria-stamp)
-
 
 ## #############################################################################
 ## Add modules
@@ -149,7 +202,6 @@ file(APPEND ${${PROJECT_NAME}_CONFIG_FILE}
 
 set(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/projects_modules
-    ${CMAKE_SOURCE_DIR}/packaging
     ${CMAKE_MODULE_PATH}
     )
 
@@ -182,7 +234,23 @@ include(EP_CheckEnvironment)
 include(ConfigureExternalProjects)
 
 ## #############################################################################
-## Package
+## Create launch scripts
 ## #############################################################################
 
-include(Packaging)
+if (UNIX)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/launchers/Launchers.cmake)
+endif()
+
+## #############################################################################
+## Export variables
+## #############################################################################
+
+set(external_projects ${external_projects} PARENT_SCOPE)
+
+foreach(external_project ${external_projects})
+    if(DEFINED ${external_project}_ROOT)
+        set(${external_project}_ROOT ${${external_project}_ROOT} PARENT_SCOPE)
+    endif()
+endforeach()
+
+set(medInria_SOURCE_DIR ${medInria_SOURCE_DIR} PARENT_SCOPE)

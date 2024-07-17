@@ -31,6 +31,8 @@
 
 #include <medMetaDataKeys.h>
 
+#include <QDebug>
+
 #include <map>
 
 const char itkGDCMDataImageReader::ID[] = "itkGDCMDataImageReader";
@@ -224,12 +226,12 @@ QString itkGDCMDataImageReader::description() const {
 }
 
 bool itkGDCMDataImageReader::canRead(const QString &path) {
-    return d->io->CanReadFile(path.toLatin1().constData());
+    return d->io->CanReadFile(path.toUtf8().constData());
 }
 
 bool itkGDCMDataImageReader::canRead(const QStringList &paths) {
     for (int i=0; i<paths.size(); i++)
-        if (!d->io->CanReadFile(paths[i].toLatin1().constData()))
+        if (!d->io->CanReadFile(paths[i].toUtf8().constData()))
             return false;
     return true;
 }
@@ -247,7 +249,7 @@ bool itkGDCMDataImageReader::readInformation(const QStringList &paths)
 
     FileList filenames;
     for (int i=0; i<paths.size(); i++)
-        filenames.push_back(paths[i].toLatin1().constData());
+        filenames.push_back(paths[i].toUtf8().constData());
 
     FileListMapType map = this->sort(filenames);
 
@@ -279,7 +281,7 @@ bool itkGDCMDataImageReader::readInformation(const QStringList &paths)
         std::ostringstream imagetypestring;
         imagetypestring << "itkDataImage";
 
-        if (d->io->GetPixelType() != itk::ImageIOBase::SCALAR)
+        if (d->io->GetPixelType() != itk::IOPixelEnum::SCALAR)
         {
             dtkDebug() << "Unsupported pixel type";
             return false;
@@ -287,34 +289,34 @@ bool itkGDCMDataImageReader::readInformation(const QStringList &paths)
 
         switch (d->io->GetComponentType())
         {
-        case itk::ImageIOBase::UCHAR:
+        case itk::IOComponentEnum::UCHAR:
             imagetypestring << "UChar";
             break;
-        case itk::ImageIOBase::CHAR:
+        case itk::IOComponentEnum::CHAR:
             imagetypestring << "Char";
             break;
-        case itk::ImageIOBase::USHORT:
+        case itk::IOComponentEnum::USHORT:
             imagetypestring << "UShort";
             break;
-        case itk::ImageIOBase::SHORT:
+        case itk::IOComponentEnum::SHORT:
             imagetypestring << "Short";
             break;
-        case itk::ImageIOBase::UINT:
+        case itk::IOComponentEnum::UINT:
             imagetypestring << "UInt";
             break;
-        case itk::ImageIOBase::INT:
+        case itk::IOComponentEnum::INT:
             imagetypestring << "Int";
             break;
-        case itk::ImageIOBase::ULONG:
+        case itk::IOComponentEnum::ULONG:
             imagetypestring << "ULong";
             break;
-        case itk::ImageIOBase::LONG:
+        case itk::IOComponentEnum::LONG:
             imagetypestring << "Long";
             break;
-        case itk::ImageIOBase::FLOAT:
+        case itk::IOComponentEnum::FLOAT:
             imagetypestring << "Float";
             break;
-        case itk::ImageIOBase::DOUBLE:
+        case itk::IOComponentEnum::DOUBLE:
             /**
       @todo Handle properly double pixel values.
       For the moment it is only handled in 3D, not in 4D, and it is very
@@ -328,14 +330,14 @@ bool itkGDCMDataImageReader::readInformation(const QStringList &paths)
                 imagetypestring << "Double";
             break;
         default:
-            dtkDebug() << "Unrecognized component type:\t " << d->io->GetComponentType();
+            qDebug() << "Unrecognized component type:\t " << static_cast<int>(d->io->GetComponentType());
             return false;
         }
 
         imagetypestring << imagedimension;
         if (imagedimension == 4)
         {
-            dtkDebug() << "image type given :\t" << imagetypestring.str().c_str();
+            qDebug() << "image type given :\t" << imagetypestring.str().c_str();
         }
 
         medData = medAbstractDataFactory::instance()->createSmartPointer(imagetypestring.str().c_str());
@@ -408,7 +410,7 @@ bool itkGDCMDataImageReader::read (const QStringList &paths)
 
     FileList filenames;
     for (int i=0;i<paths.size();i++)
-        filenames.push_back(paths[i].toLatin1().constData());
+        filenames.push_back(paths[i].toUtf8().constData());
 
     FileListMapType map = this->sort(filenames);
 
@@ -425,9 +427,9 @@ bool itkGDCMDataImageReader::read (const QStringList &paths)
         QStringList qfilelist = medData->metaDataValues("FilePaths");
         FileList filelist;
         for (int i=0;i<qfilelist.size();i++)
-            filelist.push_back(qfilelist[i].toLatin1().constData());
+            filelist.push_back(qfilelist[i].toUtf8().constData());
 
-        std::cout << "reading : "    << medData->identifier().toLatin1().constData() << std::endl;
+        std::cout << "reading : "    << medData->identifier().toUtf8().constData() << std::endl;
         std::cout << "containing : " << map.size() << " volumes" << std::endl;
 
         try {

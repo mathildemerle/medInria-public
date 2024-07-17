@@ -70,15 +70,14 @@ bool itkDataSHImageReader::canRead (const QStringList &paths)
 
 bool itkDataSHImageReader::canRead (const QString &path)
 {
-    itk::ImageIOBase::Pointer imageIO = itk::ImageIOFactory::CreateImageIO(path.toLatin1().constData(),
-                                                                           itk::ImageIOFactory::ReadMode);
+    itk::ImageIOBase::Pointer imageIO = itk::ImageIOFactory::CreateImageIO(path.toLatin1().constData(), itk::IOFileModeEnum::ReadMode);
 
     if (!imageIO.IsNull())
     {
-        if (!imageIO->CanReadFile ( path.toLatin1().constData() ))
+        if (!imageIO->CanReadFile ( path.toUtf8().constData() ))
             return false;
 
-        imageIO->SetFileName (path.toLatin1().constData());
+        imageIO->SetFileName (path.toUtf8().constData());
         try
         {
             imageIO->ReadImageInformation();
@@ -114,10 +113,9 @@ bool itkDataSHImageReader::readInformation (const QStringList &paths)
 
 bool itkDataSHImageReader::readInformation (const QString &path)
 {
-    itk::ImageIOBase::Pointer imageIO = itk::ImageIOFactory::CreateImageIO(path.toLatin1().constData(),
-                                                                           itk::ImageIOFactory::ReadMode);
+    itk::ImageIOBase::Pointer imageIO = itk::ImageIOFactory::CreateImageIO(path.toLatin1().constData(), itk::IOFileModeEnum::ReadMode);
     
-    imageIO->SetFileName ( path.toLatin1().constData() );
+    imageIO->SetFileName ( path.toUtf8().constData() );
     try
     {
         imageIO->ReadImageInformation();
@@ -133,13 +131,13 @@ bool itkDataSHImageReader::readInformation (const QString &path)
     if (!medData) {
 
         switch (imageIO->GetComponentType()) {
-        case itk::ImageIOBase::FLOAT:
+        case itk::IOComponentEnum::FLOAT:
             medData = medAbstractDataFactory::instance()->create ("itkDataSHImageFloat3");
             if (medData)
                 this->setData ( medData );
             break;
 
-	    case itk::ImageIOBase::DOUBLE:
+	    case itk::IOComponentEnum::DOUBLE:
             medData = medAbstractDataFactory::instance()->create ("itkDataSHImageDouble3");
             if (medData)
                 this->setData ( medData );
@@ -180,7 +178,7 @@ bool itkDataSHImageReader::read (const QString &path)
             SHImageType::Pointer image = nullptr;
 
             ReaderType::Pointer reader = ReaderType::New();
-            reader->SetFileName ( path.toLatin1().constData() );
+            reader->SetFileName ( path.toUtf8().constData() );
             try
             {
                 reader->Update();
@@ -201,7 +199,7 @@ bool itkDataSHImageReader::read (const QString &path)
             SHImageType::Pointer image = nullptr;
 
             ReaderType::Pointer reader = ReaderType::New();
-            reader->SetFileName ( path.toLatin1().constData() );
+            reader->SetFileName ( path.toUtf8().constData() );
             try
             {
                 reader->Update();

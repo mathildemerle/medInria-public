@@ -11,65 +11,74 @@
 #
 ################################################################################
 
-macro(set_lib_install_rules_generic target dest headers_list)
+function(set_lib_install_rules target)
 
 ################################################################################
 #
-# Usage: set_lib_install_rules(target, header1, header2, header3 ...)
-# set rules for the library designed by the target, and add all the additional
-# header to {CMAKE_PREFIX_INSTALL}/include during install step.
+# Usage: set_lib_install_rules(target [RESOURCE] [HEADERS [headers...]])
+#
+# Set rules for a library target.
+#
+# The options are:
+#
+# RESOURCE
+#     Indicate that this is a resource library. Resource libraries are shared
+#     librairies that are not dependencies (direct or indirect) of the
+#     executable. An example of this are Python extension modules, which are not
+#     linked into the executable but loaded by the embedded Python's import
+#     mechanism.
+#
+# HEADERS
+#     Add headers to '{CMAKE_PREFIX_INSTALL}/include' during the install step.
 #
 ################################################################################
 
-get_property(GENERATOR_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+    cmake_parse_arguments(PARSE_ARGV 1 "ARG" "" "" "HEADERS")
+    get_property(GENERATOR_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
-if(${GENERATOR_MULTI_CONFIG})
-  set_target_properties( ${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG          ${dest}/${platformType}Debug/bin)
-  set_target_properties( ${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE        ${dest}/${platformType}Release/bin)
-  set_target_properties( ${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL     ${dest}/${platformType}MinSizeRel/bin)
-  set_target_properties( ${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${dest}/${platformType}RelWithDebInfo/bin)
-                                                                                        
-  set_target_properties( ${target} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_DEBUG          ${dest}/${platformType}Debug/lib)
-  set_target_properties( ${target} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_RELEASE        ${dest}/${platformType}Release/lib)
-  set_target_properties( ${target} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL     ${dest}/${platformType}MinSizeRel/lib)
-  set_target_properties( ${target} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO ${dest}/${platformType}RelWithDebInfo/lib)
-                                                                                        
-  set_target_properties( ${target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG          ${dest}/${platformType}Debug/lib)
-  set_target_properties( ${target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE        ${dest}/${platformType}Release/lib)
-  set_target_properties( ${target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL     ${dest}/${platformType}MinSizeRel/lib)
-  set_target_properties( ${target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO ${dest}/${platformType}RelWithDebInfo/lib)
-else()                                                                                  
-  set_target_properties( ${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY                ${dest}/bin)
-  set_target_properties( ${target} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY                ${dest}/lib)
-  set_target_properties( ${target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY                ${dest}/lib)
-endif()
+    if (medInria_ROOT)
+        set(dest ${medInria_ROOT})
+    else()
+        set(dest ${CMAKE_BINARY_DIR})
+    endif()
 
-install(TARGETS ${target}
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  )
+    if(${GENERATOR_MULTI_CONFIG})
+        set_target_properties( ${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG          ${dest}/${platformType}Debug/bin)
+        set_target_properties( ${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE        ${dest}/${platformType}Release/bin)
+        set_target_properties( ${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL     ${dest}/${platformType}MinSizeRel/bin)
+        set_target_properties( ${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${dest}/${platformType}RelWithDebInfo/bin)
+
+        set_target_properties( ${target} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_DEBUG          ${dest}/${platformType}Debug/lib)
+        set_target_properties( ${target} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_RELEASE        ${dest}/${platformType}Release/lib)
+        set_target_properties( ${target} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL     ${dest}/${platformType}MinSizeRel/lib)
+        set_target_properties( ${target} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO ${dest}/${platformType}RelWithDebInfo/lib)
+
+        set_target_properties( ${target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG          ${dest}/${platformType}Debug/lib)
+        set_target_properties( ${target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE        ${dest}/${platformType}Release/lib)
+        set_target_properties( ${target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL     ${dest}/${platformType}MinSizeRel/lib)
+        set_target_properties( ${target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO ${dest}/${platformType}RelWithDebInfo/lib)
+    else()
+        set_target_properties( ${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY                ${dest}/bin)
+        set_target_properties( ${target} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY                ${dest}/lib)
+        set_target_properties( ${target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY                ${dest}/lib)
+    endif()
+
+    install(TARGETS ${target}
+        RUNTIME DESTINATION lib
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        FRAMEWORK DESTINATION lib
+        RESOURCE DESTINATION resources/${target}
+        )
 
 ## #############################################################################
-## Add header wich have to be exposed in the include dir of the install tree
+## Add headers wich have to be exposed in the include dir of the install tree
 ## #############################################################################
 
-if(${ARGC} GREATER 2)
-  set(headers ${ARGV})
+    if(ARG_HEADERS)
+        install(FILES ${ARG_HEADERS}
+            DESTINATION include/${target}
+            )
+    endif()
 
-  list(REMOVE_ITEM headers ${target} ${dest})
-  install(FILES ${headers}
-    DESTINATION include/${target}
-    )
-endif()
-
-endmacro()
-
-
-macro(set_lib_install_rules target headers_list )  
-  set_lib_install_rules_generic( ${target} ${CMAKE_BINARY_DIR} ${headers_list})
-endmacro()
-
-macro(set_lib_install_rules_external target headers_list )  
-  set_lib_install_rules_generic( ${target} ${medInria_DIR} ${headers_list})
-endmacro()
+endfunction()

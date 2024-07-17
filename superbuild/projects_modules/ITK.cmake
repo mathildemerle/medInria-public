@@ -40,7 +40,7 @@ if (NOT USE_SYSTEM_${ep})
 
 
 set(git_url ${GITHUB_PREFIX}InsightSoftwareConsortium/ITK.git)
-set(git_tag v5.0.0)
+set(git_tag v5.2.1)
 
 
 ## #############################################################################
@@ -68,14 +68,18 @@ set(cmake_args
   -DModule_ITKReview:BOOL=ON
   -DModule_ITKVtkGlue:BOOL=ON
   -DITK_LEGACY_REMOVE:BOOL=ON
-  -DVTK_DIR:PATH=${VTK_DIR}
+  -DVTK_ROOT:PATH=${VTK_ROOT}
   )
 
 ## #############################################################################
 ## Check if patch has to be applied
 ## #############################################################################
   
-ep_GeneratePatchCommand(${ep} ${ep}_PATCH_COMMAND ITK_Mac.patch)
+if (WIN32 AND ${CMAKE_GENERATOR} STREQUAL "Visual Studio 16 2019")
+    ep_GeneratePatchCommand(${ep} ${ep}_PATCH_COMMAND ITK_Win.patch)
+elseif(APPLE)
+    ep_GeneratePatchCommand(${ep} ${ep}_PATCH_COMMAND ITK_Mac.patch)
+endif()
 
 ## #############################################################################
 ## Add external-project
@@ -95,10 +99,10 @@ ExternalProject_Add(${ep}
   PATCH_COMMAND ${${ep}_PATCH_COMMAND}
   CMAKE_GENERATOR ${gen}
   CMAKE_GENERATOR_PLATFORM ${CMAKE_GENERATOR_PLATFORM}
-  CMAKE_ARGS ${cmake_args}
+  CMAKE_ARGS ${cmake_args}  
+  CMAKE_CACHE_ARGS ${cmake_cache_args}
   DEPENDS ${${ep}_dependencies}
   INSTALL_COMMAND ""
-  BUILD_ALWAYS 1
   )
 
 ## #############################################################################
@@ -106,7 +110,7 @@ ExternalProject_Add(${ep}
 ## #############################################################################
 
 ExternalProject_Get_Property(ITK binary_dir)
-set(${ep}_DIR ${binary_dir} PARENT_SCOPE)
+set(${ep}_ROOT ${binary_dir} PARENT_SCOPE)
 
 endif() #NOT USE_SYSTEM_ep
 

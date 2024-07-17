@@ -11,14 +11,16 @@
 #
 ################################################################################
 
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.19)
 
 if(POLICY CMP0020)
   cmake_policy(SET CMP0020 NEW)
 endif()
 
+cmake_policy(SET CMP0074 NEW)
+
 if(NOT DEFINED ${MEDINRIA_SUPERBUILD_VERSION})
-    set(MEDINRIA_SUPERBUILD_VERSION 3.0.0)
+    set(MEDINRIA_SUPERBUILD_VERSION 4.0.4)
 endif()
 
 SET(CMAKE_CXX_STANDARD 17)
@@ -26,3 +28,4 @@ SET(CMAKE_CXX_STANDARD 17)
 project(MEDINRIA_SUPERBUILD VERSION ${MEDINRIA_SUPERBUILD_VERSION})
 
 add_subdirectory(superbuild)
+add_subdirectory(packaging)

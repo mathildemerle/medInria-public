@@ -14,12 +14,14 @@
 #include <dtkCoreSupport/dtkAbstractDataReader.h>
 
 #include <QtSql/QSqlError>
+#include <QtSql/QSqlQuery>
 
 #include <medAbstractData.h>
 #include <medAbstractDataFactory.h>
 #include <medAbstractImageData.h>
-#include <medDatabaseController.h>
 #include <medDatabaseReader.h>
+#include <medDataIndex.h>
+#include <medDataManager.h>
 #include <medMetaDataKeys.h>
 #include <medStorage.h>
 
@@ -27,11 +29,13 @@ class medDatabaseReaderPrivate
 {
 public:
     medDataIndex index;
+    medDatabaseReader::ReadMode readMode;
 };
 
 medDatabaseReader::medDatabaseReader ( const medDataIndex& index ) : QObject(), d ( new medDatabaseReaderPrivate )
 {
     d->index = index;
+    d->readMode = READ_ALL;
 }
 
 medDatabaseReader::~medDatabaseReader()
@@ -39,6 +43,16 @@ medDatabaseReader::~medDatabaseReader()
     delete d;
 
     d = nullptr;
+}
+
+void medDatabaseReader::setReadMode(ReadMode readMode)
+{
+    d->readMode = readMode;
+}
+
+medDatabaseReader::ReadMode medDatabaseReader::getReadMode() const
+{
+    return d->readMode;
 }
 
 #define FAILURE(msg) do {qDebug() <<  "medDatabaseReader::run: "<<(msg);emit failure(this);return nullptr;} while(0)
@@ -49,26 +63,34 @@ medAbstractData* medDatabaseReader::run()
     QVariant   studyDbId = d->index.studyId();
     QVariant  seriesDbId = d->index.seriesId();
 
-    QSqlQuery query(medDatabaseController::instance()->database());
+    QSqlDatabase dbConnection = medDataManager::instance().controller()->getThreadSpecificConnection();
+    QSqlQuery query(dbConnection);
 
     QString patientName, birthdate, gender, patientId;
-    QString studyName, studyUid, studyId;
+    QString studyName, studyUid, studyId, studyTime, studyDate;
     QString seriesName, seriesPath, seriesUid, orientation, seriesNumber, sequenceName,
-            sliceThickness, rows, columns, thumbnailPath, description, protocol,
+            sliceThickness, rows, columns, thumbnailPath, age, description, protocol,
             comments, status, acquisitiondate, importationdate, referee,
-            institution, report, modality, seriesId;
+            institution, report, modality, seriesId, seriesTime, seriesDate, kvp;
     QString origin, flipAngle, echoTime, repetitionTime, acquisitionTime;
     bool indexed;
 
     query.prepare ( "SELECT name, birthdate, gender, patientId FROM patient WHERE id = :id" );
     query.bindValue ( ":id", patientDbId );
+
+    QMutexLocker mutexLocker(&medDataManager::instance().controller()->getDatabaseMutex());
+
     if ( !query.exec() )
     {
+        query.finish();
+        mutexLocker.unlock();
         FAILURE(query.lastError());
     }
 
     if (! query.first() )
     {
+        query.finish();
+        mutexLocker.unlock();
         FAILURE("No record in patient table for id:" + patientDbId.toString());
     }
 
@@ -77,7 +99,7 @@ medAbstractData* medDatabaseReader::run()
     gender = query.value ( 2 ).toString();
     patientId = query.value ( 3 ).toString();
 
-    query.prepare ( "SELECT name, uid, studyId FROM study WHERE id = :id" );
+    query.prepare ( "SELECT name, uid, studyId, time, date FROM study WHERE id = :id" );
     query.bindValue ( ":id", studyDbId );
     if ( !query.exec() )
     {
@@ -86,28 +108,36 @@ medAbstractData* medDatabaseReader::run()
 
     if (! query.first() )
     {
+        query.finish();
+        mutexLocker.unlock();
         FAILURE("No record in study table for id:" + studyDbId.toString());
     }
 
     studyName = query.value ( 0 ).toString();
     studyUid = query.value ( 1 ).toString();
     studyId = query.value ( 2 ).toString();
+    studyTime = query.value ( 3 ).toString();
+    studyDate = query.value ( 4 ).toString();
 
     query.prepare ( "SELECT name, uid, orientation, seriesNumber, sequenceName, sliceThickness, rows, columns, "
-                    "description, protocol, comments, status, acquisitiondate, importationdate, referee, "
+                    "age, description, protocol, comments, status, acquisitiondate, importationdate, referee, "
                     "institution, report, modality, seriesId, "
                     "origin, flipAngle, echoTime, repetitionTime, acquisitionTime, "
-                    "path, thumbnail, isIndexed "
+                    "path, thumbnail, isIndexed, time, date, kvp "
                     "FROM series WHERE id = :id" );
     query.bindValue ( ":id", seriesDbId );
 
     if ( !query.exec() )
     {
+        query.finish();
+        mutexLocker.unlock();
         FAILURE(query.lastError());
     }
 
     if ( ! query.first())
     {
+        query.finish();
+        mutexLocker.unlock();
         FAILURE("No record in series table for id:" + seriesDbId.toString());
     }
 
@@ -119,28 +149,35 @@ medAbstractData* medDatabaseReader::run()
     sliceThickness = query.value ( 5 ).toString();
     rows = query.value ( 6 ).toString();
     columns = query.value ( 7 ).toString();
-    description = query.value ( 8 ).toString();
-    protocol = query.value ( 9 ).toString();
-    comments = query.value ( 10 ).toString();
-    status = query.value ( 11 ).toString();
-    acquisitiondate = query.value ( 12 ).toString();
-    importationdate = query.value ( 13 ).toString();
-    referee = query.value ( 14 ).toString();
-    institution = query.value ( 15 ).toString();
-    report = query.value ( 16 ).toString();
-    modality = query.value ( 17 ).toString();
-    seriesId = query.value ( 18 ).toString();
+    age = query.value ( 8 ).toString();
+    description = query.value ( 9 ).toString();
+    protocol = query.value ( 10 ).toString();
+    comments = query.value ( 11 ).toString();
+    status = query.value ( 12 ).toString();
+    acquisitiondate = query.value ( 13 ).toString();
+    importationdate = query.value ( 14 ).toString();
+    referee = query.value ( 15 ).toString();
+    institution = query.value ( 16 ).toString();
+    report = query.value ( 17 ).toString();
+    modality = query.value ( 18 ).toString();
+    seriesId = query.value ( 19 ).toString();
 
     // MR
-    origin          = query.value ( 19 ).toString();
-    flipAngle       = query.value ( 20 ).toString();
-    echoTime        = query.value ( 21 ).toString();
-    repetitionTime  = query.value ( 22 ).toString();
-    acquisitionTime = query.value ( 23 ).toString();
+    origin          = query.value ( 20 ).toString();
+    flipAngle       = query.value ( 21 ).toString();
+    echoTime        = query.value ( 22 ).toString();
+    repetitionTime  = query.value ( 23 ).toString();
+    acquisitionTime = query.value ( 24 ).toString();
 
-    seriesPath = query.value ( 24 ).toString();
-    thumbnailPath = query.value ( 25 ).toString();
-    indexed = query.value ( 26 ).toBool();
+    seriesPath = query.value ( 25 ).toString();
+    thumbnailPath = query.value ( 26 ).toString();
+    indexed = query.value ( 27 ).toBool();
+    seriesTime = query.value ( 28 ).toString();
+    seriesDate = query.value ( 29 ).toString();
+    kvp = query.value ( 30 ).toString();
+
+    query.finish();
+    mutexLocker.unlock();
 
     QStringList filePaths = seriesPath.split(';', QString::SkipEmptyParts);
     for(int i = 0 ; i < filePaths.size(); i++)
@@ -164,10 +201,6 @@ medAbstractData* medDatabaseReader::run()
 
     QString fullThumbnailPath(medStorage::dataLocation() + thumbnailPath);
     QFileInfo fullThumbnailPathInfo(fullThumbnailPath);
-    if (!fullThumbnailPathInfo.exists())
-    {
-        qWarning("No thumbnail found at path: %s", qPrintable(fullThumbnailPath));
-    }
     medMetaDataKeys::SeriesThumbnail.add (medData, fullThumbnailPath);
 
     medMetaDataKeys::PatientID.set ( medData, patientId );
@@ -177,6 +210,8 @@ medAbstractData* medDatabaseReader::run()
     medMetaDataKeys::StudyDescription.set ( medData, studyName );
     medMetaDataKeys::StudyID.set ( medData, studyId );
     medMetaDataKeys::StudyInstanceUID.set ( medData, studyUid );
+    medMetaDataKeys::StudyTime.set ( medData, studyTime );
+    medMetaDataKeys::StudyDate.set ( medData, studyDate );
     medMetaDataKeys::SeriesDescription.set ( medData, seriesName );
     medMetaDataKeys::SeriesID.set ( medData, seriesId );
     medMetaDataKeys::SeriesInstanceUID.set ( medData, seriesUid );
@@ -185,6 +220,7 @@ medAbstractData* medDatabaseReader::run()
     medMetaDataKeys::Rows.set ( medData, rows );
     medMetaDataKeys::AcquisitionDate.set ( medData, acquisitiondate );
     medMetaDataKeys::Comments.set ( medData, comments );
+    medMetaDataKeys::Age.set( medData, age);
     medMetaDataKeys::Description.set ( medData, description );
     medMetaDataKeys::ImportationDate.set ( medData, importationdate );
     medMetaDataKeys::Modality.set ( medData, modality );
@@ -196,6 +232,9 @@ medAbstractData* medDatabaseReader::run()
     medMetaDataKeys::SequenceName.set ( medData, sequenceName );
     medMetaDataKeys::SliceThickness.set ( medData, sliceThickness );
     medMetaDataKeys::SeriesNumber.set(medData, seriesNumber);
+    medMetaDataKeys::SeriesTime.set(medData, seriesTime);
+    medMetaDataKeys::SeriesDate.set(medData, seriesDate);
+    medMetaDataKeys::KVP.set(medData, kvp);
 
     // MR
     medMetaDataKeys::Origin.set(medData, origin);
@@ -224,7 +263,17 @@ medAbstractData *medDatabaseReader::readFile( const QStringList& filenames )
         connect ( dataReader, SIGNAL ( progressed ( int ) ), this, SIGNAL ( progressed ( int ) ) );
         if ( dataReader->canRead ( filenames ) )
         {
-            dataReader->read ( filenames );
+            if (d->readMode == READ_INFORMATION)
+            {
+                dataReader->readInformation(filenames);
+            }
+            else
+            {
+                if (dataReader->read(filenames) == false)
+                {
+                    break;
+                }
+            }
             dataReader->enableDeferredDeletion ( false );
             medData = dynamic_cast<medAbstractData*>(dataReader->data());
 

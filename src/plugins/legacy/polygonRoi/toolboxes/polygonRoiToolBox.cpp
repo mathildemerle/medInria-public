@@ -11,89 +11,97 @@
 
 =========================================================================*/
 #include "polygonRoiToolBox.h"
+#include "urologyViewEvent.h"
 
-#include <contoursManagementToolBox.h>
 #include <medAbstractProcessLegacy.h>
 #include <medParameterGroupManagerL.h>
 #include <medPluginManager.h>
 #include <medTabbedViewContainers.h>
-#include <medTableWidgetChooser.h>
-#include <medToolBox.h>
 #include <medToolBoxFactory.h>
 #include <medToolBoxHeader.h>
 #include <medUtilities.h>
 #include <medViewContainer.h>
-#include <medViewContainerManager.h>
 #include <medViewContainerSplitter.h>
-#include <medViewFactory.h>
 #include <medViewParameterGroupL.h>
-#include <polygonEventFilter.h>
-#include <QPair>
+#include <defaultViewEvent.h>
+#include <medSettingsManager.h>
+#include <medMetaDataKeys.h>
 #include <medContours.h>
-#include <medLayerParameterGroupL.h>
-#include <medAbstractParameterL.h>
+#include <medDataManager.h>
 
 const char *polygonRoiToolBox::generateBinaryImageButtonName = "generateBinaryImageButton";
 
 polygonRoiToolBox::polygonRoiToolBox(QWidget *parent ) :
-    medAbstractSelectableToolBox(parent), viewEventFilter(nullptr)
+    medAbstractSelectableToolBox(parent)
 {
-    QWidget *displayWidget = new QWidget(this);
+    medSettingsManager &manager = medSettingsManager::instance();
+    QString speciality = manager.value("startup", "default_segmentation_speciality", "Default").toString();
+    if (speciality=="Urology")
+    {
+        specialityPreference = 1;
+    }
+    else
+    {
+        specialityPreference = 0;
+    }
+    auto displayWidget = new QWidget(this);
     this->addWidget(displayWidget);
 
-    QVBoxLayout *layout = new QVBoxLayout();
+    auto layout = new QVBoxLayout();
     displayWidget->setLayout(layout);
 
+    auto *explanation = new QLabel(tr("Drop a data in the view and activate:"));
+    explanation->setWordWrap(true);
+    explanation->setStyleSheet("font: italic");
+    layout->addWidget(explanation );
+
+    // Activation button
     activateTBButton = new QPushButton(tr("Activate Toolbox"));
-    activateTBButton->setToolTip(tr("Activate closed polygon mode"));
+    activateTBButton->setToolTip(tr("Activate closed polygon mode. You should only have one view."));
     activateTBButton->setCheckable(true);
     activateTBButton->setObjectName("closedPolygonButton");
     connect(activateTBButton,SIGNAL(toggled(bool)),this,SLOT(clickClosePolygon(bool)));
+    connect(activateTBButton, &QAbstractButton::toggled, [=] (bool state) { explanation->setVisible(!state); });
+    auto activateTBLayout = new QHBoxLayout();
+    layout->addLayout(activateTBLayout);
+    activateTBLayout->addWidget(activateTBButton);
 
-    interpolate = new QCheckBox(tr("interpolate"));
+    // Add label management tool
+    QString identifier = speciality.toLower() + QString("LabelToolBox");
+    pMedToolBox = medToolBoxFactory::instance()->createToolBox(identifier);
+    pMedToolBox->header()->hide();
+    pMedToolBox->hide();
+    pMedToolBox->setObjectName("labelTool");
+    layout->addWidget(pMedToolBox);
+    connect(activateTBButton, SIGNAL(toggled(bool)), pMedToolBox, SLOT(setEnabled(bool)), Qt::UniqueConnection);
+
+    // Actions on contours
+    interpolate = new QCheckBox(tr("Interpolate between contours"));
     interpolate->setToolTip("Interpolate between master ROIs");
     interpolate->setObjectName("interpolateButton");
     interpolate->setChecked(true);
     connect(interpolate,SIGNAL(clicked(bool)) ,this,SLOT(interpolateCurve(bool)));
 
+    auto repulsorLayout = new QHBoxLayout();
+    repulsorLabel = new QLabel("Correct contours:");
+    repulsorLayout->addWidget(repulsorLabel);
+
     repulsorTool = new QPushButton(tr("Repulsor"));
-    repulsorTool->setToolTip(tr("Activate repulsor"));
+    repulsorTool->setToolTip(tr("Activate Repulsor"));
     repulsorTool->setObjectName("repulsorTool");
     repulsorTool->setCheckable(true);
     connect(repulsorTool,SIGNAL(clicked(bool)),this,SLOT(activateRepulsor(bool)));
+    repulsorLayout->addWidget(repulsorTool);
 
-    currentView = nullptr;
-
-    QHBoxLayout *activateTBLayout = new QHBoxLayout();
-    layout->addLayout( activateTBLayout );
-    activateTBLayout->addWidget(activateTBButton);
-
-    // Add Contour Management Toolbox
-    managementToolBox = medToolBoxFactory::instance()->createToolBox("contoursManagementToolBox");
-    managementToolBox->header()->hide();
-    layout->addWidget(managementToolBox);
-    connect(activateTBButton,SIGNAL(toggled(bool)),managementToolBox,SLOT(clickActivationButton(bool)), Qt::UniqueConnection);
-    connect(this, SIGNAL(currentLabelsDisplayed()), managementToolBox, SLOT(showCurrentLabels()), Qt::UniqueConnection);
-
-    QHBoxLayout *contoursActionLayout = new QHBoxLayout();
-    layout->addLayout( contoursActionLayout );
+    auto contoursActionLayout = new QVBoxLayout();
+    layout->addLayout(contoursActionLayout );
     contoursActionLayout->addWidget(interpolate);
-    contoursActionLayout->addWidget(repulsorTool);
+    contoursActionLayout->addLayout(repulsorLayout);
 
-    tableViewChooser = new medTableWidgetChooser(this, 1, 3, 50);
-    // Mandatory : Qt bug ? : Without the lines below, the size of the table View is not as expected
-    QSize size = tableViewChooser->sizeHint();
-    tableViewChooser->setFixedHeight(size.height()-1);
-    tableViewChooser->setFixedWidth(size.width()-1);
-    tableViewChooser->setIconSize(QSize(size.height()-1,size.height()-1));
-    connect(tableViewChooser, SIGNAL(selected(unsigned int,unsigned int)), this, SLOT(updateTableWidgetView(unsigned int,unsigned int)));
-
-    QHBoxLayout *tableViewLayout = new QHBoxLayout();
-    layout->addLayout( tableViewLayout );
-    tableViewLayout->addWidget(tableViewChooser);
-
-    QLabel *saveLabel = new QLabel("Save segmentations as:");
-    QVBoxLayout *saveButtonsLayout = new QVBoxLayout();
+    // Export widgets
+    saveLabel = new QLabel("Save segmentations as:");
+    saveLabel->setObjectName("saveLabel");
+    auto saveButtonsLayout = new QHBoxLayout();
     saveBinaryMaskButton = new QPushButton(tr("Mask(s)"));
     saveBinaryMaskButton->setToolTip("Import the current mask to the non persistent database");
     saveBinaryMaskButton->setObjectName(generateBinaryImageButtonName);
@@ -108,33 +116,45 @@ polygonRoiToolBox::polygonRoiToolBox(QWidget *parent ) :
     connect(saveContourButton, SIGNAL(clicked()), this, SLOT(saveContours()));
     saveButtonsLayout->addWidget(saveContourButton);
 
-    QHBoxLayout *saveLayout = new QHBoxLayout();
-    layout->addLayout( saveLayout);
+    auto saveLayout = new QVBoxLayout();
+    layout->addLayout(saveLayout);
     saveLayout->addWidget(saveLabel);
     saveLayout->addLayout(saveButtonsLayout);
 
     // How to use
-    QString underlineStyle = "<br><br><span style=\" text-decoration: underline;\">%1</span>";
-    QLabel *explanation = new QLabel(QString(underlineStyle).arg("Define a Contour: ") + " Activate the toolbox, then click on the data set."
-                                     + QString(underlineStyle).arg("Define new Label: ") + " Right-click on the image then choose color"
-                                     + QString(underlineStyle).arg("Rename a Label: ") + " Put the cursor on a node then right-click and set a new label name"
-                                     + QString(underlineStyle).arg("Remove node/contour/label: ") + " BackSpace or put the cursor on a node then right-click and choose menu\"Remove ...\"."
-                                     + QString(underlineStyle).arg("Save segmentation: ") + " Put the cursor on a node then right-click and choose menu \"Save ...\"."
-                                     + QString(underlineStyle).arg("Copy ROIs in current slice: ") + " CTRL/CMD + c. or put the cursor on a node then right-click and choose menu\"Copy ...\""
-                                     + QString(underlineStyle).arg("Paste ROIs:") + " CTRL/CMD + v."
-                                     + QString(underlineStyle).arg("Change current label:") + " Put the cursor on a node then right-click and choose menu \"Change label ...\".");
-
-    explanation->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-    explanation->setWordWrap(true);
-    layout->addWidget(explanation);
+    auto helpLayout = new QVBoxLayout();
+    layout->addLayout(helpLayout);
+    helpLayout->setContentsMargins(0, 10, 0, 0);
+    helpButton = new QPushButton("Help");
+    helpButton->setToolTip("show help related to this toolbox.");
+    helpButton->setMinimumSize(150, 20);
+    helpButton->setMaximumSize(150, 20);
+    helpButton->setObjectName("helpButton");
+    connect(helpButton, SIGNAL(clicked()), this, SLOT(showHelp()));
+    helpLayout->addWidget(helpButton);
 
     // buttons initialisation: view has no data
     disableButtons();
+
+    activeData = nullptr;
 }
 
 polygonRoiToolBox::~polygonRoiToolBox()
 {
-    delete viewEventFilter;
+    clear();
+    pMedToolBox->deleteLater();
+    // If every view of the container has been closed, we need to check if the view needs to be clean
+    medTabbedViewContainers *tabs = getWorkspace()->tabbedViewContainers();
+    QList<medViewContainer*> containersInTabSelected = tabs->containersInTab(tabs->currentIndex());
+    if (containersInTabSelected.size() == 1)
+    {
+        auto view = containersInTabSelected.at(0)->view();
+        if (view && dynamic_cast<medAbstractLayeredView*>(view)->layersCount() == 0)
+        {
+            containersInTabSelected.at(0)->checkIfStillDeserveToLiveContainer();
+        }
+    }
+
 }
 
 bool polygonRoiToolBox::registered()
@@ -144,132 +164,224 @@ bool polygonRoiToolBox::registered()
 
 dtkPlugin* polygonRoiToolBox::plugin()
 {
-    medPluginManager *pm = medPluginManager::instance();
-    dtkPlugin *plugin = pm->plugin ( "Polygon ROI" );
-    return plugin;
+    return medPluginManager::instance().plugin("Polygon ROI");
 }
 
 medAbstractData *polygonRoiToolBox::processOutput()
 {
-//    if (!m_maskData)
-//    {
-//        //generateBinaryImage();
-//    }
-//    return m_maskData; // return output data
-    return nullptr;
+    return processOutputs().value(0);
 }
 
-void polygonRoiToolBox::checkRepulsor()
+QList<dtkSmartPointer<medAbstractData> > polygonRoiToolBox::processOutputs()
 {
-    if (viewEventFilter && viewEventFilter->isContourInSlice())
+    QList<dtkSmartPointer<medAbstractData> > outputMasks;
+    for (baseViewEvent *event1 : viewEventHash.values())
     {
-        repulsorTool->setEnabled(true);
-        if (repulsorTool->isChecked())
-        {
-            viewEventFilter->activateRepulsor(true);
-        }
+        auto masks = event1->saveMasks();
+        outputMasks.append(masks);
     }
+    return outputMasks;
 }
 
 void polygonRoiToolBox::updateView()
 {
-    medTabbedViewContainers *containers = this->getWorkspace()->tabbedViewContainers();
-    if (containers)
+    medTabbedViewContainers *tabs = this->getWorkspace()->tabbedViewContainers();
+    for (medViewContainer *container : tabs->containersInTab(tabs->currentIndex()))
     {
-        if ( containers->currentIndex() == -1 )
-        {
-            return;
-        }
-        if ( containers->viewsInTab(containers->currentIndex()).size() > 1)
-        {
-            return;
-        }
-
-        medAbstractView *view = containers->getFirstSelectedContainerView();
+        medAbstractView *view = container->view();
         if (!view)
         {
             return;
         }
-        medAbstractImageView *v = qobject_cast<medAbstractImageView*>(view);
-        if (!v)
+        auto imageView = dynamic_cast<medAbstractImageView *>(view);
+        if (!imageView)
         {
+            displayMessageError("[FATAL] Unable to get medAbstractImageView from medAbstractView");
             return;
         }
-
-        if (v->layersCount()==1 && viewEventFilter)
+        // work on image data we want to segment
+        QList<medAbstractData *> dataList = getITKImageDataInSelectedView(view);
+        if (!dataList.empty())
         {
-            medAbstractData *data = v->layerData(0);
-            if (data->identifier().contains("medContours"))
+            // attached view event with the first image data we found in view
+            medAbstractData *data = dataList[0];
+            if (viewEventHash.contains(data))
             {
-                return;
-            }
-        }
+                baseViewEvent *event = viewEventHash[data];
+                // check if we have an event view attached to this data but in another container/view
+                if (imageView != event->getCurrentView())
+                {
+                    connect(imageView, SIGNAL(layerRemoved(medAbstractData * )), this,
+                            SLOT(onLayerRemoveOnOrientedViews(medAbstractData * )), Qt::UniqueConnection);
+                    connect(imageView, SIGNAL(orientationChanged()), event, SLOT(showOnDifferentOrientation()));
 
-        for (unsigned int i=0; i<v->layersCount(); ++i)
-        {
-            medAbstractData *data = v->layerData(i);
-            if(!data || data->identifier().contains("vtkDataMesh")
-                                    || data->identifier().contains("itkDataImageVector"))
-            {
-                handleDisplayError(medAbstractProcessLegacy::DIMENSION_3D);
-                return;
+                }
             }
             else
             {
-                currentView = v;
-                if (viewEventFilter)
-                {
-                    viewEventFilter->updateView(currentView);
-                }
-                activateTBButton->setEnabled(true);
+                createAndConnectEventFilter(data, imageView);
+            }
 
-                if (data->identifier().contains("medContours"))
+            // check if there is contour (.ctr/.ctrb)
+            QList<medContours *> contoursList = getContoursInSelectedView(view);
+            if (!contoursList.empty())
+            {
+                for (medContours *contour : contoursList)
                 {
-                    if (activateTBButton->isChecked()==false)
+                    QVector<medTagContours> &tagContoursSet = contour->getTagContoursSet();
+                    qint32 speIndex = tagContoursSet[0].getSpecialityIndex();
+                    if (speIndex!=specialityPreference)
                     {
-                        activateTBButton->setChecked(true);
+                        displayMessageError("Unable to load contour. Mismatch speciality preference ");
                     }
-                    managementToolBox->setWorkspace(getWorkspace());
-                    managementToolBox->updateView();
+                    else
+                    {
+                        for (baseViewEvent *event1 : viewEventHash.values())
+                        {
+                            if (event1->getCurrentView()==view)
+                            {
+                                event1->loadContours(tagContoursSet);
+                                if (!activateTBButton->isChecked())
+                                {
+                                    emit activateTBButton->click();
+                                }
+
+                                break;
+                            }
+                        }
+                        imageView->removeData(dynamic_cast<medAbstractData *>(contour));
+                    }
                 }
-
-                emit currentLabelsDisplayed();
-
-                updateTableWidgetItems();
-                connect(currentView, SIGNAL(layerRemoved(uint)), this, SLOT(onLayerClosed(uint)), Qt::UniqueConnection);
-                connect(view, SIGNAL(orientationChanged()), this, SLOT(updateTableWidgetItems()), Qt::UniqueConnection);
-                connect(view, SIGNAL(orientationChanged()), this, SLOT(manageTick()), Qt::UniqueConnection);
-                connect(view, SIGNAL(orientationChanged()), this, SLOT(manageRoisVisibility()), Qt::UniqueConnection);
+            }
+        }
+        else
+        {
+            // Avoid loading of contours if there is no image data loaded before
+            QList<medContours *> contoursList = getContoursInSelectedView(view);
+            if (!contoursList.empty())
+            {
+                for (medContours *contour : contoursList)
+                {
+                    displayMessageError("[WARNING] - Drop image data in view before contours");
+                    imageView->removeData(dynamic_cast<medAbstractData *>(contour));
+                    container->removeView();
+                }
             }
         }
     }
 }
 
-
-void polygonRoiToolBox::onLayerClosed(uint index)
+void polygonRoiToolBox::onLayerRemoveOnOrientedViews(medAbstractData *data)
 {
-    medAbstractImageView *view = static_cast<medAbstractImageView*>(QObject::sender());
-    if (view->layersCount()==0)
+    auto view = dynamic_cast<medAbstractImageView *>(sender());
+    if (viewEventHash.contains(data))
     {
-        if (viewEventFilter)
+        baseViewEvent *event = viewEventHash[data];
+        if (event->getCurrentView() != view)
         {
-            viewEventFilter->removeFromAllViews();
-            viewEventFilter->reset();
+            event->removeViewFromList(view);
         }
-        clear();
+    }
+}
+
+void polygonRoiToolBox::createAndConnectEventFilter(const medAbstractData *data, medAbstractImageView *imageView)
+{
+    QString dataName = data->metaDataValues(medMetaDataKeys::StudyDescription.key())[0] +
+            " - " +
+            data->metaDataValues(medMetaDataKeys::SeriesDescription.key())[0];
+
+    if (specialityPreference==1)
+    {
+        auto eventFilter = new urologyViewEvent(imageView, this);
+        eventFilter->initialize(pMedToolBox, dataName);
+        viewEventHash[data] = eventFilter;
+    }
+    else
+    {
+        auto eventFilter = new defaultViewEvent(imageView, this);
+        eventFilter->initialize(pMedToolBox, dataName);
+        viewEventHash[data] = eventFilter;
+    }
+
+    connect(imageView, SIGNAL(selectedRequest(bool)), this, SLOT(onDataIndexActivated()), Qt::UniqueConnection);
+    connect(imageView, SIGNAL(selectedRequest(bool)), activateTBButton, SLOT(setEnabled(bool)), Qt::UniqueConnection);
+    activateTBButton->setEnabled(true);
+
+    connect(imageView, SIGNAL(layerRemoved(medAbstractData *)), this, SLOT(onLayerRemoved(medAbstractData *)), Qt::UniqueConnection);
+
+}
+
+void polygonRoiToolBox::onLayerRemoved(medAbstractData *data)
+{
+    if (viewEventHash.contains(data))
+    {
+        baseViewEvent *pViewEvent = viewEventHash[data];
+        disconnect(pViewEvent->getCurrentView(), SIGNAL(selectedRequest(bool)), this, SLOT(onDataIndexActivated()));
+
+        // check if this data is in another view. If yes, we have to disconnect signals
         medTabbedViewContainers *tabs = this->getWorkspace()->tabbedViewContainers();
-        if (tabs)
+        for (medViewContainer *container : tabs->containersInTab(tabs->currentIndex()))
         {
-            QList<medViewContainer*> containersInTab = tabs->containersInTab(tabs->currentIndex());
-            if (containersInTab.size()>=1)
+            QUuid uuid = container->uuid();
+            medAbstractView *view = container->view();
+            if (!view)
             {
-                for(medViewContainer *container : containersInTab)
-                {
-                     if(container->uuid()!=mainContainerUUID)
-                    {
-                        container->close();
-                    }
-                }
+                QString msg = "No view in selected container (" + uuid.toString() + ")";
+                displayMessageError(msg);
+                return;
+            }
+            QList<medAbstractData *> dataList = getITKImageDataInSelectedView(view);
+            auto imageView = dynamic_cast<medAbstractImageView *>(view);
+            if (dataList.contains(data) && imageView != pViewEvent->getCurrentView())
+            {
+                disconnect(view, SIGNAL(orientationChanged()), pViewEvent, SLOT(showOnDifferentOrientation()));
+                disconnect(view, SIGNAL(layerRemoved(medAbstractData * )), this,
+                           SLOT(onLayerRemoveOnOrientedViews(medAbstractData * )));
+            }
+        }
+
+        viewEventHash.remove(data);
+        if (activeData == data)
+        {
+            activeData = nullptr;
+        }
+        delete pViewEvent;
+
+        if (viewEventHash.empty())
+        {
+            clear();
+        }
+    }
+}
+
+void polygonRoiToolBox::onDataIndexActivated()
+{
+    if (activateTBButton->isChecked())
+    {
+        auto view = dynamic_cast<medAbstractImageView *>(sender());
+        for (medAbstractData *data : getITKImageDataInSelectedView(view))
+        {
+            if (data == activeData)
+            {
+                return;
+            }
+        }
+        for (baseViewEvent *event : viewEventHash)
+        {
+            event->removeFromAllViews();
+        }
+        for (medAbstractData *data : getITKImageDataInSelectedView(view))
+        {
+            if (viewEventHash.contains(data))
+            {
+                baseViewEvent *event = viewEventHash.value(data);
+
+                event->onSelectContainer();
+                event->activateRepulsor(repulsorTool->isChecked());
+                event->setEnableInterpolation(interpolate->isChecked());
+                activeData = data;
+                highLightContainer(event->getCurrentView());
+                return;
             }
         }
     }
@@ -277,374 +389,62 @@ void polygonRoiToolBox::onLayerClosed(uint index)
 
 void polygonRoiToolBox::clickClosePolygon(bool state)
 {
-    if (!currentView)
+    if (!state)
     {
-        activateTBButton->setChecked(false);
-        qDebug()<<metaObject()->className()<<":: clickClosePolygon - no view in container.";
-        return;
-    }
-
-    saveBinaryMaskButton->setEnabled(state);
-    saveContourButton->setEnabled(state);
-    enableTableViewChooser(state);
-    interpolate->setEnabled(state);
-
-    if (state)
-    {
-        if (!viewEventFilter)
-        {
-            viewEventFilter = new polygonEventFilter(currentView);
-            connect(viewEventFilter, SIGNAL(enableRepulsor(bool)), repulsorTool, SLOT(setEnabled(bool)), Qt::UniqueConnection);
-            connect(viewEventFilter, SIGNAL(enableGenerateMask(bool)), saveBinaryMaskButton, SLOT(setEnabled(bool)), Qt::UniqueConnection);
-            connect(viewEventFilter, SIGNAL(enableViewChooser(bool)), this, SLOT(enableTableViewChooser(bool)), Qt::UniqueConnection);
-            connect(viewEventFilter, SIGNAL(toggleRepulsorButton(bool)), this, SLOT(activateRepulsor(bool)), Qt::UniqueConnection);
-            connect(viewEventFilter, SIGNAL(sendErrorMessage(QString)), this, SLOT(errorMessage(QString)), Qt::UniqueConnection);
-            connect(this, SIGNAL(deactivateContours()), managementToolBox, SLOT(unselectAll()), Qt::UniqueConnection);
-            connect(managementToolBox, SIGNAL(repulsorState()), this, SLOT(checkRepulsor()), Qt::UniqueConnection);
-            connect(managementToolBox, SIGNAL(sendDatasToView(QList<medContourSharedInfo>)), viewEventFilter, SLOT(receiveDatasFromToolbox(QList<medContourSharedInfo>)), Qt::UniqueConnection);
-            connect(managementToolBox, SIGNAL(sendContourState(medContourSharedInfo)), viewEventFilter, SLOT(receiveContourState(medContourSharedInfo)), Qt::UniqueConnection);
-            connect(managementToolBox, SIGNAL(sendContourName(medContourSharedInfo)), viewEventFilter, SLOT(receiveContourName(medContourSharedInfo)), Qt::UniqueConnection);
-            connect(managementToolBox, SIGNAL(sendActivationState(medContourSharedInfo)), viewEventFilter, SLOT(receiveActivationState(medContourSharedInfo)), Qt::UniqueConnection);
-            connect(managementToolBox, SIGNAL(labelToDelete(medContourSharedInfo)), viewEventFilter, SLOT(deleteLabel(medContourSharedInfo)), Qt::UniqueConnection);
-            connect(viewEventFilter, SIGNAL(sendContourInfoToListWidget(medContourSharedInfo&)), managementToolBox, SLOT(receiveContoursDatasFromView(medContourSharedInfo&)), Qt::UniqueConnection);
-            connect(managementToolBox, SIGNAL(contoursToLoad(medTagContours, QColor)), viewEventFilter, SLOT(loadContours(medTagContours, QColor)), Qt::UniqueConnection);
-            connect(viewEventFilter, SIGNAL(saveContours(medAbstractImageView*,vtkMetaDataSet*,QVector<medTagContours>)), managementToolBox, SLOT(onContoursSaved(medAbstractImageView*,vtkMetaDataSet*,QVector<medTagContours>)), Qt::UniqueConnection);
-        }
-        viewEventFilter->updateView(currentView);
-        viewEventFilter->setEnableInterpolation(interpolate->isChecked());
-        viewEventFilter->On();
-        viewEventFilter->installOnView(currentView);
-        viewEventFilter->addObserver();
-        this->currentView->viewWidget()->setFocus();
-        repulsorTool->setEnabled(state);
-        if (repulsorTool->isChecked())
-        {
-            viewEventFilter->activateRepulsor(state);
-        }
-        connect(viewEventFilter, SIGNAL(clearLastAlternativeView()), this, SLOT(resetToolboxBehaviour()));
+        clear();
+        updateView();
     }
     else
     {
-        viewEventFilter->removeFromView(currentView);
+        pMedToolBox->show();
+        for (baseViewEvent *event : viewEventHash.values())
+        {
+            qDebug()<<"data index "<<viewEventHash.key(event)<<" is connected "<<event->getCurrentView();
+            connect(event->getCurrentView(), SIGNAL(selectedRequest(bool)), this, SLOT(onDataIndexActivated()),
+                    Qt::UniqueConnection);
+            connect(event->getCurrentView(), SIGNAL(layerRemoved(medAbstractData * )), this,
+                    SLOT(onLayerRemoved(medAbstractData *)), Qt::UniqueConnection);
+        }
+        if(activeData && viewEventHash[activeData])
+        {
+            viewEventHash[activeData]->onSelectContainer();
+        }
+        else if (!viewEventHash.empty())
+        {
+            viewEventHash.values().first()->getCurrentView()->selectedRequest(true);
+        }
+        saveBinaryMaskButton->setEnabled(state);
+        saveContourButton->setEnabled(state);
+        saveLabel->setEnabled(state);
+        interpolate->setEnabled(state);
         repulsorTool->setEnabled(state);
-        emit deactivateContours();
-        viewEventFilter->Off();
-
+        repulsorLabel->setEnabled(state);
     }
 }
 
 void polygonRoiToolBox::activateRepulsor(bool state)
 {
-    if (currentView && viewEventFilter)
+    if (viewEventHash.contains(activeData))
     {
-        repulsorTool->setChecked(state);
-        viewEventFilter->activateRepulsor(state);
-        currentView->viewWidget()->setFocus();
-    }
-}
-
-void polygonRoiToolBox::resetToolboxBehaviour()
-{
-    medTabbedViewContainers *containers = this->getWorkspace()->tabbedViewContainers();
-    QList<medViewContainer*> containersInTabSelected = containers->containersInTab(containers->currentIndex());
-    if (containersInTabSelected.size() != 1)
-    {
-        return;
-    }
-    containersInTabSelected[0]->setClosingMode(medViewContainer::CLOSE_CONTAINER);
-    enableTableViewChooser(activateTBButton->isChecked());
-}
-
-void polygonRoiToolBox::errorMessage(QString error)
-{
-    displayMessageError(error);
-}
-
-void polygonRoiToolBox::manageTick()
-{
-    if (viewEventFilter && currentView)
-    {
-        viewEventFilter->manageTick();
-    }
-}
-
-void polygonRoiToolBox::manageRoisVisibility()
-{
-    if (viewEventFilter && currentView)
-    {
-        viewEventFilter->manageRoisVisibility();
-    }
-}
-
-void polygonRoiToolBox::updateTableWidgetView(unsigned int row, unsigned int col)
-{
-    if (!viewEventFilter)
-    {
-        return;
-    }
-
-    medTabbedViewContainers *tabs = this->getWorkspace()->tabbedViewContainers();
-    QList<medViewContainer*> containersInTabSelected = tabs->containersInTab(tabs->currentIndex());
-    if (containersInTabSelected.size() != 1)
-    {
-
-        return;
-    }
-    medViewContainer* mainContainer = containersInTabSelected.at(0);
-    mainContainer->setClosingMode(medViewContainer::CLOSE_VIEW);
-    mainContainerUUID = mainContainer->uuid();
-    medAbstractImageView* mainView = dynamic_cast<medAbstractImageView *> (mainContainer->view());
-    if (!mainView)
-    {
-        return;
-    }
-
-    medViewContainer *previousContainer;
-    medViewContainer* container;
-    QString linkGroupBaseName = "MPR ";
-    unsigned int linkGroupNumber = 1;
-
-    QString linkGroupName = linkGroupBaseName + QString::number(linkGroupNumber);
-    while (medParameterGroupManagerL::instance()->viewGroup(linkGroupName))
-    {
-        linkGroupNumber++;
-        linkGroupName = linkGroupBaseName + QString::number(linkGroupNumber);
-    }
-    medViewParameterGroupL *viewGroup = new medViewParameterGroupL(linkGroupName, mainView);
-    viewGroup->addImpactedView(mainView);
-    for (int nbItem = 0; nbItem<tableViewChooser->selectedItems().size(); nbItem++)
-    {
-        if (nbItem == 0)
-        {
-            container = mainContainer->splitVertically();
-            previousContainer = container;
-        }
-        else if (nbItem == 1)
-        {
-            container = previousContainer->splitHorizontally();
-        }
-        else if (nbItem == 2)
-        {
-            container = mainContainer->splitHorizontally();
-        }
-        else
-        {
-            handleDisplayError(medAbstractProcessLegacy::FAILURE);
-            return;
-        }
-        for (int i=0; i<mainView->layersCount(); i++)
-        {
-            container->addData(mainView->layerData(i));
-        }
-
-        medAbstractImageView* view = static_cast<medAbstractImageView *> (container->view());
-        connect(view, &medAbstractImageView::closed, [this, mainContainer](){
-            if (viewEventFilter)
-            {
-                viewEventFilter->clearAlternativeView();
-                medTabbedViewContainers *tabs = this->getWorkspace()->tabbedViewContainers();
-                if (tabs)
-                {
-                    QList<medViewContainer*> containersInTab = tabs->containersInTab(tabs->currentIndex());
-                    if (containersInTab.size()==1 && containersInTab.at(0)->uuid()==mainContainerUUID)
-                    {
-                        if (activateTBButton->isEnabled())
-                        {
-                            repulsorTool->setEnabled(true);
-                            tableViewChooser->setEnabled(true);
-                        }
-                    }
-                }
-                mainContainer->setSelected(true);
-            }
-        });
-        viewEventFilter->installOnView(view);
-        viewEventFilter->clearCopiedContours();
-        connect(container, &medViewContainer::containerSelected, [=](){
-            if (viewEventFilter)
-            {
-                viewEventFilter->Off();
-                repulsorTool->setEnabled(false);
-            }
-        });
-
-        medTableWidgetItem * item = static_cast<medTableWidgetItem*>(tableViewChooser->selectedItems().at(nbItem));
-        view->setOrientation(dynamic_cast<medTableWidgetItem*>(item)->orientation());
-        viewEventFilter->addAlternativeViews(view);
-
-        viewGroup->addImpactedView(view);
-
-    }
-
-    viewGroup->setLinkAllParameters(true);
-    viewGroup->removeParameter("Slicing");
-    viewGroup->removeParameter("Orientation");
-
-    foreach(medAbstractParameterL* param, mainView->linkableParameters())
-    {
-        param->trigger();
-    }
-
-    for (unsigned int i = 0;i < mainView->layersCount();++i)
-    {
-        foreach(medAbstractParameterL* param, mainView->linkableParameters(i))
-        {
-            param->trigger();
-        }
-    }
-
-    connect(mainContainer, &medViewContainer::containerSelected, [=](){
-        if (currentView && activateTBButton->isChecked())
-        {
-            currentView->viewWidget()->setFocus();
-            viewEventFilter->On();
-            repulsorTool->setEnabled(true);
-            if (repulsorTool->isChecked())
-            {
-                activateRepulsor(true);
-            }
-        }
-    });
-    mainContainer->setSelected(true);
-    viewEventFilter->enableOtherViewsVisibility(true);
-
-    tableViewChooser->setEnabled(false);
-}
-
-
-void polygonRoiToolBox::updateTableWidgetItems()
-{
-    if ( tableViewChooser->selectedItems().size() > 0 )
-    {
-        return;
-    }
-
-    medTableWidgetItem *firstOrientation;
-    medTableWidgetItem *secondOrientation;
-    medTableWidgetItem *thirdOrientation;
-    if (currentView)
-    {
-
-        switch(currentView->orientation())
-        {
-        case medImageView::VIEW_ORIENTATION_AXIAL:
-            firstOrientation = new medTableWidgetItem(QIcon(":/icons/CoronalIcon.png"),
-                                                      QString("Coronal view"),
-                                                      medTableWidgetItem::CoronalType);
-            secondOrientation = new medTableWidgetItem(QIcon(":/icons/SagittalIcon.png"),
-                                                       QString("Sagittal view"),
-                                                       medTableWidgetItem::SagittalType);
-            thirdOrientation = new medTableWidgetItem(QIcon(":/icons/3DIcon.png"),
-                                                      QString("3d view"),
-                                                      medTableWidgetItem::ThreeDimType);
-
-        break;
-
-        case medImageView::VIEW_ORIENTATION_CORONAL:
-            firstOrientation = new medTableWidgetItem(QIcon(":/icons/AxialIcon.png"),
-                                                      QString("Axial view"),
-                                                      medTableWidgetItem::AxialType);
-            secondOrientation =  new medTableWidgetItem(QIcon(":/icons/SagittalIcon.png"),
-                                                        QString("Sagittal view"),
-                                                        medTableWidgetItem::SagittalType);
-            thirdOrientation = new medTableWidgetItem(QIcon(":/icons/3DIcon.png"),
-                                                      QString("3d view"),
-                                                      medTableWidgetItem::ThreeDimType);
-
-        break;
-
-        case medImageView::VIEW_ORIENTATION_SAGITTAL:
-            firstOrientation = new medTableWidgetItem(QIcon(":/icons/AxialIcon.png"),
-                                                      QString("Axial view"),
-                                                      medTableWidgetItem::AxialType);
-            secondOrientation = new medTableWidgetItem(QIcon(":/icons/CoronalIcon.png"),
-                                                       QString("Coronal view"),
-                                                       medTableWidgetItem::CoronalType);
-            thirdOrientation = new medTableWidgetItem(QIcon(":/icons/3DIcon.png"),
-                                                      QString("3d view"),
-                                                      medTableWidgetItem::ThreeDimType);
-
-        break;
-
-
-        case medImageView::VIEW_ORIENTATION_3D:
-            firstOrientation = new medTableWidgetItem(QIcon(":/icons/AxialIcon.png"),
-                                                      QString("Axial view"),
-                                                      medTableWidgetItem::AxialType);
-            secondOrientation = new medTableWidgetItem(QIcon(":/icons/CoronalIcon.png"),
-                                                       QString("Coronal view"),
-                                                       medTableWidgetItem::CoronalType);
-            thirdOrientation = new medTableWidgetItem(QIcon(":/icons/SagittalIcon.png"),
-                                                      QString("Sagittal view"),
-                                                      medTableWidgetItem::SagittalType);
-
-        break;
-
-        case medImageView::VIEW_ALL_ORIENTATION:
-        default:
-            qDebug()<<metaObject()->className()<<":: updateTableWidgetItems - unknown view.";
-            handleDisplayError(medAbstractProcessLegacy::FAILURE);
-            return;
-        }
-
-    }
-    else
-    {
-        firstOrientation = new medTableWidgetItem(QIcon(":/icons/AxialIcon.png"),
-                                                  QString("Axial view"),
-                                                  medTableWidgetItem::AxialType);
-        secondOrientation = new medTableWidgetItem(QIcon(":/icons/CoronalIcon.png"),
-                                                   QString("Coronal view"),
-                                                   medTableWidgetItem::CoronalType);
-        thirdOrientation = new medTableWidgetItem(QIcon(":/icons/SagittalIcon.png"),
-                                                  QString("Sagittal view"),
-                                                  medTableWidgetItem::SagittalType);
-    }
-    tableViewChooser->setItem(0, 0,firstOrientation);
-    tableViewChooser->setItem(0, 1,secondOrientation);
-    tableViewChooser->setItem(0, 2,thirdOrientation);
-
-    return;
-
-}
-
-void polygonRoiToolBox::enableTableViewChooser(bool state)
-{
-    if (state)
-    {
-        medTabbedViewContainers *containers = this->getWorkspace()->tabbedViewContainers();
-        QList<medViewContainer*> containersInTabSelected = containers->containersInTab(containers->currentIndex());
-        if (containersInTabSelected.size() == 1)
-        {
-            tableViewChooser->setEnabled(state);
-        }
-    }
-    else
-    {
-        tableViewChooser->setEnabled(state);
+        viewEventHash.value(activeData)->activateRepulsor(state);
     }
 }
 
 void polygonRoiToolBox::interpolateCurve(bool state)
 {
-    if (!viewEventFilter)
+    if (viewEventHash.contains(activeData))
     {
-        return;
-    }
-    viewEventFilter->setEnableInterpolation(state);
-    if ( currentView )
-    {
-        currentView->viewWidget()->setFocus();
+        viewEventHash.value(activeData)->setEnableInterpolation(state);
     }
 }
 
 void polygonRoiToolBox::saveBinaryImage()
 {
-    if (!viewEventFilter)
+    QList<dtkSmartPointer<medAbstractData>> outputMasks = processOutputs();
+    for (auto output : outputMasks)
     {
-        return;
+       medDataManager::instance().importData(output, false);
     }
-    viewEventFilter->saveMask();
 }
 
 void polygonRoiToolBox::disableButtons()
@@ -653,29 +453,185 @@ void polygonRoiToolBox::disableButtons()
     activateTBButton->setChecked(false);
     repulsorTool->setEnabled(false);
     repulsorTool->setChecked(false);
+    repulsorLabel->setEnabled(false);
     saveBinaryMaskButton->setEnabled(false);
     saveContourButton->setEnabled(false);
-    tableViewChooser->setEnabled(false);
+    saveLabel->setEnabled(false);
     interpolate->setEnabled(false);
     interpolate->setChecked(true);
 }
 
 void polygonRoiToolBox::saveContours()
 {
-    if (viewEventFilter)
+    for (baseViewEvent *event : viewEventHash.values())
     {
-        viewEventFilter->saveAllContours();
+        event->saveAllContours();
     }
 }
 
 void polygonRoiToolBox::clear()
 {
-    managementToolBox->clear();
-    medToolBox::clear();
-
-    if(currentView)
-    {
-        currentView = nullptr;
-    }
     disableButtons();
+    activateTBButton->setText("Activate Toolbox");
+    activeData = nullptr;
+
+    for (baseViewEvent *event : viewEventHash)
+    {
+        delete event;
+    }
+    viewEventHash.clear();
+
+    pMedToolBox->clear();
+    pMedToolBox->setEnabled(false);
+}
+
+QList<medAbstractData *> polygonRoiToolBox::getITKImageDataInSelectedView(medAbstractView *view)
+{
+    QList<medAbstractData *> dataList;
+    if (!view)
+    {
+        QString msg = "Unable to get data if the view is null";
+        displayMessageError(msg);
+        qDebug() << msg;
+    }
+    else
+    {
+        auto layeredView = dynamic_cast<medAbstractLayeredView *>(view);
+        if (!layeredView)
+        {
+            QString msg = "Unable to get data if the layered view is null";
+            displayMessageError(msg);
+            qDebug() << msg;
+        }
+        else
+        {
+            for (unsigned int layer=0; layer<layeredView->layersCount(); layer++)
+            {
+                medAbstractData *data = layeredView->layerData(layer);
+
+                if (!data || data->identifier().contains("vtkDataMesh"))
+                {
+                    handleDisplayError(medAbstractProcessLegacy::NO_MESH);
+                }
+                else if (data->identifier().contains("itkDataImageVector"))
+                {
+                    handleDisplayError(medAbstractProcessLegacy::UNDEFINED);
+                }
+                else if (data->identifier().contains("itkDataImage"))
+                {
+                    dataList.append(layeredView->layerData(layer));
+                }
+            }
+        }
+    }
+    return dataList;
+}
+
+QList<medContours *> polygonRoiToolBox::getContoursInSelectedView(medAbstractView *view)
+{
+    QList<medContours *> contoursList;
+    if (!view)
+    {
+        QString msg = "Unable to get data if the view is null";
+        displayMessageError(msg);
+        qDebug() << msg;
+    }
+    else
+    {
+        auto layeredView = dynamic_cast<medAbstractLayeredView *>(view);
+        if (!layeredView)
+        {
+            QString msg = "Unable to get data if the layered view is null";
+            displayMessageError(msg);
+            qDebug() << msg;
+        }
+        else
+        {
+            for (unsigned int layer=0; layer<layeredView->layersCount(); layer++)
+            {
+                medAbstractData *data = layeredView->layerData(layer);
+                if (data && data->identifier().contains("medContours"))
+                {
+                    contoursList.append(dynamic_cast<medContours*>(data));
+                }
+            }
+        }
+    }
+    return contoursList;
+}
+
+void polygonRoiToolBox::highLightContainer(medAbstractView *pView)
+{
+    medTabbedViewContainers *tabs = this->getWorkspace()->tabbedViewContainers();
+    for (medViewContainer *container : tabs->containersInTab(tabs->currentIndex()))
+    {
+        auto iView = dynamic_cast<medAbstractImageView *>(container->view());
+        if (iView==pView)
+        {
+            container->highlight("red");
+        }
+    }
+}
+
+void polygonRoiToolBox::drawCross(double *position)
+{
+    for (auto event : viewEventHash)
+    {
+        event->drawCross(position);
+    }
+}
+
+void polygonRoiToolBox::eraseCross()
+{
+    for (auto event : viewEventHash)
+    {
+        event->eraseCross();
+    }
+}
+
+void polygonRoiToolBox::showHelp() const
+{
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Help");
+    msgBox.setIcon(QMessageBox::Information);
+    
+    QString main = QString("<h3>Main features</h3>")
+        + QString("<ul>")
+        + QString("<li><b>Draw a contour</b>: shift+click on the data to create a contour</li>")
+        + QString("<li><b>Add a new label</b>: click on '+' button in the label list</li>")
+        + QString("<li><b>Remove a label</b>: click on '-' button in the label list</li>")
+        + QString("<li><b>Use a new label</b>: select a label in the list, then shift+click on the data</li>")
+        + QString("<li><b>Alt+click</b>: draw a landmark at that position in all views</li>")
+        + QString("</ul>");
+
+    QString shortcut = QString("<h3>Shortcuts</h3>")
+        + QString("<ul>")
+        + QString("<li><kbd>A</kbd> : select nearby contour</li>")
+        + QString("<li><kbd>C</kbd> : copy nearby contour</li>")
+        + QString("<li><kbd>V</kbd> : paste contour(s)</li>")
+        + QString("<li><kbd>Up/Down</kbd> : move to previous/next slice</li>")
+        + QString("<li><kbd>Backspace</kbd> : delete nearby node</li>")
+        + QString("<li><kbd>E</kbd> : erase landmarks in all views</li>")
+        + QString("<li><kbd>H</kbd> : show this help</li>");
+    if (specialityPreference==1)
+    {
+        shortcut.append(QString("<li><kbd>S</kbd> : switch color between target and score</li>"));
+    }
+    shortcut += QString("</ul>");
+
+    QString contextual = QString("<h3>Contextual menu (right-click on a contour)</h3>")
+        + QString("<ul>")
+        + QString("<li>Remove</li>")
+        + QString("<li>Save segmentation</li>")
+        + QString("<li>Rename label</li>")
+        + QString("<li>Copy</li>");
+    if (specialityPreference==1)
+    {
+        contextual.append(QString("<li>Attach a pirad score to a target</li>"));
+    }
+    contextual += QString("</ul>");
+
+    const QString explanation = main + shortcut + contextual;
+    msgBox.setText(explanation);
+    msgBox.exec();
 }

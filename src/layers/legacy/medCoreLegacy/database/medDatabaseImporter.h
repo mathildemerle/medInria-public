@@ -37,17 +37,21 @@ class MEDCORELEGACY_EXPORT medDatabaseImporter : public medAbstractDatabaseImpor
 
 public:
     medDatabaseImporter ( const QString& file, const QUuid& uuid, bool indexWithoutImporting = false);
-    medDatabaseImporter ( medAbstractData* medData, const QUuid& callerUuid );
+    medDatabaseImporter ( medAbstractData* medData, const QUuid& callerUuid, bool allowDuplicateSeriesName = false);
     ~medDatabaseImporter() override = default;
 
 private:
-    QString ensureUniqueSeriesName ( const QString seriesName );
+    bool duplicateSeriesNamesEnabled;
 
-    medDataIndex populateDatabaseAndGenerateThumbnails ( medAbstractData* medData, QString pathToStoreThumbnail );
+    QString ensureUniqueSeriesName ( const QString seriesName, const QString studyId ) override;
+
+    medDataIndex populateDatabaseAndGenerateThumbnails ( medAbstractData* medData, QString pathToStoreThumbnail ) override;
 
     int getOrCreatePatient ( const medAbstractData* medData, QSqlDatabase db );
     int getOrCreateStudy ( const medAbstractData* medData, QSqlDatabase db, int patientId );
     int getOrCreateSeries ( const medAbstractData* medData, QSqlDatabase db, int studyId );
+    void setNumberOfFilesInDirectory(int num) override{};
 
-    QString getPatientID(QString patientName, QString birthDate);
+    QString getPatientID(QString patientName, QString birthDate) override;
+    void createDBEntryForMetadataAttachedFile(medAbstractData *medData, int seriesDbId) override;
 };

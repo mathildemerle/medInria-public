@@ -34,7 +34,11 @@ endif()
 
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${MSVC_ARCH}")
 
-set(ICON_PATH "${PROJECT_SOURCE_DIR}/src/app/medInria/resources/MUSICardio_logo_small.ico")
+set(ICON_PATH "${CMAKE_SOURCE_DIR}/src/app/medInria/resources/MUSICardio_logo_small.ico")
+
+# Used on pinned on taskbar
+set(CPACK_PACKAGE_ICON ${ICON_PATH})
+string(REGEX REPLACE "/" "\\\\\\\\" CPACK_PACKAGE_ICON "${CPACK_PACKAGE_ICON}")
 
 # The icon to install the application.
 set(CPACK_NSIS_MUI_ICON ${ICON_PATH})
@@ -88,7 +92,7 @@ endif()
 set(APP "\${CMAKE_INSTALL_PREFIX}/bin/MUSICardio.exe")
 set(QT_BINARY_DIR "${Qt5_DIR}/../../../bin")
 set(QT_PLUGINS_DIR "${Qt5_DIR}/../../../plugins")
-set(MEDINRIA_FILES "${medInria_DIR}/Release/bin")
+set(MEDINRIA_FILES "${medInria_ROOT}/Release/bin")
 
 list(APPEND 
   libSearchDirs 
@@ -96,37 +100,53 @@ list(APPEND
   ${QT_PLUGINS_DIR}/platforms
   ${QT_BINARY_DIR}/sqldrivers
   ${QT_BINARY_DIR}
-  ${ITK_DIR}/bin/Release 
-  ${DCMTK_DIR}/bin/Release 
-  ${VTK_DIR}/bin/Release 
-  ${QtDCM_DIR}/bin/Release 
-  ${TTK_DIR}/bin/Release 
-  ${dtk_DIR}/bin/Release 
-  ${RPI_DIR}/bin/Release 
+  ${ITK_ROOT}/bin/Release
+  ${DCMTK_ROOT}/bin/Release
+  ${VTK_ROOT}/bin/Release
+  ${QtDCM_ROOT}/bin/Release
+  ${TTK_ROOT}/bin
+  ${dtk_ROOT}/bin/Release
+  ${RPI_ROOT}/bin/Release
+  ${ZLIB_ROOT}/Release
   )
+
+set(CPACK_INSTALL_CMAKE_PROJECTS
+    ${pyncpp_ROOT} pyncpp Runtime "/"
+    ${CPACK_INSTALL_CMAKE_PROJECTS}
+    )
 
 install(CODE "
 
-file(GLOB_RECURSE itk_files LIST_DIRECTORIES true \"${ITK_DIR}/bin/*.dll\")
-file(GLOB_RECURSE vtk_files LIST_DIRECTORIES true \"${VTK_DIR}/bin/*.dll\")
-file(GLOB_RECURSE dtk_files LIST_DIRECTORIES true \"${dtk_DIR}/bin/*.dll\")
-file(GLOB_RECURSE dcm_files LIST_DIRECTORIES true \"${QtDCM_DIR}/bin/*.dll\")
+file(GLOB_RECURSE itk_files LIST_DIRECTORIES true \"${ITK_ROOT}/bin/*.dll\")
+file(GLOB_RECURSE vtk_files LIST_DIRECTORIES true \"${VTK_ROOT}/bin/*.dll\")
+file(GLOB_RECURSE dtk_files LIST_DIRECTORIES true \"${dtk_ROOT}/bin/*.dll\")
+file(GLOB_RECURSE dcm_files LIST_DIRECTORIES true \"${QtDCM_ROOT}/bin/*.dll\")
+file(GLOB_RECURSE ttk_files LIST_DIRECTORIES true \"${TTK_DIR}/bin/*.dll\")
 file(GLOB_RECURSE qt5_files LIST_DIRECTORIES true \"${QT_BINARY_DIR}/*.dll\")
+file(GLOB_RECURSE zlib_files LIST_DIRECTORIES true \"${ZLIB_ROOT}/*.dll\")
 list(APPEND files \${itk_files})
 list(APPEND files \${vtk_files})
 list(APPEND files \${dtk_files})
 list(APPEND files \${dcm_files})
+list(APPEND files \${ttk_files})
 list(APPEND files \${qt5_files})
+list(APPEND files \${zlib_files})
+
+file(INSTALL ${MEDINRIA_FILES}/
+    DESTINATION \${CMAKE_INSTALL_PREFIX}/bin/
+    FILES_MATCHING
+    PATTERN \"*${CMAKE_EXECUTABLE_SUFFIX}\"
+    PATTERN \"*${CMAKE_SHARED_LIBRARY_SUFFIX}\"
+    PATTERN \"*.pyd\"
+    )
 
 foreach(file \${files})
   get_filename_component(file2delete \${file} NAME)
-  if(EXISTS \"${MEDINRIA_FILES}/\${file2delete}\")
+  if(EXISTS \"\${CMAKE_INSTALL_PREFIX}/bin/\${file2delete}\")
     file(REMOVE \"${MEDINRIA_FILES}/\${file2delete}\")
   endif()
 endforeach()
 
-file(INSTALL ${MEDINRIA_FILES}/                         DESTINATION \${CMAKE_INSTALL_PREFIX}/bin/              FILES_MATCHING PATTERN \"*${CMAKE_EXECUTABLE_SUFFIX}\")
-file(INSTALL ${MEDINRIA_FILES}/                         DESTINATION \${CMAKE_INSTALL_PREFIX}/bin/              FILES_MATCHING PATTERN \"*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
 file(INSTALL ${QT_PLUGINS_DIR}/imageformats/qgif.dll    DESTINATION \${CMAKE_INSTALL_PREFIX}/bin/imageformats/ FILES_MATCHING PATTERN \"*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
 file(INSTALL ${QT_PLUGINS_DIR}/imageformats/qicns.dll   DESTINATION \${CMAKE_INSTALL_PREFIX}/bin/imageformats/ FILES_MATCHING PATTERN \"*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
 file(INSTALL ${QT_PLUGINS_DIR}/imageformats/qico.dll    DESTINATION \${CMAKE_INSTALL_PREFIX}/bin/imageformats/ FILES_MATCHING PATTERN \"*${CMAKE_SHARED_LIBRARY_SUFFIX}\")

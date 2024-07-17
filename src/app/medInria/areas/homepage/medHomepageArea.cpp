@@ -124,9 +124,10 @@ medHomepageArea::medHomepageArea ( QWidget * parent ) : QWidget ( parent ), d ( 
     QLabel * medInriaLabel = new QLabel ( this );   
     
     // Themes
-    QVariant themeChosen = medSettingsManager::instance()->value("startup","theme");
+    QVariant themeChosen = medSettingsManager::instance().value("startup","theme");
     int themeIndex = themeChosen.toInt();
     QString qssLogoName;
+    QString qssWarningColor;
     switch (themeIndex)
     {
         case 0:
@@ -135,21 +136,24 @@ medHomepageArea::medHomepageArea ( QWidget * parent ) : QWidget ( parent ), d ( 
         default:
         {
             qssLogoName = ":MUSICardio_logo_dark.png";
+            qssWarningColor = "#FC875F";
             break;
         }
         case 3:
         case 4:
         {
             qssLogoName = ":MUSICardio_logo_light.png";
+            qssWarningColor = "#0010A8";
             break;
         }
-    }    
+    }
 
     QPixmap medLogo(qssLogoName);
-    medLogo = medLogo.scaled(576, 121, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    medLogo = medLogo.scaled(527, 110, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     medInriaLabel->setPixmap(medLogo);
 
-    QDate expiryDate = QDate::fromString(QString(MEDINRIA_BUILD_DATE), "dd_MM_yyyy").addYears(1);
+    QDate expiryDate = QDate::fromString(QString(MEDINRIA_BUILD_DATE), "dd_MM_yyyy")
+                                        .addMonths(EXPIRATION_TIME);
     QTextEdit * textEdit = new QTextEdit(this);
     textEdit->setHtml ( QString::fromUtf8("<br/><br/><b>%1</b> (%2) is a software developed in collaboration with "
                                           "the IHU LIRYC in order to propose functionalities "
@@ -158,9 +162,10 @@ medHomepageArea::medHomepageArea ( QWidget * parent ) : QWidget ( parent ), d ( 
                                           "<br/><br/>"
                                           "<b>%1</b> is proprietary software, copyright (c) 2013, IHU Liryc, Université de Bordeaux and Inria."
                                           "<br/><br/>"
-                                          " <font color = 'red'><b>This %1 copy will expire on ")
+                                          " <font color = '%3'><b>This %1 copy will expire on ")
                         .arg(qApp->applicationName())
                         .arg(qApp->applicationVersion())
+                        .arg(qssWarningColor)
                         + QLocale(QLocale::English).toString(expiryDate, "d MMMM yyyy")
                         + ".</b></font>");
 
@@ -206,6 +211,15 @@ medHomepageArea::medHomepageArea ( QWidget * parent ) : QWidget ( parent ), d ( 
     aboutLicenseTextEdit->setFocusPolicy ( Qt::NoFocus );
     license.close();
 
+    QTextEdit * aboutLicensesExtTextEdit = new QTextEdit(this);
+    QFile licensesExt ( ":LICENSES_EXT.txt" );
+    licensesExt.open ( QIODevice::ReadOnly | QIODevice::Text );
+    QTextStream licensesExtContent(&licensesExt);
+    licensesExtContent.setCodec("UTF-8");
+    aboutLicensesExtTextEdit->setText ( licensesExtContent.readAll() );
+    aboutLicensesExtTextEdit->setFocusPolicy ( Qt::NoFocus );
+    licensesExt.close();
+
     QTextEdit * releaseNotesTextEdit = new QTextEdit(this);
     QFile releaseNotes ( ":RELEASE_NOTES.txt" );
     releaseNotes.open ( QIODevice::ReadOnly | QIODevice::Text );
@@ -230,6 +244,7 @@ medHomepageArea::medHomepageArea ( QWidget * parent ) : QWidget ( parent ), d ( 
     d->aboutTabWidget->addTab ( aboutAuthorTextBrowser, tr("Authors") );
     d->aboutTabWidget->addTab ( releaseNotesTextEdit, tr("Release Notes") );
     d->aboutTabWidget->addTab ( aboutLicenseTextEdit, tr("License") );
+    d->aboutTabWidget->addTab ( aboutLicensesExtTextEdit, tr("External Licenses") );
 
     aboutLayout->addWidget ( medInriaLabel2 );
     aboutLayout->addWidget ( d->aboutTabWidget );
@@ -443,10 +458,42 @@ void medHomepageArea::initPage()
     QGridLayout* workspaceButtonsLayout = new QGridLayout;
     std::vector<QLayout*> oLayoutVect;
 
-    if (workspaceButtonsLayoutBasic->count() > 2) oLayoutVect.push_back(workspaceButtonsLayoutBasic);
-    if (workspaceButtonsLayoutMethodology->count() > 2) oLayoutVect.push_back(workspaceButtonsLayoutMethodology);
-    if (workspaceButtonsLayoutClinical->count() > 2) oLayoutVect.push_back(workspaceButtonsLayoutClinical);
-    if (workspaceButtonsLayoutOther->count() > 2) oLayoutVect.push_back(workspaceButtonsLayoutOther);
+    if (workspaceButtonsLayoutBasic->count() > 2)
+    {
+        oLayoutVect.push_back(workspaceButtonsLayoutBasic);
+    }
+    else
+    {
+        delete workspaceLabelBasic;
+        delete workspaceButtonsLayoutBasic;
+    }
+    if (workspaceButtonsLayoutMethodology->count() > 2)
+    {
+        oLayoutVect.push_back(workspaceButtonsLayoutMethodology);
+    }
+    else
+    {
+        delete workspaceLabelMethodology;
+        delete workspaceButtonsLayoutMethodology;
+    }
+    if (workspaceButtonsLayoutClinical->count() > 2)
+    {
+        oLayoutVect.push_back(workspaceButtonsLayoutClinical);
+    }
+    else
+    {
+        delete workspaceLabelClinical;
+        delete workspaceButtonsLayoutClinical;
+    }
+    if (workspaceButtonsLayoutOther->count() > 2)
+    {
+        oLayoutVect.push_back(workspaceButtonsLayoutOther);
+    }
+    else
+    {
+        delete workspaceLabelOther;
+        delete workspaceButtonsLayoutOther;
+    }
 
     for (int i = 0; i < static_cast<int>(oLayoutVect.size()); ++i)
     {
@@ -489,7 +536,7 @@ void medHomepageArea::onShowInfo()
 
 void medHomepageArea::onShowHelp()
 {
-    QDesktopServices::openUrl(QUrl("https://music.gitlabpages.inria.fr/MUSICsoftware/"));
+    QDesktopServices::openUrl(QUrl("https://music-test.inria.fr/musicardio/"));
 }
 
 void medHomepageArea::onShowSettings()

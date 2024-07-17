@@ -25,7 +25,7 @@ include_directories(${dtk_INCLUDE_DIRS})
 find_package(VTK REQUIRED COMPONENTS vtkInteractionWidgets )
 include(${VTK_USE_FILE})
 
-find_package(ITK REQUIRED COMPONENTS ITKCommon ITKIOGDCM)
+find_package(ITK REQUIRED COMPONENTS ITKCommon ITKGDCM ITKIOGDCM ITKThresholding)
 include(${ITK_USE_FILE})
 
 if (ITK_USE_SYSTEM_GDCM)
@@ -78,6 +78,6 @@ target_link_libraries(${TARGET_NAME}
 ## install
 ## #############################################################################
 
-set_lib_install_rules(${TARGET_NAME}
+set_lib_install_rules(${TARGET_NAME} HEADERS
   ${${TARGET_NAME}_HEADERS}
   )

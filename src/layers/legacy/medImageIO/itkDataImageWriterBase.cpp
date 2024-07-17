@@ -45,7 +45,7 @@ bool itkDataImageWriterBase::canWrite(const QString& path)
     if (this->io.IsNull())
         return false;
 
-    return this->io->CanWriteFile ( path.toLatin1().constData() );
+    return this->io->CanWriteFile ( path.toUtf8().constData() );
 }
 
 template <unsigned DIM,typename T>
@@ -76,7 +76,7 @@ bool itkDataImageWriterBase::write_image(const QString& path,const char* type)
     typename itk::ImageFileWriter<Image>::Pointer writer = itk::ImageFileWriter <Image>::New();
     writer->SetImageIO (this->io);
     writer->UseCompressionOn();
-    writer->SetFileName(path.toLatin1().constData());
+    writer->SetFileName(path.toUtf8().constData());
     writer->SetInput(image);
     writer->Update();
 
@@ -105,7 +105,7 @@ void itkDataImageWriterBase::encapsulateSharedMetaData(itk::MetaDataDictionary& 
 
     foreach (QString metaDataKey, data()->metaDataList())
     {
-        if (medMetaDataKeys::Key::fromKeyName(metaDataKey.toStdString().c_str()))
+        if (medMetaDataKeys::Key::fromKeyName(metaDataKey))
         {
             std::string key = convertMedKeyToItkKey(metaDataKey);
             itk::EncapsulateMetaData(metaDataDictionary, key, data()->metadata(metaDataKey).toStdString());

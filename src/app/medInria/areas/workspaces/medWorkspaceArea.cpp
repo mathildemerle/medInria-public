@@ -20,7 +20,6 @@
 #include <medAbstractImageData.h>
 #include <medAbstractImageView.h>
 #include <medAbstractView.h>
-#include <medDatabaseController.h>
 #include <medDatabaseDataSource.h>
 #include <medDatabaseNonPersistentController.h>
 #include <medDataIndex.h>
@@ -92,10 +91,10 @@ medWorkspaceArea::medWorkspaceArea(QWidget *parent) : QWidget(parent), d(new med
     d->splitter->addWidget(d->viewContainer);
     d->splitter->addWidget(d->toolBoxContainer);
 
-    this->addDatabaseView(medDataSourceManager::instance()->databaseDataSource());
-    connect(medDataSourceManager::instance(), SIGNAL(open(medDataIndex)), this, SIGNAL(open(medDataIndex)));
+    this->addDatabaseView(medDataSourceManager::instance().databaseDataSource());
+    connect(&medDataSourceManager::instance(), SIGNAL(open(medDataIndex)), this, SIGNAL(open(medDataIndex)));
 
-    if (!d->splitter->restoreState(medSettingsManager::instance()->value("medWorkspaceArea", "splitterState").toByteArray()))
+    if (!d->splitter->restoreState(medSettingsManager::instance().value("medWorkspaceArea", "splitterState").toByteArray()))
     {
         d->splitter->setOrientation(Qt::Horizontal);
         //viewcontainer size
@@ -112,7 +111,7 @@ medWorkspaceArea::medWorkspaceArea(QWidget *parent) : QWidget(parent), d(new med
 
 medWorkspaceArea::~medWorkspaceArea()
 {
-    medSettingsManager::instance()->setValue("workspaceAreaSplitter", "state", d->splitter->saveState());
+    medSettingsManager::instance().setValue("workspaceAreaSplitter", "state", d->splitter->saveState());
     delete d;
     d = nullptr;
 }
@@ -314,33 +313,6 @@ void medWorkspaceArea::runExportVideoProcess(medAbstractProcessLegacy *process, 
     process->setParameter(pixelListOfCurrentScreenshot.data(), screenshotCount);
 }
 
-void medWorkspaceArea::addToolBox(medToolBox *toolbox)
-{
-    if(!toolbox)
-        return;
-
-    d->toolBoxContainer->addToolBox(toolbox);
-    toolbox->show();
-}
-
-void medWorkspaceArea::insertToolBox(int index, medToolBox *toolbox)
-{
-    if(!toolbox)
-        return;
-
-    d->toolBoxContainer->insertToolBox(index, toolbox);
-    toolbox->show();
-}
-
-void medWorkspaceArea::removeToolBox(medToolBox *toolbox)
-{
-    if(!toolbox)
-        return;
-
-    toolbox->hide();
-    d->toolBoxContainer->removeToolBox(toolbox);
-}
-
 bool medWorkspaceArea::setCurrentWorkspace(medAbstractWorkspaceLegacy *workspace)
 {
     if (d->currentWorkspace == workspace)
@@ -354,10 +326,15 @@ bool medWorkspaceArea::setCurrentWorkspace(medAbstractWorkspaceLegacy *workspace
         }
     }
 
-    this->disconnect(this, SIGNAL(open(medDataIndex)), d->currentWorkspace, 0);
-
+    if (d->currentWorkspace)
+    {
+        disconnect(this, SIGNAL(open(medDataIndex)), d->currentWorkspace, 0);
+        disconnect(d->currentWorkspace, nullptr, this, nullptr);
+    }
     d->currentWorkspace = workspace;
     connect(this, SIGNAL(open(medDataIndex)), d->currentWorkspace, SLOT(open(medDataIndex)));
+    connect(d->currentWorkspace, &medAbstractWorkspaceLegacy::toolBoxInserted, d->toolBoxContainer, &medToolBoxContainer::insertToolBox);
+    connect(d->currentWorkspace, &medAbstractWorkspaceLegacy::toolBoxRemoved, d->toolBoxContainer, &medToolBoxContainer::removeToolBox);
 
     //clean toolboxes
     d->toolBoxContainer->hide();
@@ -368,17 +345,13 @@ bool medWorkspaceArea::setCurrentWorkspace(medAbstractWorkspaceLegacy *workspace
     d->navigatorContainer->setVisible(workspace->isDatabaseVisible());
 
     // add toolboxes
-    d->toolBoxContainer->addToolBox(workspace->selectionToolBox());
-    workspace->selectionToolBox()->show();
-
     for(medToolBox * toolbox : workspace->toolBoxes())
     {
         d->toolBoxContainer->addToolBox(toolbox);
-        toolbox->show();
     }
     d->toolBoxContainer->setVisible(workspace->areToolBoxesVisible());
 
-    medParameterGroupManagerL::instance()->setCurrentWorkspace(workspace->identifier());
+    medParameterGroupManagerL::instance().setCurrentWorkspace(workspace->identifier());
 
     return true;
 }

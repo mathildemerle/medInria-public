@@ -1,5 +1,20 @@
-function(asio_project)
+################################################################################
+#
+# medInria
+#
+# Copyright (c) INRIA 2013. All rights reserved.
+# See LICENSE.txt for details.
+#
+#  This software is distributed WITHOUT ANY WARRANTY; without even
+#  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+#  PURPOSE.
+#
+################################################################################
 
+include_guard(GLOBAL)
+if(${USE_RealTimeWorkspace})
+
+function(asio_project)
 set(ep asio)
 
 ## #############################################################################
@@ -51,8 +66,9 @@ ExternalProject_Add(${ep}
 ## #############################################################################
 ## Set variable to provide infos about the project
 ## #############################################################################
-set(${ep}_DIR ${EP_PATH_SOURCE}/${ep}/${ep} PARENT_SCOPE)
+set(${ep}_ROOT ${EP_PATH_SOURCE}/${ep}/${ep} PARENT_SCOPE)
 
 endif() #NOT USE_SYSTEM_ep
 
 endfunction()
+endif()

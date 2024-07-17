@@ -31,19 +31,21 @@ $GREY01     = hsv($HUE,$SATURATION,90);
 $GREY00     = hsv($HUE,$SATURATION,120);
 
 $GREY11            = #e3ecf1; /*texts*/
-$HIGHLIGHT_COLOR   = #ED6639; /*highlight*/
+$HIGHLIGHT_COLOR   = #FF8833; /*highlight*/
 $DARKGRAY          = #2a416f; /*toolbox headers*/
 $MEDINRIA_DARKGRAY = #39548a; /*toolbox headers*/
 
-$ORANGE     = #fc875f; /*only in tooltip background*/
+$ORANGE     = #FF956F;
+$BLUE       = #B2DCFF;
 $GREEN      = #64FF32; /*only in success progress bar*/
 $RED        = #FF3333; /*only in failure progress bar*/
+
 /*******************************************************************************
     BACKGROUND
  *******************************************************************************/
 $WIDGET_BACKGROUND                      = $GREY01;
 
-$TOOLTIP_BACKGROUND                     = $ORANGE;
+$TOOLTIP_BACKGROUND                     = $BLUE;
 
 $LIST_BACKGROUND                        = $GREY02;
 $ALT_LIST_BACKGROUND                    = $GREY03;
@@ -67,9 +69,9 @@ $PUSH_BUTTON_HOVER_BACKGROUND           = qlineargradient(x1: 0, y1: 0, x2: 0, y
 $PUSH_BUTTON_CHECKED_BACKGROUND         = $GREY00;
 $PUSH_BUTTON_PRESSED_BACKGROUND         = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY02, stop: 1 $GREY01);
 
-$COMBO_BOX_BACKGROUND                   = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY02, stop: 1 $GREY01);
-$COMBO_BOX_HOVER_BACKGROUND             = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY07, stop: 1 $GREY06);
-$COMBO_BOX_ITEM_BACKGROUND              = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY07, stop: 1 $GREY06);
+$COMBO_BOX_BACKGROUND                   = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY03, stop: 1 $GREY02);
+$COMBO_BOX_HOVER_BACKGROUND             = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY05, stop: 1 $GREY04);
+$COMBO_BOX_ITEM_BACKGROUND              = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY04, stop: 1 $GREY03);
 $COMBO_BOX_ITEM_SELECTED_BACKGROUND     = $GREY00;
 
 $TAB_BACKGROUND                         = qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 $GREY02, stop: 1 $GREY01);
@@ -87,6 +89,7 @@ $TOOLBOX_CONTAINER_BACKGROUND           = $GREY01; /*does not seem to be visible
 $TOOLBOX_HEADER_BACKGROUND              = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $DARKGRAY, stop: 1 $MEDINRIA_DARKGRAY);
 $TOOLBOX_BODY_BACKGROUND                = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY02, stop: 1 $GREY01);
 $TOOLBOX_BACKGROUND                     = $GREY05;
+$TOOLBOX_INNER_TITLE                    = $ORANGE;
 
 $VIEW_PROPERTY_BACKGROUND               = $GREY03;
 $VIEW_PROPERTY_HEADER_BACKGROUND        = qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 $GREY01, stop: 1 $GREY00);
@@ -158,9 +161,6 @@ $TOOLBOX_HEADER_COLOR               = $GREY11;
 $VIEW_PROPERTY_COLOR                = $GREY11;
 $VIEW_PROPERTY_ITEM_COLOR           = $WIDGET_COLOR;
 $VIEW_PROPERTY_ITEM_SELECTED_COLOR  = $COMBO_BOX_ITEM_SELECTED_COLOR;
-
-$HOME_PAGE_BUTTON_COLOR            = $HIGHLIGHT_COLOR;
-
 
 /*******************************************************************************
     BORDER
@@ -311,7 +311,6 @@ QToolTip
     padding: 1px;
 }
 
-
 /*******************************************************************************
     QTableView
  *******************************************************************************/
@@ -322,7 +321,6 @@ QTableView
     alternate-background-color: $ALT_LIST_BACKGROUND;
 }
 
-
 /*******************************************************************************
     QListView
  *******************************************************************************/
@@ -332,7 +330,6 @@ QListView
     background: $LIST_BACKGROUND;
     alternate-background-color: $ALT_LIST_BACKGROUND;
 }
-
 
 /*******************************************************************************
     QTextEdit
@@ -413,11 +410,9 @@ QSpinBox::down-arrow:disabled, QDoubleSpinBox::down-arrow::disabled
     image: url(:/pixmaps/arrow-bot-disabled.png);
 }
 
-
 /*******************************************************************************
      QComboBox
  *******************************************************************************/
-
 QComboBox
 {
     border-radius: $COMBO_BOX_RADIUS;
@@ -555,6 +550,11 @@ QLabel
     background: none;
 }
 
+QLabel#innerTitle
+{
+    color: $TOOLBOX_INNER_TITLE;
+    background: none;
+}
 
 /*******************************************************************************
      QTableWidget
@@ -1029,7 +1029,6 @@ medHomepagePushButton
 medHomepagePushButton:hover
 {
     background-color: $HOME_PAGE_BUTTON_HOVER_BACKGROUND;
-    color: $HOME_PAGE_BUTTON_COLOR;
 }
 
 medHomepagePushButton[selected="true"]
@@ -1049,7 +1048,6 @@ medHomepageButton
 medHomepageButton:hover
 {
     background-color: $HOME_PAGE_BUTTON_HOVER_BACKGROUND;
-    color: $HOME_PAGE_BUTTON_COLOR;
 }
 
 /*******************************************************************************

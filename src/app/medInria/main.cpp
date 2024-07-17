@@ -19,15 +19,20 @@
 #include <QtPlatformHeaders/QWindowsWindowFunctions>
 #endif
 
+#ifdef USE_PYTHON
+#include <pyncpp.h>
+#endif
+
 #include <medMainWindow.h>
 #include <medApplication.h>
-#include <medSplashScreen.h>
-
 #include <medPluginManager.h>
 #include <medDataIndex.h>
-#include <medDatabaseController.h>
+#include <medDataManager.h>
 #include <medSettingsManager.h>
 #include <medStorage.h>
+
+#include <dtkCoreSupport/dtkGlobal.h>
+
 
 void forceShow(medMainWindow& mainwindow )
 {
@@ -83,16 +88,9 @@ int main(int argc,char* argv[])
     fmt.setAlphaBufferSize(1);
     fmt.setStereo(false);
     fmt.setSamples(0);
-
     QSurfaceFormat::setDefaultFormat(fmt);
 
-    // this needs to be done before creating the QApplication object, as per the
-    // Qt doc, otherwise there are some edge cases where the style is not fully applied
-    //QApplication::setStyle("plastique");
     medApplication application(argc,argv);
-    QPixmap splashLogo(":MUSICardio_logo_light-notext.png");
-    splashLogo = splashLogo.scaled(761, 180, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    medSplashScreen splash(splashLogo);
 
     setlocale(LC_NUMERIC, "C");
     QLocale::setDefault(QLocale("C"));
@@ -110,18 +108,6 @@ int main(int argc,char* argv[])
                  << "[[--view] [files]]";
         return 1;
     }
-
-    // Do not show the splash screen in debug builds because it hogs the
-    // foreground, hiding all other windows. This makes debugging the startup
-    // operations difficult.
-
-    #if !defined(_DEBUG)
-    bool show_splash = true;
-    #else
-    bool show_splash = false;
-    #endif
-
-    medSettingsManager* mnger = medSettingsManager::instance();
 
     QStringList posargs;
     for (int i=1;i<application.arguments().size();++i)
@@ -158,8 +144,8 @@ int main(int argc,char* argv[])
     const bool DirectView = dtkApplicationArgumentsContain(&application,"--view") || posargs.size()!=0;
 
     int runningMedInria = 0;
-    if (DirectView) {
-        show_splash = false;
+    if (DirectView)
+    {
         for (QStringList::const_iterator i=posargs.constBegin();i!=posargs.constEnd();++i) {
             const QString& message = QString("/open ")+*i;
             runningMedInria = application.sendMessage(message);
@@ -171,45 +157,93 @@ int main(int argc,char* argv[])
     if (runningMedInria)
         return 0;
 
-    if (show_splash)
+    medDataManager::instance().setDatabaseLocation();
+
+#ifdef USE_PYTHON
+    pyncpp::Manager pythonManager;
+    QString pythonHomePath = PYTHON_HOME;
+    QDir applicationPath = qApp->applicationDirPath();
+    QDir pythonHome = applicationPath;
+    QDir pythonPluginPath = pythonHome;
+    bool pythonHomeFound = false;
+    bool pythonPluginsFound = false;
+    QString pythonErrorMessage;
+
+    if (pythonHome.cd(PYTHON_HOME))
     {
-        QObject::connect(medPluginManager::instance(),SIGNAL(loaded(QString)),
-                         &application,SLOT(redirectMessageToSplash(QString)) );
-        QObject::connect(&application,SIGNAL(showMessage(const QString&)),
-                         &splash,SLOT(showMessage(const QString&)) );
-        splash.show();
-        splash.showMessage("Loading plugins...");
+        pythonHomeFound = true;
+        pythonPluginsFound = pythonPluginPath.cd(PYTHON_PLUGIN_PATH);
     }
-
-    //  DATABASE INITIALISATION.
-    //  First compare the current with the new data location
-
-    QString currentLocation = medStorage::dataLocation();
-
-    //  If the user configured a new location for the database in the settings editor, we'll need to move it
-
-    QString newLocation = mnger->value("medDatabaseSettingsWidget", "new_database_location").toString();
-    if (!newLocation.isEmpty()) {
-
-        //  If the locations are different we need to move the db to the new location
-
-        if (currentLocation.compare(newLocation)!=0) {
-            if (!medDatabaseController::instance()->moveDatabase(newLocation)) {
-                qDebug() << "Failed to move the database from " << currentLocation << " to " << newLocation;
-                //  The new location is invalid so set it to zero
-                newLocation = "";
-            }
-            mnger->setValue("medDatabaseSettingsWidget", "actual_database_location",newLocation);
-
-            //  We need to reset the new Location to prevent doing it all the time
-
-            mnger->setValue("medDatabaseSettingsWidget", "new_database_location","");
+    else
+    {
+        if (pythonHome.cd(BUILD_PYTHON_HOME))
+        {
+            pythonHomeFound = true;
+            pythonPluginsFound = pythonPluginPath.cd(BUILD_PYTHON_PLUGIN_PATH);
         }
     }
-    // END OF DATABASE INITIALISATION
 
-    medPluginManager::instance()->setVerboseLoading(true);
-    medPluginManager::instance()->initialize();
+    if (!pythonHomeFound)
+    {
+        pythonErrorMessage = "The embedded Python could not be found ";
+    }
+    else
+    {
+        if(!pythonManager.initialize(qUtf8Printable(pythonHome.absolutePath())))
+        {
+            pythonErrorMessage = "Initialization of the embedded Python failed.";
+        }
+        else
+        {
+            if (pythonPluginsFound)
+            {
+                try
+                {
+                    pyncpp::Module sysModule = pyncpp::Module::import("sys");
+                    pyncpp::Object sysPath = sysModule.attribute("path");
+                    sysPath.append(pyncpp::Object(pythonPluginPath.absolutePath()));
+                    qInfo() << "Added Python plugin path: " << pythonPluginPath.path();
+
+#ifdef Q_OS_WIN
+                    QDir sitePackages = pythonHome;
+
+                    if (sitePackages.cd("lib/site-packages"))
+                    {
+                        sysPath.append(pyncpp::Object(sitePackages.absolutePath()));
+                    }
+                    else
+                    {
+                        pythonErrorMessage = "Cannot find site directory.";
+                    }
+
+                    pyncpp::Module osModule = pyncpp::Module::import("os");
+                    osModule.callMethod("add_dll_directory", applicationPath.absolutePath());
+                    qInfo() << "Added Python DLL path: " << applicationPath.path();
+
+                    QDir pluginsLegacyPath = applicationPath;
+
+                    if (pluginsLegacyPath.cd(PLUGINS_LEGACY_PATH))
+                    {
+                        osModule.callMethod("add_dll_directory", pluginsLegacyPath.absolutePath());
+                        qInfo() << "Added Python DLL path: " << pluginsLegacyPath.path();
+                    }
+                    else
+                    {
+                        pythonErrorMessage = "Could not find legacy plugins path.";
+                    }
+#endif // Q_OS_WIN
+                }
+                catch (pyncpp::Exception& e)
+                {
+                    pythonErrorMessage = e.what();
+                }
+            }
+        }
+    }
+#endif // USE_PYTHON
+
+    medPluginManager::instance().setVerboseLoading(true);
+    medPluginManager::instance().initialize();
 
     //Use Qt::WA_DeleteOnClose attribute to be sure to always have only one closeEvent.
     medMainWindow *mainwindow = new medMainWindow;
@@ -218,7 +252,7 @@ int main(int argc,char* argv[])
     if (DirectView)
         mainwindow->setStartup(medMainWindow::WorkSpace,posargs);
 
-    bool fullScreen = medSettingsManager::instance()->value("startup", "fullscreen", false).toBool();
+    bool fullScreen = medSettingsManager::instance().value("startup", "fullscreen", false).toBool();
     
     const bool hasFullScreenArg   = application.arguments().contains("--fullscreen");
     const bool hasNoFullScreenArg = application.arguments().contains("--no-fullscreen");
@@ -255,10 +289,15 @@ int main(int argc,char* argv[])
        QGLFormat::setDefaultFormat(format);
     }
 
-    if (show_splash)
-        splash.finish(mainwindow);
+#ifdef USE_PYTHON
+    if(!pythonErrorMessage.isEmpty())
+    {
+        qWarning() << "(Python error) " << pythonErrorMessage;
+        QMessageBox::warning(mainwindow, "Python error", pythonErrorMessage);
+    }
+#endif
 
-    if (medPluginManager::instance()->plugins().isEmpty()) {
+    if (medPluginManager::instance().plugins().isEmpty()) {
         QMessageBox::warning(mainwindow,
                              QObject::tr("No plugin loaded"),
                              QObject::tr("Warning : no plugin loaded successfully."));
@@ -277,7 +316,7 @@ int main(int argc,char* argv[])
     //  Start main loop.
     const int status = application.exec();
 
-    medPluginManager::instance()->uninitialize();
+    medPluginManager::instance().uninitialize();
 
     return status;
 }

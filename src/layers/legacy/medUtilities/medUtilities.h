@@ -33,7 +33,7 @@ public:
     };
 
     static void setDerivedMetaData(medAbstractData* derived, medAbstractData* original,
-                                   QString derivationDescription, bool queryForDescription = false);
+                                   QString derivationDescription, bool queryForDescription = false, bool outputSchema = true);
 
     static void copyMetaDataIfEmpty(medAbstractData* derived, medAbstractData* original, QList<QString> metaDataKeys);
     static void copyMetaDataIfEmpty(medAbstractData* derived, medAbstractData* original, QString metaDataKey);
@@ -56,6 +56,10 @@ public:
 
     static void computeMeanAndVariance(QList<double> samples, double* mean, double* variance);
 
+    static void computeMedian(QList<double> samples, double* median);
+
     static int getDevicePixelRatio(QMouseEvent* mouseEvent);
+
+    static int getDevicePixelRatio(medAbstractView *view);
 
 };

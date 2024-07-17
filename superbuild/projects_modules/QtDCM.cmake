@@ -72,13 +72,17 @@ set(cmake_args
   -DCMAKE_SHARED_LINKER_FLAGS=${${ep}_shared_linker_flags}  
   -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
   -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS_${ep}}
-  -DQt5_DIR=${Qt5_DIR}
-  -DITK_DIR:FILEPATH=${ITK_DIR}
-  -DDCMTK_DIR:FILEPATH=${DCMTK_DIR}
   -DDCMTK_FIND_PACKAGE_USE_CONFIG_ONLY=ON
   -DDCMTK_WIDE_CHAR_FILE_IO_FUNCTIONS:BOOL=${DCMTK_WIDE_CHAR_FILE_IO_FUNCTIONS}
   )
+  
+set(cmake_cache_args
+  -DQt5_DIR:FILEPATH=${Qt5_DIR}
+  -DITK_ROOT:FILEPATH=${ITK_ROOT}
+  -DDCMTK_ROOT:FILEPATH=${DCMTK_ROOT}
+  )
 
+  
 ## #############################################################################
 ## Add external-project
 ## #############################################################################
@@ -97,9 +101,9 @@ ExternalProject_Add(${ep}
   CMAKE_GENERATOR ${gen}
   CMAKE_GENERATOR_PLATFORM ${CMAKE_GENERATOR_PLATFORM}
   CMAKE_ARGS ${cmake_args}
+  CMAKE_CACHE_ARGS ${cmake_cache_args}
   DEPENDS ${${ep}_dependencies}
   INSTALL_COMMAND ""
-  BUILD_ALWAYS 1
   )  
 
 ## #############################################################################
@@ -107,7 +111,7 @@ ExternalProject_Add(${ep}
 ## #############################################################################
 
 ExternalProject_Get_Property(${ep} binary_dir)
-set(${ep}_DIR ${binary_dir} PARENT_SCOPE)
+set(${ep}_ROOT ${binary_dir} PARENT_SCOPE)
 
 endif() #NOT USE_SYSTEM_ep
 

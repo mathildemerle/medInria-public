@@ -49,12 +49,12 @@ public:
     QHash <QListWidgetItem*, QUuid> containerForLayerWidgetsItem;
 
     QList<medToolBox*> toolBoxes;
-    medToolBox *selectionToolBox;
     medToolBox *layersToolBox;
     medToolBox *layerListToolBox;
     medToolBox *interactorToolBox;
     medToolBox *navigatorToolBox;
     medToolBox *mouseInteractionToolBox;
+    medToolBox* progressionStackToolBox;
     medListWidget* layerListWidget;
 
     QList<QListWidgetItem*> selectedLayers;
@@ -73,11 +73,6 @@ medAbstractWorkspaceLegacy::medAbstractWorkspaceLegacy(QWidget *parent)
 {
     d->parent = parent;
 
-    d->selectionToolBox = new medToolBox(parent);
-    d->selectionToolBox->setTitle("Selection");
-    d->selectionToolBox->header()->hide();
-    d->selectionToolBox->hide();
-
     d->viewContainerStack = new medTabbedViewContainers(this, parent);
 
     connect(d->viewContainerStack, SIGNAL(containersSelectedChanged()), this, SLOT(updateNavigatorsToolBox()), Qt::UniqueConnection);
@@ -88,17 +83,18 @@ medAbstractWorkspaceLegacy::medAbstractWorkspaceLegacy(QWidget *parent)
     d->mouseInteractionToolBox = new medToolBox;
     d->mouseInteractionToolBox->setTitle("Mouse Interaction");
     d->mouseInteractionToolBox->hide();
-    d->selectionToolBox->addWidget(d->mouseInteractionToolBox);
+    addToolBox(d->mouseInteractionToolBox);
 
     d->navigatorToolBox = new medToolBox;
     d->navigatorToolBox->setTitle("View settings");
     d->navigatorToolBox->hide();
-    d->selectionToolBox->addWidget(d->navigatorToolBox);
+    addToolBox(d->navigatorToolBox);
 
     d->layersToolBox = new medToolBox;
     d->layersToolBox->setTitle("Layer settings");
     d->layersToolBox->show();
-
+    addToolBox(d->layersToolBox);
+    
     d->layerListToolBox = new medToolBox;
     d->layerListToolBox->header()->hide();
     d->layersToolBox->addWidget(d->layerListToolBox);
@@ -107,10 +103,11 @@ medAbstractWorkspaceLegacy::medAbstractWorkspaceLegacy(QWidget *parent)
     d->interactorToolBox->header()->hide();
     d->layersToolBox->addWidget(d->interactorToolBox);
 
-    d->selectionToolBox->addWidget(d->layersToolBox);
-
     d->progressionStack = new medProgressionStack();
-    d->selectionToolBox->addWidget(d->progressionStack);
+    d->progressionStackToolBox = new medToolBox;
+    d->progressionStackToolBox->header()->hide();
+    d->progressionStackToolBox->addWidget(d->progressionStack);
+    addToolBox(d->progressionStackToolBox);
 
     d->layerListToolBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
@@ -134,26 +131,33 @@ medAbstractWorkspaceLegacy::~medAbstractWorkspaceLegacy(void)
 
 void medAbstractWorkspaceLegacy::addToolBox(medToolBox *toolbox)
 {
-    toolbox->setWorkspace(this);
-    d->toolBoxes.append(toolbox);
-    d->selectionToolBox->addWidget(toolbox);
+    insertToolBox(toolBoxes().count(), toolbox);
 }
 
-void medAbstractWorkspaceLegacy::removeToolBox(medToolBox *toolbox)
+ void medAbstractWorkspaceLegacy::insertToolBox(int index, medToolBox* toolbox)
+{
+    toolbox->setWorkspace(this);
+    toolbox->setParent(d->parent);
+    d->toolBoxes.insert(index, toolbox);
+
+    if (toolbox->header()->title().isEmpty())
+    {
+        toolbox->setTitle(toolbox->name());
+    }
+
+    emit toolBoxInserted(index, toolbox);
+ }
+
+ void medAbstractWorkspaceLegacy::removeToolBox(medToolBox *toolbox)
 {
     toolbox->setWorkspace(nullptr);
     d->toolBoxes.removeOne(toolbox);
-    d->selectionToolBox->removeWidget(toolbox);
+    emit toolBoxRemoved(toolbox);
 }
 
 QList<medToolBox*> medAbstractWorkspaceLegacy::toolBoxes() const
 {
     return d->toolBoxes;
-}
-
-medToolBox* medAbstractWorkspaceLegacy::selectionToolBox() const
-{
-    return d->selectionToolBox;
 }
 
 void medAbstractWorkspaceLegacy::setDatabaseVisibility(bool visibility)
@@ -171,12 +175,25 @@ medTabbedViewContainers* medAbstractWorkspaceLegacy::tabbedViewContainers() cons
     return d->viewContainerStack;
 }
 
-void medAbstractWorkspaceLegacy::clear()
+medToolBox* medAbstractWorkspaceLegacy::getMouseInteractionToolBox() const
+ {
+     return d->mouseInteractionToolBox;
+ }
+
+medToolBox* medAbstractWorkspaceLegacy::getNavigatorToolBox() const
 {
-    this->setupTabbedViewContainer();
-    this->clearWorkspaceToolBoxes();
-    return;
+    return d->navigatorToolBox;
 }
+
+medToolBox* medAbstractWorkspaceLegacy::getLayersToolBox() const
+ {
+     return d->layersToolBox;
+ }
+
+ medToolBox* medAbstractWorkspaceLegacy::getProgressionStackToolBox() const
+ {
+     return d->progressionStackToolBox;
+ }
 
 void medAbstractWorkspaceLegacy::setupTabbedViewContainer()
 {
@@ -198,14 +215,6 @@ bool medAbstractWorkspaceLegacy::areToolBoxesVisible() const
     return d->toolBoxesVisibility;
 }
 
-void medAbstractWorkspaceLegacy::clearWorkspaceToolBoxes()
-{
-    for(medToolBox* tb : d->toolBoxes)
-    {
-        tb->body()->clear();
-    }
-}
-
 void medAbstractWorkspaceLegacy::addNewTab()
 {
     QString tabName = QString("%1 %2").arg(this->name()).arg(d->viewContainerStack->count());
@@ -222,7 +231,7 @@ void medAbstractWorkspaceLegacy::updateNavigatorsToolBox()
 
     for(QUuid uuid : d->viewContainerStack->containersSelected())
     {
-        medViewContainer *container = medViewContainerManager::instance()->container(uuid);
+        medViewContainer *container = medViewContainerManager::instance().container(uuid);
         // update the toolbox when the content of the view change
         view = container->view();
 
@@ -264,7 +273,7 @@ void medAbstractWorkspaceLegacy::updateMouseInteractionToolBox()
     QStringList viewType;
     for(QUuid uuid : d->viewContainerStack->containersSelected())
     {
-        medViewContainer *container = medViewContainerManager::instance()->container(uuid);
+        medViewContainer *container = medViewContainerManager::instance().container(uuid);
         // update the toolbox when the content of the view change
         medAbstractView* view = container->view();
         // add nothing if the view is empty
@@ -305,7 +314,7 @@ void medAbstractWorkspaceLegacy::handleLayerSelectionChange()
 void medAbstractWorkspaceLegacy::resetCameraOnSelectedLayer(QListWidgetItem *item)
 {
     QUuid uuid = d->containerForLayerWidgetsItem.value(item);
-    medViewContainer *container = medViewContainerManager::instance()->container(uuid);
+    medViewContainer *container = medViewContainerManager::instance().container(uuid);
     if (container)
     {
         medAbstractLayeredView *layeredView = dynamic_cast<medAbstractLayeredView*>(container->view());
@@ -338,7 +347,7 @@ void medAbstractWorkspaceLegacy::updateLayersToolBox()
     for(QUuid uuid : d->viewContainerStack->containersSelected())
     {
         // fill the layer widget
-        medViewContainer *container = medViewContainerManager::instance()->container(uuid);
+        medViewContainer *container = medViewContainerManager::instance().container(uuid);
         medAbstractLayeredView* layeredView = dynamic_cast<medAbstractLayeredView*>(container->view());
         if(layeredView)
         {
@@ -384,7 +393,7 @@ void medAbstractWorkspaceLegacy::updateLayersToolBox()
                     layout->addWidget(poolIndicator);
                     d->poolIndicators.insert(d->layerListWidget->count(), poolIndicator);
 
-                    QList<medLayerParameterGroupL*> layerGroups = medParameterGroupManagerL::instance()->layerGroups(layeredView, data);
+                    QList<medLayerParameterGroupL*> layerGroups = medParameterGroupManagerL::instance().layerGroups(layeredView, data);
                     for(medLayerParameterGroupL *layerGroup : layerGroups)
                     {
                         poolIndicator->addColorIndicator(layerGroup->color(), layerGroup->name());
@@ -406,7 +415,7 @@ void medAbstractWorkspaceLegacy::updateLayersToolBox()
                 }
 
                 layerWidget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
-                layerWidget->resize(d->selectionToolBox->sizeHint().width(), 25);
+                layerWidget->resize(d->layersToolBox->sizeHint().width(), 25);
 
                 QListWidgetItem * item = new QListWidgetItem;
                 item->setData(Qt::UserRole, layer);
@@ -445,7 +454,7 @@ void medAbstractWorkspaceLegacy::changeCurrentLayer(int row)
 {
     QListWidgetItem* item = d->layerListWidget->item(row);
     QUuid uuid = d->containerForLayerWidgetsItem.value(item);
-    medViewContainer* container = medViewContainerManager::instance()->container(uuid);
+    medViewContainer* container = medViewContainerManager::instance().container(uuid);
     if(!container)
         return;
 
@@ -466,7 +475,7 @@ void medAbstractWorkspaceLegacy::changeCurrentLayer(int row)
 
 void medAbstractWorkspaceLegacy::updateInteractorsToolBox()
 {
-    medViewContainerManager *containerMng =  medViewContainerManager::instance();
+    medViewContainerManager *containerMng =  &medViewContainerManager::instance();
     for(QUuid uuid : d->viewContainerStack->containersSelected())
     {
         containerMng->container(uuid)->highlight();
@@ -561,22 +570,22 @@ void medAbstractWorkspaceLegacy::removeLayer()
 
     int layer = item->data(Qt::UserRole).toInt();
 
-    medAbstractLayeredView *layerView = dynamic_cast<medAbstractLayeredView *>(medViewContainerManager::instance()->container(containerUuid)->view());
+    medAbstractLayeredView *layerView = dynamic_cast<medAbstractLayeredView *>(medViewContainerManager::instance().container(containerUuid)->view());
     if(!layerView)
         return;
 
     layerView->removeLayer(layer);
     if (layerView->layersCount() == 0)
     {
-        if (medViewContainerManager::instance()->container(containerUuid)->closingMode()
+        if (medViewContainerManager::instance().container(containerUuid)->closingMode()
                 == medViewContainer::CLOSE_CONTAINER)
         {
-            medViewContainerManager::instance()->container(containerUuid)->checkIfStillDeserveToLiveContainer();
+            medViewContainerManager::instance().container(containerUuid)->checkIfStillDeserveToLiveContainer();
         }
         else
         {
             // For containers that we want to keep even if there are no views/data in it, as in Filtering
-            medViewContainerManager::instance()->container(containerUuid)->removeView();
+            medViewContainerManager::instance().container(containerUuid)->removeView();
         }
     }
 
@@ -586,7 +595,7 @@ void medAbstractWorkspaceLegacy::removeLayer()
 
 void medAbstractWorkspaceLegacy::buildTemporaryPool()
 {
-    medViewContainerManager *containerMng =  medViewContainerManager::instance();
+    medViewContainerManager *containerMng =  &medViewContainerManager::instance();
     d->temporaryPoolForInteractors->clear();
 
     for(QListWidgetItem* item : d->layerListWidget->selectedItems())
@@ -611,20 +620,20 @@ void medAbstractWorkspaceLegacy::open(const medDataIndex &index)
     if(containersSelected.size() != 1)
         return;
 
-    medViewContainer *container = medViewContainerManager::instance()->container(containersSelected.first());
+    medViewContainer *container = medViewContainerManager::instance().container(containersSelected.first());
     if(index.isValidForSeries())
     {
-        container->addData(medDataManager::instance()->retrieveData(index));
+        container->addData(medDataManager::instance().retrieveData(index));
     }
     else if(index.isValidForStudy())
     {
         // We get the list of each series from that study index, and open it
-        QList<medDataIndex> seriesList = medDataManager::instance()->getSeriesListFromStudy(index);
+        QList<medDataIndex> seriesList = medDataManager::instance().getSeriesListFromStudy(index);
         if (seriesList.count() > 0)
         {
             for(medDataIndex seriesIndex : seriesList)
             {
-                container->addData(medDataManager::instance()->retrieveData(seriesIndex));
+                container->addData(medDataManager::instance().retrieveData(seriesIndex));
             }
         }
     }
@@ -685,7 +694,7 @@ QWidget* medAbstractWorkspaceLegacy::buildViewLinkMenu()
 
     for(QUuid uuid : d->viewContainerStack->containersSelected())
     {
-        medViewContainer *container = medViewContainerManager::instance()->container(uuid);
+        medViewContainer *container = medViewContainerManager::instance().container(uuid);
         view = container->view();
 
         // add nothing if the view is empty
@@ -714,7 +723,7 @@ QWidget* medAbstractWorkspaceLegacy::buildViewLinkMenu()
     QStringList selectedGroups;
     QStringList partiallySelectedGroups;
 
-    auto viewGroupsList = medParameterGroupManagerL::instance()->viewGroups(this->identifier());
+    auto viewGroupsList = medParameterGroupManagerL::instance().viewGroups(this->identifier());
     for(medViewParameterGroupL *viewGroup : viewGroupsList)
     {
         abstractGroupsList.append(viewGroup);
@@ -751,7 +760,7 @@ QWidget* medAbstractWorkspaceLegacy::buildLayerLinkMenu(QList<QListWidgetItem*> 
     QStringList paramNames;
     QList<medAbstractParameterL*> layersParams;
     QMultiHash<medAbstractLayeredView*, unsigned int> layers;
-    medViewContainerManager *containerMng =  medViewContainerManager::instance();
+    medViewContainerManager *containerMng =  &medViewContainerManager::instance();
 
     for(QListWidgetItem *item : selectedlayers)
     {
@@ -798,7 +807,7 @@ QWidget* medAbstractWorkspaceLegacy::buildLayerLinkMenu(QList<QListWidgetItem*> 
     QStringList selectedGroups;
     QStringList partiallySelectedGroups;
 
-    auto layerGroupsList = medParameterGroupManagerL::instance()->layerGroups(this->identifier());
+    auto layerGroupsList = medParameterGroupManagerL::instance().layerGroups(this->identifier());
     for(medLayerParameterGroupL *layerGroup : layerGroupsList)
     {
         abstractGroupsList.append(layerGroup);
@@ -840,11 +849,11 @@ void medAbstractWorkspaceLegacy::addViewstoGroup(QString group)
 {
     medAbstractView* view = nullptr;
 
-    medViewParameterGroupL *paramGroup = medParameterGroupManagerL::instance()->viewGroup(group, this->identifier());
+    medViewParameterGroupL *paramGroup = medParameterGroupManagerL::instance().viewGroup(group, this->identifier());
 
     for(QUuid uuid : d->viewContainerStack->containersSelected())
     {
-        medViewContainer *container = medViewContainerManager::instance()->container(uuid);
+        medViewContainer *container = medViewContainerManager::instance().container(uuid);
         view = container->view();
 
         if(view)
@@ -858,11 +867,11 @@ void medAbstractWorkspaceLegacy::removeViewsFromGroup(QString group)
 {
     medAbstractView* view = nullptr;
 
-    medViewParameterGroupL *paramGroup = medParameterGroupManagerL::instance()->viewGroup(group, this->identifier());
+    medViewParameterGroupL *paramGroup = medParameterGroupManagerL::instance().viewGroup(group, this->identifier());
 
     for(QUuid uuid : d->viewContainerStack->containersSelected())
     {
-        medViewContainer *container = medViewContainerManager::instance()->container(uuid);
+        medViewContainer *container = medViewContainerManager::instance().container(uuid);
         view = container->view();
 
         if(view)
@@ -874,8 +883,8 @@ void medAbstractWorkspaceLegacy::removeViewsFromGroup(QString group)
 
 void medAbstractWorkspaceLegacy::addLayerstoGroup(QString group)
 {
-    medLayerParameterGroupL *paramGroup = medParameterGroupManagerL::instance()->layerGroup(group, this->identifier());
-    medViewContainerManager *containerMng =  medViewContainerManager::instance();
+    medLayerParameterGroupL *paramGroup = medParameterGroupManagerL::instance().layerGroup(group, this->identifier());
+    medViewContainerManager *containerMng = &medViewContainerManager::instance();
 
     for(QListWidgetItem *item : d->selectedLayers)
     {
@@ -899,8 +908,8 @@ void medAbstractWorkspaceLegacy::addLayerstoGroup(QString group)
 
 void medAbstractWorkspaceLegacy::removeLayersFromGroup(QString group)
 {
-    medLayerParameterGroupL *paramGroup = medParameterGroupManagerL::instance()->layerGroup(group, this->identifier());
-    medViewContainerManager *containerMng =  medViewContainerManager::instance();
+    medLayerParameterGroupL *paramGroup = medParameterGroupManagerL::instance().layerGroup(group, this->identifier());
+    medViewContainerManager *containerMng = &medViewContainerManager::instance();
 
     for(QListWidgetItem *item : d->selectedLayers)
     {
@@ -921,12 +930,12 @@ void medAbstractWorkspaceLegacy::removeLayersFromGroup(QString group)
 
 void medAbstractWorkspaceLegacy::removeViewGroup(QString group)
 {
-    delete medParameterGroupManagerL::instance()->viewGroup(group, this->identifier());
+    delete medParameterGroupManagerL::instance().viewGroup(group, this->identifier());
 }
 
 void medAbstractWorkspaceLegacy::removeLayerGroup(QString group)
 {
-    delete medParameterGroupManagerL::instance()->layerGroup(group, this->identifier());
+    delete medParameterGroupManagerL::instance().layerGroup(group, this->identifier());
     updateLayersToolBox();
 }
 
@@ -960,7 +969,7 @@ void medAbstractWorkspaceLegacy::addLayerGroup(medLayerParameterGroupL * group)
 void medAbstractWorkspaceLegacy::setViewGroups(QList<medViewParameterGroupL*> groups)
 {
     Q_UNUSED(groups);
-    for(medViewParameterGroupL* group : medParameterGroupManagerL::instance()->viewGroups(this->identifier()))
+    for(medViewParameterGroupL* group : medParameterGroupManagerL::instance().viewGroups(this->identifier()))
     {
         addViewGroup(group);
     }
@@ -986,13 +995,13 @@ void medAbstractWorkspaceLegacy::setInitialGroups()
 
 void medAbstractWorkspaceLegacy::changeViewGroupColor(QString group, QColor color)
 {
-    medViewParameterGroupL *paramGroup = medParameterGroupManagerL::instance()->viewGroup(group, this->identifier());
+    medViewParameterGroupL *paramGroup = medParameterGroupManagerL::instance().viewGroup(group, this->identifier());
     paramGroup->setColor(color);
 }
 
 void medAbstractWorkspaceLegacy::changeLayerGroupColor(QString group, QColor color)
 {
-    medLayerParameterGroupL *paramGroup = medParameterGroupManagerL::instance()->layerGroup(group, this->identifier());
+    medLayerParameterGroupL *paramGroup = medParameterGroupManagerL::instance().layerGroup(group, this->identifier());
     paramGroup->setColor(color);
 }
 

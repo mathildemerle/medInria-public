@@ -11,7 +11,6 @@
 
 =========================================================================*/
 
-
 #include <medAbstractData.h>
 #include <medAbstractDataFactory.h>
 #include <medAbstractDataWriter.h>
@@ -20,14 +19,14 @@
 class medDatabaseExporterPrivate
 {
 public:
-    medAbstractData *data;
+    dtkSmartPointer<medAbstractData> data;
     QList<medAbstractData*> dataList;
     QString          filename;
     QString          writer;
     bool saveMultipleData;
 };
 
-medDatabaseExporter::medDatabaseExporter(medAbstractData * data, const QString & filename, const QString & writer) : medJobItemL(), d(new medDatabaseExporterPrivate)
+medDatabaseExporter::medDatabaseExporter(dtkSmartPointer<medAbstractData> data, const QString & filename, const QString & writer) : medJobItemL(), d(new medDatabaseExporterPrivate)
 {
     d->data     = data;
     d->filename = filename;
@@ -35,16 +34,17 @@ medDatabaseExporter::medDatabaseExporter(medAbstractData * data, const QString &
     d->saveMultipleData = false;
 }
 
-medDatabaseExporter::medDatabaseExporter(QList<medAbstractData*> data, const QString & filename, const QString & writer) : medJobItemL(), d(new medDatabaseExporterPrivate)
+medDatabaseExporter::medDatabaseExporter(QList<medAbstractData*> data, const QString & filename, const QString & writer)
+    : medJobItemL(), d(new medDatabaseExporterPrivate)
 {
-    d->data     = NULL;
+    d->data     = nullptr;
     d->dataList = data;
     d->filename = filename;
     d->writer   = writer;
     d->saveMultipleData = true;
 }
 
-medDatabaseExporter::~medDatabaseExporter(void)
+medDatabaseExporter::~medDatabaseExporter()
 {
     delete d;
 
@@ -78,11 +78,10 @@ void medDatabaseExporter::internalRun()
     }
     else
     {
-        medAbstractDataWriter* medDataWriter = dynamic_cast<medAbstractDataWriter*>(dataWriter);
-        Q_ASSERT(medDataWriter != NULL);
+        auto medDataWriter = dynamic_cast<medAbstractDataWriter*>(dataWriter);
+        Q_ASSERT(medDataWriter != nullptr);
         medDataWriter->setData(d->dataList);
     }
-
 
     if ( ! dataWriter->canWrite(d->filename) || ! dataWriter->write(d->filename)) {
 

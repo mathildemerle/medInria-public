@@ -39,13 +39,13 @@ public:
     */
     medDatabaseNonPersistentImporter(const QString& file, const QUuid &uuid);
     medDatabaseNonPersistentImporter(medAbstractData* medData, const QUuid& uuid);
-    ~medDatabaseNonPersistentImporter();
+    ~medDatabaseNonPersistentImporter() override = default;
 
 public:
-
     QString getPatientID(QString patientName, QString birthDate);
 
     medDataIndex populateDatabaseAndGenerateThumbnails ( medAbstractData* medData, QString pathToStoreThumbnails );
+    void setNumberOfFilesInDirectory(int num) override{};
 
-    QString ensureUniqueSeriesName ( const QString seriesName );
+    QString ensureUniqueSeriesName(const QString seriesName, const QString studyId) override;
 };

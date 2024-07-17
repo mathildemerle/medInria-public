@@ -16,7 +16,6 @@
 #include <medAbstractData.h>
 #include <medAbstractDataFactory.h>
 #include <medAbstractImageData.h>
-#include <medDatabaseController.h>
 #include <medDatabaseRemover.h>
 #include <medDataIndex.h>
 #include <medDataManager.h>
@@ -26,7 +25,6 @@ class medDatabaseRemoverPrivate
 {
 public:
     medDataIndex index;
-    QSqlDatabase db;
     static const QString T_PATIENT;
     static const QString T_STUDY;
     static const QString T_SERIES;
@@ -41,7 +39,6 @@ const QString medDatabaseRemoverPrivate::T_SERIES = "series";
 medDatabaseRemover::medDatabaseRemover ( const medDataIndex &index_ ) : medJobItemL(), d ( new medDatabaseRemoverPrivate )
 {
     d->index = index_;
-    d->db = medDatabaseController::instance()->database();
     d->isCancelled = false;
 }
 
@@ -53,8 +50,8 @@ medDatabaseRemover::~medDatabaseRemover()
 
 void medDatabaseRemover::internalRun()
 {
-    QSqlDatabase db( d->db );
-    QSqlQuery ptQuery ( db );
+    QSqlDatabase dbConnection = medDataManager::instance().controller()->getThreadSpecificConnection();
+    QSqlQuery ptQuery(dbConnection);
 
     // Is Patient
     const medDataIndex index = d->index;
@@ -68,14 +65,15 @@ void medDatabaseRemover::internalRun()
         ptQuery.prepare ( "SELECT id FROM " + d->T_PATIENT );
     }
 
-    EXEC_QUERY ( ptQuery );
+    QMutexLocker mutexLocker(&medDataManager::instance().controller()->getDatabaseMutex());
+    medDataManager::instance().controller()->execQuery(ptQuery);
     while ( ptQuery.next() )
     {
         if ( d->isCancelled )
             break;
 
         int patientDbId = ptQuery.value ( 0 ).toInt();
-        QSqlQuery stQuery ( db );
+        QSqlQuery stQuery(dbConnection);
 
         // Is Study
         if ( index.isValidForStudy() )
@@ -89,14 +87,14 @@ void medDatabaseRemover::internalRun()
         }
         stQuery.bindValue ( ":patient", patientDbId );
 
-        EXEC_QUERY ( stQuery );
+        medDataManager::instance().controller()->execQuery(stQuery);
         while ( stQuery.next() )
         {
             if ( d->isCancelled )
                 break;
 
             int studyDbId = stQuery.value ( 0 ).toInt();
-            QSqlQuery seQuery ( db );
+            QSqlQuery seQuery(dbConnection);
 
             // Is Series
             if ( index.isValidForSeries() )
@@ -110,7 +108,8 @@ void medDatabaseRemover::internalRun()
             }
             seQuery.bindValue ( ":study", studyDbId );
 
-            EXEC_QUERY ( seQuery );
+            medDataManager::instance().controller()->execQuery(seQuery);
+
             while ( seQuery.next() )
             {
                 if ( d->isCancelled )
@@ -139,6 +138,10 @@ void medDatabaseRemover::internalRun()
         }
 
     } // ptQuery.next
+
+    ptQuery.finish();
+    mutexLocker.unlock();
+
     emit progress (this, 100 );
 
     if ( d->isCancelled )
@@ -151,24 +154,51 @@ void medDatabaseRemover::internalRun()
 
 void medDatabaseRemover::removeSeries ( int patientDbId, int studyDbId, int seriesDbId )
 {
-    QSqlDatabase db(d->db);
-    QSqlQuery query ( db );
+    QSqlDatabase dbConnection = medDataManager::instance().controller()->getThreadSpecificConnection();
+    QMutexLocker mutexLocker(&medDataManager::instance().controller()->getDatabaseMutex());
+    QSqlQuery query(dbConnection);
+    query.exec("SELECT COUNT(*) as cpt FROM pragma_table_info('series') WHERE name='json_meta_path'");
+    bool jsonColExist = false;
+    if (query.next())
+    {
+        jsonColExist = query.value("cpt").toInt() != 0;
+    }
 
-    query.prepare ( "SELECT thumbnail, path, name  FROM " + d->T_SERIES + " WHERE id = :series " );
+    if (jsonColExist)
+    {
+        query.prepare(
+                "SELECT thumbnail as thumbnail, path as path, name as name, json_meta_path as json_meta_path  FROM " +
+                d->T_SERIES + " WHERE id = :series ");
+    }
+    else
+    {
+        query.prepare(
+                "SELECT thumbnail as thumbnail, path as path, name as name FROM " +
+                d->T_SERIES + " WHERE id = :series ");
+    }
     query.bindValue ( ":series", seriesDbId );
-    EXEC_QUERY ( query );
+    medDataManager::instance().controller()->execQuery(query);
 
     if ( query.next() )
     {
-        QString path = query.value (1).toString();
+        QString path = query.value ("path").toString();
 
         // if path is empty then it was an indexed series
         if ( !path.isNull() && !path.isEmpty() )
         {
             this->removeDataFile(path);
         }
+        if (jsonColExist)
+        {
+            QString json_meta_file = query.value("json_meta_path").toString();
+            if (!json_meta_file.isEmpty())
+                this->removeFile(json_meta_file);
+        }
         removeThumbnailIfNeeded(query);
     }
+
+    query.finish();
+    mutexLocker.unlock();
 
     if( removeTableRow ( d->T_SERIES, seriesDbId ) )
         emit removed(medDataIndex(1, patientDbId, studyDbId, seriesDbId));
@@ -176,33 +206,38 @@ void medDatabaseRemover::removeSeries ( int patientDbId, int studyDbId, int seri
 
 bool medDatabaseRemover::isStudyEmpty ( int studyDbId )
 {
-    QSqlDatabase db(d->db);
-    QSqlQuery query ( db );
+    QSqlDatabase dbConnection = medDataManager::instance().controller()->getThreadSpecificConnection();
+    QSqlQuery query(dbConnection);
 
     query.prepare ( "SELECT id FROM " + d->T_SERIES + " WHERE study = :study " );
     query.bindValue ( ":study", studyDbId );
-    EXEC_QUERY ( query );
+    QMutexLocker mutexLocker(&medDataManager::instance().controller()->getDatabaseMutex());
+    medDataManager::instance().controller()->execQuery(query);
     return !query.next();
 }
 
 void medDatabaseRemover::removeStudy ( int patientDbId, int studyDbId )
 {
-    QSqlDatabase db(d->db);
-    QSqlQuery query ( db );
+    QSqlDatabase dbConnection = medDataManager::instance().controller()->getThreadSpecificConnection();
+    QSqlQuery query(dbConnection);
 
     query.prepare ( "SELECT thumbnail, name, uid FROM " + d->T_STUDY + " WHERE id = :id " );
     query.bindValue ( ":id", studyDbId );
 
-    EXEC_QUERY ( query );
+    QMutexLocker mutexLocker(&medDataManager::instance().controller()->getDatabaseMutex());
+    medDataManager::instance().controller()->execQuery(query);
 
     if ( query.next() )
     {
-        medAbstractDbController * dbc = medDataManager::instance()->controllerForDataSource(d->index.dataSourceId());
+        medAbstractDbController * dbc = medDataManager::instance().controllerForDataSource(d->index.dataSourceId());
         if (dbc->metaData(d->index,  medMetaDataKeys::StudyID.key()).toInt() == studyDbId)
         {
             removeThumbnailIfNeeded(query);
         }
     }
+
+    query.finish();
+    mutexLocker.unlock();
 
     if( removeTableRow ( d->T_STUDY, studyDbId ) )
         emit removed(medDataIndex(1, patientDbId, studyDbId, -1));
@@ -210,41 +245,48 @@ void medDatabaseRemover::removeStudy ( int patientDbId, int studyDbId )
 
 bool medDatabaseRemover::isPatientEmpty ( int patientDbId )
 {
-    QSqlDatabase db(d->db);
-    QSqlQuery query ( db );
+    QSqlDatabase dbConnection = medDataManager::instance().controller()->getThreadSpecificConnection();
+    QSqlQuery query(dbConnection);
 
     query.prepare ( "SELECT id FROM " + d->T_STUDY + " WHERE patient = :patient " );
     query.bindValue ( ":patient", patientDbId );
-    EXEC_QUERY ( query );
+    QMutexLocker mutexLocker(&medDataManager::instance().controller()->getDatabaseMutex());
+    medDataManager::instance().controller()->execQuery(query);
     return !query.next();
 }
 
 void medDatabaseRemover::removePatient ( int patientDbId )
 {
-    QSqlDatabase db(d->db);
-    QSqlQuery query ( db );
+    QSqlDatabase dbConnection = medDataManager::instance().controller()->getThreadSpecificConnection();
+    QSqlQuery query(dbConnection);
 
     QString patientId;
 
     query.prepare ( "SELECT thumbnail, patientId  FROM " + d->T_PATIENT + " WHERE id = :patient " );
     query.bindValue ( ":patient", patientDbId );
-    EXEC_QUERY ( query );
+    QMutexLocker mutexLocker(&medDataManager::instance().controller()->getDatabaseMutex());
+    medDataManager::instance().controller()->execQuery(query);
     if ( query.next() )
     {
         removeThumbnailIfNeeded(query);
         patientId = query.value ( 1 ).toString();
     }
+
+    query.finish();
+    mutexLocker.unlock();
+
     if( removeTableRow ( d->T_PATIENT, patientDbId ) )
         emit removed(medDataIndex(1, patientDbId, -1, -1));
 }
 
 bool medDatabaseRemover::removeTableRow ( const QString &table, int id )
 {
-    QSqlDatabase db(d->db);
-    QSqlQuery query ( db );
+    QSqlDatabase dbConnection = medDataManager::instance().controller()->getThreadSpecificConnection();
+    QSqlQuery query(dbConnection);
     query.prepare ( "DELETE FROM " + table + " WHERE id = :id" );
     query.bindValue ( ":id", id );
-    EXEC_QUERY ( query );
+    QMutexLocker mutexLocker(&medDataManager::instance().controller()->getDatabaseMutex());
+    medDataManager::instance().controller()->execQuery(query);
 
     return (query.numRowsAffected()==1);
 }
@@ -258,7 +300,7 @@ void medDatabaseRemover::removeFile ( const QString & filename )
 
 void medDatabaseRemover::removeThumbnailIfNeeded(QSqlQuery query)
 {
-    QString thumbnail = query.value(0).toString();
+    QString thumbnail = query.value("thumbnail").toString();
 
     this->removeFile ( thumbnail );
 

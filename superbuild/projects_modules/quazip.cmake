@@ -7,16 +7,19 @@ set(ep quazip)
 ## #############################################################################
 
 list(APPEND ${ep}_dependencies
-     zlib)
+     ZLIB)
   
 ## #############################################################################
 ## Prepare the project
 ## ############################################################################# 
 
+set(QuaZip-Qt5_ROOT ${quazip_ROOT})
+
 EP_Initialisation(${ep}
   USE_SYSTEM OFF 
   BUILD_SHARED_LIBS OFF
   REQUIRED_FOR_PLUGINS ON
+  PACKAGE_NAME QuaZip-Qt5
 )
 
 if (NOT USE_SYSTEM_${ep})
@@ -45,8 +48,9 @@ set(cmake_args
   -DCMAKE_CXX_FLAGS:STRING=${${ep}_cxx_flags}
   -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}
   -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-  # to find zlib 
-  -DCMAKE_PREFIX_PATH:FILEPATH=${zlib_DIR}
+  # to find ZLIB 
+  -DCMAKE_PREFIX_PATH:FILEPATH=${ZLIB_ROOT}
+  -DZLIB_ROOT:PATH=${ZLIB_ROOT}
   # to find Qt5
   -DQt5_DIR=${Qt5_DIR}
 )
@@ -60,35 +64,30 @@ endif()
 
 find_package(Qt5 REQUIRED Core)
 
-ep_GeneratePatchCommand(${ep} ${ep}_PATCH_COMMAND quazip.patch)
-
 epComputPath(${ep})
 
 ExternalProject_Add(${ep}
   PREFIX ${EP_PATH_SOURCE}
   SOURCE_DIR ${EP_PATH_SOURCE}/${ep}
   BINARY_DIR ${build_path}
+  INSTALL_DIR ${build_path}
   TMP_DIR ${tmp_path}
   STAMP_DIR ${stamp_path}
-
   GIT_REPOSITORY ${git_url}
   GIT_TAG ${git_tag}
   CMAKE_GENERATOR ${gen}
   CMAKE_GENERATOR_PLATFORM ${CMAKE_GENERATOR_PLATFORM}
   CMAKE_ARGS ${cmake_args}
   DEPENDS ${${ep}_dependencies}
-  PATCH_COMMAND ${${ep}_PATCH_COMMAND}
   UPDATE_COMMAND ""
-  INSTALL_COMMAND ""
-  BUILD_ALWAYS 1
 )
 
 ## #############################################################################
 ## Set variable to provide infos about the project
 ## #############################################################################
 
-set(${ep}_DIR ${build_path} PARENT_SCOPE)
-set(${ep}_INCLUDE_DIR ${EP_PATH_SOURCE}/${ep} PARENT_SCOPE)
+set(${ep}_ROOT "${build_path}" PARENT_SCOPE)
+set(QuaZip-Qt5_ROOT "${build_path}" PARENT_SCOPE)
 
 endif() #NOT USE_SYSTEM_ep
 

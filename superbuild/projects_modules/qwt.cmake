@@ -16,6 +16,7 @@ EP_Initialisation(${ep}
   USE_SYSTEM OFF 
   BUILD_SHARED_LIBS OFF
   REQUIRED_FOR_PLUGINS ON
+  NO_CONFIG_FILE
 )
 
 if (NOT USE_SYSTEM_${ep})
@@ -38,7 +39,7 @@ set(${ep}_c_flags "${${ep}_c_flags} -Wall")
 
 set(cmake_args
   ${ep_common_cache_args}
-  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE_externals_projects}
+  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE_medInria} # Same as music-plugins
   -DCMAKE_C_FLAGS:STRING=${${ep}_c_flags}
   -DCMAKE_CXX_FLAGS:STRING=${${ep}_cxx_flags}
   -DCMAKE_SHARED_LINKER_FLAGS:STRING=${${ep}_shared_linker_flags}
@@ -79,7 +80,7 @@ ExternalProject_Add(${ep}
   # Compile only the lib
   CONFIGURE_COMMAND ${QT_QMAKE_EXECUTABLE} ${SPEC} <SOURCE_DIR>/qwt.pro
   BUILD_COMMAND ${MAKE_PROGRAM} sub-src
-  INSTALL_COMMAND ""
+  INSTALL_COMMAND ""  
 )
 
 ## #############################################################################
@@ -87,8 +88,8 @@ ExternalProject_Add(${ep}
 ## #############################################################################
 
 ExternalProject_Get_Property(${ep} binary_dir)
-set(${ep}_DIR ${binary_dir} PARENT_SCOPE)
-set(${ep}_INCLUDE_DIR ${EP_PATH_SOURCE}/${ep} PARENT_SCOPE)
+set(${ep}_ROOT ${binary_dir} PARENT_SCOPE)
+set(${ep}_INCLUDE_DIR ${EP_PATH_SOURCE}/${ep}/src PARENT_SCOPE)
 
 endif() #NOT USE_SYSTEM_ep
 

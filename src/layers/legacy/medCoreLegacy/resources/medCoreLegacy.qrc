@@ -17,5 +17,7 @@
         <file>pixmaps/splitbutton_vertical_blue.png</file>
         <file>pixmaps/tools_blue.png</file>
         <file>icons/splitPresets_blue.png</file>
+
+        <file>pixmaps/default_thumbnail-lightbackground.png</file>
     </qresource>
 </RCC>

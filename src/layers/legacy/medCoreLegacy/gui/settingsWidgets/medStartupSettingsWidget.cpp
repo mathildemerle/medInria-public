@@ -28,6 +28,7 @@ public:
     QCheckBox *startInFullScreen;
     QComboBox *defaultStartingArea;
     QComboBox* theme;
+    QComboBox *defaultSegmentationSpeciality;
 
     medStartupSettingsWidgetPrivate();
     ~medStartupSettingsWidgetPrivate();
@@ -68,11 +69,16 @@ medStartupSettingsWidget::medStartupSettingsWidget(QWidget *parent) : medSetting
     d->theme->addItem(tr("Light Gray"));
     d->theme->addItem(tr("Light"));
     d->theme->setToolTip(tr("Choose a theme displayed at start-up"));
+    d->defaultSegmentationSpeciality = new QComboBox(this);
+    d->defaultSegmentationSpeciality->addItem(tr("Default"));
+    d->defaultSegmentationSpeciality->addItem(tr("Urology"));
 
     QFormLayout *layout = new QFormLayout;
     layout->addRow(tr("Fullscreen"), d->startInFullScreen);
     layout->addRow(tr("Starting area"), d->defaultStartingArea);
     layout->addRow(tr("Theme"), d->theme);
+    layout->addRow(tr("Segmentation speciality"), d->defaultSegmentationSpeciality);
+
     this->setLayout(layout);
 }
 
@@ -89,7 +95,7 @@ bool medStartupSettingsWidget::validate()
 
 void medStartupSettingsWidget::read()
 {
-    medSettingsManager *mnger = medSettingsManager::instance();
+    medSettingsManager *mnger = &medSettingsManager::instance();
     d->startInFullScreen->setChecked(mnger->value("startup", "fullscreen").toBool());
 
     //if nothing is configured then Homepage is the default area
@@ -123,13 +129,32 @@ void medStartupSettingsWidget::read()
         indexTheme = d->theme->count() -1;
     }
     d->theme->setCurrentIndex(indexTheme);
+    QString osDefaultSegmentationSpecialityName = mnger->value("startup", "default_segmentation_speciality", "Default").toString();
+
+    i = 0;
+    bFind = false;
+    while (!bFind && i<d->defaultSegmentationSpeciality->count())
+    {
+        bFind = osDefaultSegmentationSpecialityName == d->defaultSegmentationSpeciality->itemText(i);
+        if (!bFind) ++i;
+    }
+
+    if (bFind)
+    {
+        d->defaultSegmentationSpeciality->setCurrentIndex(i);
+    }
+    else
+    {
+        d->defaultSegmentationSpeciality->setCurrentIndex(0);
+    }
 }
 
 bool medStartupSettingsWidget::write()
 {
-    medSettingsManager *mnger = medSettingsManager::instance();
-    mnger->setValue("startup", "fullscreen", d->startInFullScreen->isChecked());
-    mnger->setValue("startup", "default_starting_area", d->defaultStartingArea->currentText());
-    mnger->setValue("startup", "theme", d->theme->currentIndex());
+    medSettingsManager &mnger = medSettingsManager::instance();
+    mnger.setValue("startup", "fullscreen", d->startInFullScreen->isChecked());
+    mnger.setValue("startup", "default_starting_area", d->defaultStartingArea->currentText());
+    mnger.setValue("startup", "theme", d->theme->currentIndex());
+    mnger.setValue("startup", "default_segmentation_speciality", d->defaultSegmentationSpeciality->currentText());
     return true;
 }

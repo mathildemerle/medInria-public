@@ -14,6 +14,7 @@
 #include <medAbstractSelectableToolBox.h>
 #include <medSelectorToolBox.h>
 #include <medTabbedViewContainers.h>
+#include <medAbstractData.h>
 
 class medAbstractSelectableToolBoxPrivate
 {
@@ -32,6 +33,21 @@ medAbstractSelectableToolBox::~medAbstractSelectableToolBox()
 {
     delete d;
     d = nullptr;
+}
+
+dtkPlugin* medAbstractSelectableToolBox::plugin()
+{
+    return nullptr;
+}
+
+QList<dtkSmartPointer<medAbstractData> > medAbstractSelectableToolBox::processOutputs()
+{
+    QList<dtkSmartPointer<medAbstractData>> outputs;
+    if (auto toolboxOutput = processOutput())
+    {
+        outputs.append(toolboxOutput);
+    }
+    return outputs;
 }
 
 void medAbstractSelectableToolBox::setSelectorToolBox(medSelectorToolBox *toolbox)

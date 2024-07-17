@@ -16,7 +16,9 @@
 #include <medAbstractData.h>
 #include <medAbstractDataFactory.h>
 #include <medMetaDataKeys.h>
+#include <medUtilitiesITK.h>
 
+#include <itkCastImageFilter.h>
 #include <itkExtractImageFilter.h>
 #include <itkImage.h>
 #include <itkImageFileWriter.h>
@@ -41,6 +43,21 @@ static QStringList s_handled() {
                           << "itkDataImageULong3"
                           << "itkDataImageFloat3"
                           << "itkDataImageDouble3";
+}
+
+template <class ImageType> itk::Image<int, 3>::Pointer castToInt3(dtkAbstractData *input)
+{
+    typedef itk::CastImageFilter<ImageType, itk::Image<int, 3>> CasterType;
+    typename CasterType::Pointer caster = CasterType::New();
+    caster->SetInput(dynamic_cast<ImageType *>((itk::Object *)(input->data())));
+    caster->Update();
+    return caster->GetOutput();
+}
+
+template <class PixelType> void setDataCopy(dtkSmartPointer<medAbstractData> dataCopy, dtkAbstractData *input)
+{
+    typedef itk::Image<PixelType, 3> ImageTypeInput;
+    dataCopy->setData(castToInt3<ImageTypeInput>(input));
 }
 
 itkDicomDataImageWriter::itkDicomDataImageWriter(): itkDataImageWriterBase() {
@@ -107,72 +124,77 @@ QString itkDicomDataImageWriter::sopClassUID(QString modality)
 
 void itkDicomDataImageWriter::fillDictionaryFromMetaDataKey(itk::MetaDataDictionary &dictionary, bool &studyUIDExistance)
 {
+    bool studyTimeExistance = false;
+    bool studyDateExistance = false;
+    bool seriesTimeExistance = false;
+    bool seriesDateExistance = false;
+
     //Get metaDataKey from data
-    foreach (QString metaDataKey, data()->metaDataList())
+    for (QString metaDataKey: data()->metaDataList())
     {
-        if (metaDataKey == QString("Modality"))
+        if (metaDataKey == medMetaDataKeys::Modality.key())
         {
             // SOP class UID
             itk::EncapsulateMetaData<std::string>(dictionary, "0008|0016", sopClassUID(data()->metadata(metaDataKey)).toStdString());
             // Modality
             itk::EncapsulateMetaData<std::string>(dictionary, "0008|0060", data()->metadata(metaDataKey).toStdString());
         }
-        if (metaDataKey == QString("BirthDate"))
+        if (metaDataKey == medMetaDataKeys::BirthDate.key())
         {
             // Patient's Birthdate
             itk::EncapsulateMetaData<std::string>(dictionary, "0010|0030", data()->metadata(metaDataKey).toStdString());
         }
-        if (metaDataKey == QString("Gender"))
+        if (metaDataKey == medMetaDataKeys::Gender.key())
         {
             // Patient's Sex
             itk::EncapsulateMetaData<std::string>(dictionary, "0010|0040", data()->metadata(metaDataKey).toStdString());
         }
-        if(metaDataKey == QString("PatientName"))
+        if(metaDataKey == medMetaDataKeys::PatientName.key())
         {
             // Patient's Name
             itk::EncapsulateMetaData<std::string>(dictionary, "0010|0010",  data()->metadata(metaDataKey).toStdString());
         }
-        if(metaDataKey == QString("PatientID"))
+        if(metaDataKey == medMetaDataKeys::PatientID.key())
         {
             // Patient's Id
             itk::EncapsulateMetaData<std::string>(dictionary, "0010|0020", data()->metadata(metaDataKey).toStdString());
         }
-        if(metaDataKey == QString("Age"))
+        if(metaDataKey == medMetaDataKeys::Age.key())
         {
             // Patient's Age
-            itk::EncapsulateMetaData<std::string>(dictionary, "0010|0010", data()->metadata(metaDataKey).toStdString());
+            itk::EncapsulateMetaData<std::string>(dictionary, "0010|1010", data()->metadata(metaDataKey).toStdString());
         }
-        if(metaDataKey == QString("SeriesDescription"))
+        if(metaDataKey == medMetaDataKeys::SeriesDescription.key())
         {
             // Series Description
             itk::EncapsulateMetaData<std::string>(dictionary, "0008|103e", data()->metadata(metaDataKey).toStdString());
         }
-        if(metaDataKey == QString("SeriesNumber"))
+        if(metaDataKey == medMetaDataKeys::SeriesNumber.key())
         {
             // Series Number
             itk::EncapsulateMetaData<std::string>(dictionary, "0020|0011",  data()->metadata(metaDataKey).toStdString());
         }
-        if(metaDataKey == QString("Referee"))
+        if(metaDataKey == medMetaDataKeys::Referee.key())
         {
             //Referee physician name
             itk::EncapsulateMetaData<std::string>(dictionary, "0008|0090", data()->metadata(metaDataKey).toStdString());
         }
-        if(metaDataKey == QString("Performer"))
+        if(metaDataKey == medMetaDataKeys::Performer.key())
         {
             //Performer physician name
             itk::EncapsulateMetaData<std::string>(dictionary, "0008|1050", data()->metadata(metaDataKey).toStdString());
         }
-        if(metaDataKey == QString("Protocol"))
+        if(metaDataKey == medMetaDataKeys::Protocol.key())
         {
             //Protocol
             itk::EncapsulateMetaData<std::string>(dictionary, "0018|1030", data()->metadata(metaDataKey).toStdString());
         }
-        if(metaDataKey == QString("Descriptions"))
+        if(metaDataKey == medMetaDataKeys::Description.key())
         {
             //Scan options
             itk::EncapsulateMetaData<std::string>(dictionary, "0018|0022", data()->metadata(metaDataKey).toStdString());
         }
-        if(metaDataKey == QString("StudyInstanceUID"))
+        if(metaDataKey == medMetaDataKeys::StudyInstanceUID.key())
         {
             // Study Instance UID
             if(!data()->metadata(metaDataKey).trimmed().isEmpty())
@@ -181,22 +203,17 @@ void itkDicomDataImageWriter::fillDictionaryFromMetaDataKey(itk::MetaDataDiction
                 itk::EncapsulateMetaData<std::string>(dictionary, "0020|000d",  data()->metadata(metaDataKey).toStdString());
             }
         }
-        if(metaDataKey == QString("StudyID"))
+        if(metaDataKey == medMetaDataKeys::StudyID.key())
         {
             // Study ID
             itk::EncapsulateMetaData<std::string>(dictionary, "0020|0010",  data()->metadata(metaDataKey).toStdString());
         }
-        if(metaDataKey == QString("StudyDescription"))
+        if(metaDataKey == medMetaDataKeys::StudyDescription.key())
         {
             // Study Description
             itk::EncapsulateMetaData<std::string>(dictionary, "0008|1030", data()->metadata(metaDataKey).toStdString());
         }
-        if(metaDataKey == QString("StudyTime"))
-        {
-            // Study Description
-            itk::EncapsulateMetaData<std::string>(dictionary, "0008|0030", data()->metadata(metaDataKey).toStdString());
-        }
-        if(metaDataKey == QString("Institution"))
+        if(metaDataKey == medMetaDataKeys::Institution.key())
         {
             // Institution Name
             itk::EncapsulateMetaData<std::string>(dictionary, "0008|0080", data()->metadata(metaDataKey).toStdString());
@@ -205,17 +222,17 @@ void itkDicomDataImageWriter::fillDictionaryFromMetaDataKey(itk::MetaDataDiction
         {
             itk::EncapsulateMetaData<std::string>(dictionary, "0020|0012", data()->metadata(metaDataKey).toStdString());
         }
-        if(metaDataKey == QString("AcquisitionDate"))
+        if(metaDataKey == medMetaDataKeys::AcquisitionDate.key())
         {
             // Acquisition Date
             itk::EncapsulateMetaData<std::string>(dictionary, "0008|0022", data()->metadata(metaDataKey).toStdString());
         }
-        if(metaDataKey == QString("AcquisitionTime"))
+        if(metaDataKey == medMetaDataKeys::AcquisitionTime.key())
         {
             // Acquisition Date
             itk::EncapsulateMetaData<std::string>(dictionary, "0008|0032", data()->metadata(metaDataKey).toStdString());
         }
-        if(metaDataKey == QString("SequenceName"))
+        if(metaDataKey == medMetaDataKeys::SequenceName.key())
         {
             // Sequence Name
             itk::EncapsulateMetaData<std::string>(dictionary, "0018|0024", data()->metadata(metaDataKey).toStdString());
@@ -242,22 +259,67 @@ void itkDicomDataImageWriter::fillDictionaryFromMetaDataKey(itk::MetaDataDiction
         if (metaDataKey == medMetaDataKeys::Manufacturer.key())
         {
             itk::EncapsulateMetaData<std::string>(dictionary, "0008|0070", data()->metadata(metaDataKey).toStdString());
-        }
-        if (metaDataKey == medMetaDataKeys::PatientPosition.key())
+        }       
+        if(metaDataKey == medMetaDataKeys::StudyTime.key())
         {
-            // Patient Position
-            itk::EncapsulateMetaData<std::string>(dictionary, "0018|5100", data()->metadata(metaDataKey).toStdString());
+            // Study Time
+            if(!data()->metadata(metaDataKey).trimmed().isEmpty())
+            {
+                studyTimeExistance = true;
+                itk::EncapsulateMetaData<std::string>(dictionary, "0008|0030", data()->metadata(metaDataKey).toStdString());
+            }
         }
-        if (metaDataKey == medMetaDataKeys::PatientOrientation.key())
+        if(metaDataKey == medMetaDataKeys::StudyDate.key())
         {
-            // Patient Orientation
-            itk::EncapsulateMetaData<std::string>(dictionary, "0020|0020", data()->metadata(metaDataKey).toStdString());
+            // Study Date
+            if(!data()->metadata(metaDataKey).trimmed().isEmpty())
+            {
+                studyDateExistance = true;
+                itk::EncapsulateMetaData<std::string>(dictionary, "0008|0020", data()->metadata(metaDataKey).toStdString());
+            }
         }
-        if (metaDataKey == medMetaDataKeys::ImageType.key())
+        if(metaDataKey == medMetaDataKeys::SeriesTime.key())
         {
-            // Image type
-            itk::EncapsulateMetaData<std::string>(dictionary, "0008|0008", data()->metadata(metaDataKey).toStdString());
+            // Series Time
+            if(!data()->metadata(metaDataKey).trimmed().isEmpty())
+            {
+                seriesTimeExistance = true;
+                itk::EncapsulateMetaData<std::string>(dictionary, "0008|0031", data()->metadata(metaDataKey).toStdString());
+            }
         }
+        if(metaDataKey == medMetaDataKeys::SeriesDate.key())
+        {
+            // Series Date
+            if(!data()->metadata(metaDataKey).trimmed().isEmpty())
+            {
+                seriesDateExistance = true;
+                itk::EncapsulateMetaData<std::string>(dictionary, "0008|0021", data()->metadata(metaDataKey).toStdString());
+            }
+        }
+    }
+
+    // Add inside input data current Time and date if they do not exist
+    // by default if not present the writer use the current time but the fractional part of a second
+    // change between slices which can be problematic for some software
+    if (!studyTimeExistance)
+    {
+        QString currentTime = QDateTime::currentDateTime().toString("hhmmss.zzzzzz");
+        itk::EncapsulateMetaData<std::string>(dictionary, "0008|0030", currentTime.toStdString());
+    }
+    if (!studyDateExistance)
+    {
+        QString currentDate = QDateTime::currentDateTime().toString("yyyyMMdd");
+        itk::EncapsulateMetaData<std::string>(dictionary, "0008|0020", currentDate.toStdString());
+    }
+    if (!seriesTimeExistance)
+    {
+        QString currentTime = QDateTime::currentDateTime().toString("hhmmss.zzzzzz");
+        itk::EncapsulateMetaData<std::string>(dictionary, "0008|0031", currentTime.toStdString());
+    }
+    if (!seriesDateExistance)
+    {
+        QString currentDate = QDateTime::currentDateTime().toString("yyyyMMdd");
+        itk::EncapsulateMetaData<std::string>(dictionary, "0008|0021", currentDate.toStdString());
     }
 }
 
@@ -266,13 +328,13 @@ void itkDicomDataImageWriter::fillDictionaryWithModalityDependentData(itk::MetaD
     QString modality = data()->metadata(medMetaDataKeys::Modality.key());
     if (modality.contains("MR"))
     {
-        itk::EncapsulateMetaData<std::string>(dictionary, "0018|0081", data()->metadata("EchoTime").toStdString());
-        itk::EncapsulateMetaData<std::string>(dictionary, "0018|1314", data()->metadata("FlipAngle").toStdString());
-        itk::EncapsulateMetaData<std::string>(dictionary, "0018|0080", data()->metadata("RepetitionTime").toStdString());
+        itk::EncapsulateMetaData<std::string>(dictionary, "0018|0081", data()->metadata(medMetaDataKeys::EchoTime.key()).toStdString());
+        itk::EncapsulateMetaData<std::string>(dictionary, "0018|1314", data()->metadata(medMetaDataKeys::FlipAngle.key()).toStdString());
+        itk::EncapsulateMetaData<std::string>(dictionary, "0018|0080", data()->metadata(medMetaDataKeys::RepetitionTime.key()).toStdString());
     }
     else if (modality.contains("CT"))
     {
-        itk::EncapsulateMetaData<std::string>(dictionary, "0018|0060", data()->metadata("KVP").toStdString());
+        itk::EncapsulateMetaData<std::string>(dictionary, "0018|0060", data()->metadata(medMetaDataKeys::KVP.key()).toStdString());
     }
 }
 
@@ -281,7 +343,7 @@ template <class PixelType> void itkDicomDataImageWriter::fillDictionaryWithShare
 {
         typedef itk::Image<PixelType,3> Image3DType;
 
-        itk::Object* itkImage = static_cast<itk::Object*>(data()->data());
+        itk::Object* itkImage = static_cast<itk::Object*>(dataCopy->data());
         typename Image3DType::Pointer image = dynamic_cast<Image3DType*>(itkImage);
 
         std::ostringstream value;
@@ -368,7 +430,7 @@ template <class PixelType> bool itkDicomDataImageWriter::fillDictionaryAndWriteD
     typedef itk::Image<PixelType,2> Image2DType;
     typedef itk::ImageFileWriter<Image2DType> WriterType;
 
-    itk::Object* itkImage = static_cast<itk::Object*>(data()->data());
+    itk::Object* itkImage = static_cast<itk::Object*>(dataCopy->data());
     typename Image3DType::Pointer image = dynamic_cast<Image3DType*>(itkImage);
 
     std::ostringstream value;
@@ -491,61 +553,81 @@ template <class PixelType> bool itkDicomDataImageWriter::writeDicom(const QStrin
     return true;
 }
 
+
 bool itkDicomDataImageWriter::write(const QString &path)
 {
     if (!this->data())
         return false;
 
-    QString id = data()->identifier() ;
+    QString id = data()->identifier();
 
-    try {
-        if ( id == "itkDataImageChar3" )
+    try
+    {
+        // Create a copy of data which can be modified if data is of type double, float, unsigned long or long
+        dataCopy = medAbstractDataFactory::instance()->createSmartPointer(id);
+        if (!dataCopy)
+        {
+            qWarning() << "Pixel type not supported by the software";
+            return false;
+        }
+        dataCopy->setData(data()->data());
+
+        if (id == "itkDataImageChar3")
         {
             writeDicom<char>(path);
         }
-        else if ( id == "itkDataImageUChar3" )
+        else if (id == "itkDataImageUChar3")
         {
             writeDicom<unsigned char>(path);
         }
-        else if ( id == "itkDataImageShort3" )
+        else if (id == "itkDataImageShort3")
         {
             writeDicom<short>(path);
         }
-        else if ( id == "itkDataImageUShort3" )
+        else if (id == "itkDataImageUShort3")
         {
             writeDicom<unsigned short>(path);
         }
-        else if ( id == "itkDataImageInt3" )
+        else if (id == "itkDataImageInt3")
         {
             writeDicom<int>(path);
         }
-        else if ( id == "itkDataImageUInt3" )
+        else if (id == "itkDataImageUInt3")
         {
             writeDicom<unsigned int>(path);
         }
-        else if ( id == "itkDataImageLong3" )
-        {
-            writeDicom<long>(path);
-        }
-        else if ( id== "itkDataImageULong3" )
-        {
-            writeDicom<unsigned long>(path);
-        }
-        else if ( id == "itkDataImageFloat3" )
-        {
-            writeDicom<float>(path);
-        }
-        else if ( id == "itkDataImageDouble3" )
-        {
-            writeDicom<double>(path);
-        }
         else
         {
-            qWarning() << "Pixel type not yet supported";
-            return false;
+            typedef itk::Image<int, 3> ImageTypeOutput;
+            dataCopy = medAbstractDataFactory::instance()->createSmartPointer(medUtilitiesITK::itkDataImageId<ImageTypeOutput>());
+            if (id == "itkDataImageLong3")
+            {
+                setDataCopy<long>(dataCopy, data());
+            }
+            else if (id == "itkDataImageULong3")
+            {
+                setDataCopy<unsigned long>(dataCopy, data());
+            }
+            else if (id == "itkDataImageFloat3")
+            {
+                setDataCopy<float>(dataCopy, data());
+            }
+            else if (id == "itkDataImageDouble3")
+            {
+                setDataCopy<double>(dataCopy, data());
+            }
+            else
+            {
+                qWarning() << "Pixel type not yet supported";
+                return false;
+            }
+
+            qWarning() << "Beware your Pixel type is not supported by itk Dicom writer, "
+                          "the image will be cast in int to allow export anyway.";
+            writeDicom<int>(path);
         }
     }
-    catch(itk::ExceptionObject &e)
+    catch (itk::ExceptionObject &e)
     {
         qDebug() << e.GetDescription();
         return false;

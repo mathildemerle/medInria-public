@@ -37,9 +37,10 @@ $GREEN      = #64FF32;
 $RED        = #FF3333;
 $YELLOW     = #FFFF99;
 $WHITE      = #FFFFFF;
+$BLUE       = #B2DCFF;
+$ORANGE     = #FF956F;
 
 $HIGHLIGHT_COLOR = #FF8833; /*highlight*/
-
 
 /*******************************************************************************
     BACKGROUND
@@ -91,7 +92,7 @@ $QLINEEDIT_BACKGROUND = $GREY02;
 /*******************************************************************************
     TOOLTIP COLOR
  *******************************************************************************/
-$TOOLTIP_BACKGROUND = $YELLOW;
+$TOOLTIP_BACKGROUND = $BLUE;
 $TOOLTIP_COLOR      = $GREY04;
 
 /*******************************************************************************
@@ -120,7 +121,6 @@ $PUSH_BUTTON_PRESSED_BACKGROUND   = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
 
 $HOME_PAGE_BUTTON_BACKGROUND       = $GREY03;
 $HOME_PAGE_BUTTON_HOVER_BACKGROUND = $GREY00;
-/*$HOME_PAGE_BUTTON_COLOR            = $HIGHLIGHT_COLOR;*/
 
 /*******************************************************************************
     FINDER COLOR
@@ -178,13 +178,14 @@ $PROGRESS_BAR_COLOR      = $HIGHLIGHT_COLOR;
 $PROGRESS_BAR_TEXT_COLOR = $GREY00;
 
 /*******************************************************************************
-    TOOLBOX_HEADER COLOR
+    TOOLBOX COLOR
  *******************************************************************************/
 $TOOLBOX_CONTAINER_BACKGROUND = $GREY01;
 $TOOLBOX_HEADER_BACKGROUND    = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY02, stop: 1 $GREY00);
 $TOOLBOX_BODY_BACKGROUND      = qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 $GREY02, stop: 1 $GREY01);
 $TOOLBOX_BACKGROUND           = $GREY03;
 $TOOLBOX_HEADER_COLOR         = $GREY11;
+$TOOLBOX_INNER_TITLE          = $ORANGE;
 
 /*******************************************************************************
     COMBO_BOX COLOR
@@ -615,6 +616,12 @@ QTreeView::branch:open:has-children:has-siblings
 QLabel
 {
     color: $EDITION_COLOR;
+    background: none;
+}
+
+QLabel#innerTitle
+{
+    color: $TOOLBOX_INNER_TITLE;
     background: none;
 }
 
@@ -1096,7 +1103,6 @@ medHomepagePushButton
 medHomepagePushButton:hover
 {
     background-color: $HOME_PAGE_BUTTON_HOVER_BACKGROUND;
-    color: $HOME_PAGE_BUTTON_COLOR;
 }
 
 medHomepagePushButton[selected="true"]
@@ -1116,7 +1122,6 @@ medHomepageButton
 medHomepageButton:hover
 {
     background-color: $HOME_PAGE_BUTTON_HOVER_BACKGROUND;
-    color: $HOME_PAGE_BUTTON_COLOR;
 }
 
 /*******************************************************************************

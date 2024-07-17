@@ -1,9 +1,7 @@
 #!/bin/bash
 
-# Usage: 
-# - mac_packager.sh plugin1 plugin2 ... pluginN
-# or
-# - mac_packager.sh path_to_plugins/*
+# Usage:
+# - mac_packager.sh path_to_plugins1 path_to_plugins2...
 
 # To build a stand-alone mac version of the application, do the following:
 
@@ -14,11 +12,13 @@
 
 # The bundle medInria.app will contain all plugins and will be standalone, packaged into MedINRIA.dmg in the install dir
 
-cd @medInria_BINARY_DIR@/bin
+cd @PROJECT_BINARY_DIR@
 
 \rm -fr TmpInstall
-mkdir TmpInstall
-cp -r MUSICardio.app TmpInstall
+mkdir -p TmpInstall/MUSICardio.app/Contents/Resources
+cp -r @medInria_ROOT@/bin/MUSICardio.app/Contents/MacOS TmpInstall/MUSICardio.app/Contents
+cp @medInria_ROOT@/bin/MUSICardio.app/Contents/Info.plist TmpInstall/MUSICardio.app/Contents
+cp @medInria_ROOT@/bin/MUSICardio.app/Contents/Resources/MUSICardio.icns TmpInstall/MUSICardio.app/Contents/Resources
 
 cd TmpInstall
 
@@ -27,24 +27,47 @@ cd TmpInstall
 #Run sub-packagers
 injectDirs=''
 for i in $*; do
-	echo $i
-	injectDirs="$injectDirs -inject-dir=$i"
+        echo $i
+        injectDirs="$injectDirs -inject-dir=$i"
 done
 
-@dtk_DIR@/bin/dtkDeploy MUSICardio.app $injectDirs &>/dev/null
+mkdir python_plugins
+injectDirs="$injectDirs -inject-dir=@PROJECT_BINARY_DIR@/TmpInstall/python_plugins"
+
+python_libs=''
+for python_lib in @medInria_ROOT@/bin/python_plugins/*; do
+    lib=${python_lib##*/}
+    libname=${lib%.so}
+    cp $python_lib python_plugins/$libname.dylib
+    python_libs="$python_libs $libname"
+done
+
+@dtk_ROOT@/bin/dtkDeploy MUSICardio.app $injectDirs &>/dev/null
+
+mkdir MUSICardio.app/Contents/Plugins/python
+if [ -n "${python_libs}" ]
+then
+    for python_lib in $python_libs; do
+        mv MUSICardio.app/Contents/Plugins/$python_lib.dylib MUSICardio.app/Contents/Plugins/python/$python_lib.so
+    done
+fi
+
+@CMAKE_COMMAND@ --install @pyncpp_ROOT@ --prefix . --component Runtime
+mkdir MUSICardio.app/Contents/Resources/lib
+mv lib/python@PYTHON_VERSION_MAJOR@.@PYTHON_VERSION_MINOR@ MUSICardio.app/Contents/Resources/lib
 
 #Run fancy packaging apple script
 
 \cp -f @medInria_SOURCE_DIR@/utils/osx_packaging/BaseMedinriaPackage.sparseimage.gz @PROJECT_BINARY_DIR@/MedinriaPackage.sparseimage.gz
 cd @PROJECT_BINARY_DIR@
 gunzip -f MedinriaPackage.sparseimage.gz
-hdiutil resize -size 2g MedinriaPackage.sparseimage
 
 devName=`hdiutil attach -readwrite -noverify -noautoopen MedinriaPackage.sparseimage | egrep '^/dev/' | sed 1q | awk '{print $1}'`
 diskutil rename "medInria base" "MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"
-\cp -rf @medInria_BINARY_DIR@/bin/TmpInstall/MUSICardio.app /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/
+\cp -rf @PROJECT_BINARY_DIR@/TmpInstall/MUSICardio.app /Volumes/"MUSICardio @MEDINRIA_SUPERBUILD_VERSION@"/
 
 sync
 hdiutil detach $devName
 hdiutil convert MedinriaPackage.sparseimage -format UDZO -imagekey zlib-level=9 -o "MUSICardio-@MEDINRIA_SUPERBUILD_VERSION@.dmg" 1>/dev/null 2>/dev/null
-\rm -fr MedinriaPackage.sparseimage @medInria_BINARY_DIR@/bin/TmpInstall
+\rm -fr MedinriaPackage.sparseimage @PROJECT_BINARY_DIR@/TmpInstall
+\mv MUSICardio-@MEDINRIA_SUPERBUILD_VERSION@.dmg @CMAKE_BINARY_DIR@

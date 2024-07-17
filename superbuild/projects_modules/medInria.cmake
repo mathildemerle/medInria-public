@@ -28,6 +28,7 @@ list(APPEND ${ep}_dependencies
   QtDCM
   RPI
   LogDemons
+  pyncpp
   )
 
 if (USE_DTKIMAGING)
@@ -78,34 +79,45 @@ set(cmake_args
   -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS_${ep}}
   -DUSE_DTKIMAGING:BOOL=${USE_DTKIMAGING}
   -DUSE_OSPRay:BOOL=${USE_OSPRay}
-  -DDCMTK_DIR=${DCMTK_DIR}
-  -Ddtk_DIR=${dtk_DIR}
-  -DITK_DIR=${ITK_DIR}
-  -DQtDCM_DIR=${QtDCM_DIR}
-  -DRPI_DIR=${RPI_DIR}
-  -DTTK_DIR=${TTK_DIR}
-  -DVTK_DIR=${VTK_DIR}
-  -DQt5_DIR=${Qt5_DIR}
-  -DLogDemons_DIR=${LogDemons_DIR}
-  -DBoost_INCLUDE_DIR=${Boost_INCLUDE_DIR}
+  -DUSE_Python:BOOL=${USE_Python}
   -DmedInria_VERSION:STRING=${${PROJECT_NAME}_VERSION}
   -DBUILD_ALL_PLUGINS=OFF
   -DBUILD_COMPOSITEDATASET_PLUGIN=OFF
   -DBUILD_EXAMPLE_PLUGINS=OFF
+  -DEXPIRATION_TIME=${EXPIRATION_TIME}
+  )
+
+set(cmake_cache_args
+  -DDCMTK_ROOT:PATH=${DCMTK_ROOT}
+  -Ddtk_ROOT:PATH=${dtk_ROOT}
+  -DITK_ROOT:PATH=${ITK_ROOT}
+  -DQtDCM_ROOT:PATH=${QtDCM_ROOT}
+  -DRPI_ROOT:PATH=${RPI_ROOT}
+  -DTTK_ROOT:PATH=${TTK_ROOT}
+  -DVTK_ROOT:PATH=${VTK_ROOT}
+  -DQt5_DIR:PATH=${Qt5_DIR}
+  -DLogDemons_ROOT:PATH=${LogDemons_ROOT}
+  -DBoost_INCLUDE_DIR:PATH=${Boost_INCLUDE_DIR}
   )
 
 if (${USE_FFmpeg})
   list(APPEND cmake_args
   -DUSE_FFmpeg=${USE_FFmpeg})
-endif() 
+endif()
 
 if (USE_DTKIMAGING)
   set(cmake_args
     ${cmake_args}
-    -DdtkImaging_DIR:PATH=${dtkImaging_DIR}
+    -DdtkImaging_ROOT:PATH=${dtkImaging_ROOT}
     )
 endif()
-  
+
+if (USE_Python)
+  list(APPEND cmake_cache_args
+      -Dpyncpp_ROOT:PATH=${pyncpp_ROOT}
+      )
+endif()
+
 ## #############################################################################
 ## Add external-project
 ## #############################################################################
@@ -118,6 +130,7 @@ ExternalProject_Add(${ep}
   CMAKE_GENERATOR ${gen}
   CMAKE_GENERATOR_PLATFORM ${CMAKE_GENERATOR_PLATFORM}
   CMAKE_ARGS ${cmake_args}
+  CMAKE_CACHE_ARGS ${cmake_cache_args}
   DEPENDS ${${ep}_dependencies}
   INSTALL_COMMAND ""
   BUILD_ALWAYS 1
@@ -127,20 +140,16 @@ ExternalProject_Add(${ep}
 ## Set variable to provide infos about the project
 ## #############################################################################
 
-ExternalProject_Get_Property(${ep} binary_dir)
-set(${ep}_DIR ${binary_dir} PARENT_SCOPE)
-
-ExternalProject_Get_Property(${ep} source_dir)
-set(${ep}_SOURCE_DIR ${source_dir} PARENT_SCOPE)
-  
-  
 if (WIN32)
-  file(TO_NATIVE_PATH ${ITK_DIR}                 ITK_BIN_BASE)
-  file(TO_NATIVE_PATH ${VTK_DIR}                 VTK_BIN_BASE)
-  file(TO_NATIVE_PATH ${dtk_DIR}                 DTK_BIN_BASE)
-  file(TO_NATIVE_PATH ${QtDCM_DIR}               DCM_BIN_BASE)
+  file(REAL_PATH ${TTK_DIR}/../../../ _TTK_DIR)
+  file(TO_NATIVE_PATH ${ITK_ROOT}                ITK_BIN_BASE)
+  file(TO_NATIVE_PATH ${VTK_ROOT}                VTK_BIN_BASE)
+  file(TO_NATIVE_PATH ${_TTK_DIR}                TTK_BIN_BASE)
+  file(TO_NATIVE_PATH ${dtk_ROOT}                DTK_BIN_BASE)
+  file(TO_NATIVE_PATH ${QtDCM_ROOT}              DCM_BIN_BASE)
   file(TO_NATIVE_PATH ${_qt5Core_install_prefix} QT5_BIN_BASE)
   file(TO_NATIVE_PATH ${medInria_BINARY_DIR}     MED_BIN_BASE)
+  file(TO_NATIVE_PATH ${pyncpp_ROOT}             PYNCPP_BIN_BASE)
   
   set(CONFIG_MODE $<$<CONFIG:debug>:Debug>$<$<CONFIG:release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>)
   
@@ -150,14 +159,18 @@ if (WIN32)
         POST_BUILD
         COMMAND for %%I in ( ${ITK_BIN_BASE}\\bin\\${CONFIG_MODE}\\*.dll ) do (if EXIST ${MED_BIN_BASE}\\%%~nxI (del /S ${MED_BIN_BASE}\\%%~nxI & mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) else mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) 
         COMMAND for %%I in ( ${VTK_BIN_BASE}\\bin\\${CONFIG_MODE}\\*.dll ) do (if EXIST ${MED_BIN_BASE}\\%%~nxI (del /S ${MED_BIN_BASE}\\%%~nxI & mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) else mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) 
-        COMMAND for %%I in ( ${DTK_BIN_BASE}\\bin\\${CONFIG_MODE}\\*.dll ) do (if EXIST ${MED_BIN_BASE}\\%%~nxI (del /S ${MED_BIN_BASE}\\%%~nxI & mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) else mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) 
-        COMMAND for %%I in ( ${DCM_BIN_BASE}\\bin\\${CONFIG_MODE}\\*.dll ) do (if EXIST ${MED_BIN_BASE}\\%%~nxI (del /S ${MED_BIN_BASE}\\%%~nxI & mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) else mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) 
-        COMMAND for %%I in ( ${QT5_BIN_BASE}\\bin\\*.dll                 ) do (if EXIST ${MED_BIN_BASE}\\%%~nxI (del /S ${MED_BIN_BASE}\\%%~nxI & mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) else mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) 
-    )
+        COMMAND for %%I in ( ${DTK_BIN_BASE}\\bin\\${CONFIG_MODE}\\*.dll ) do (if EXIST ${MED_BIN_BASE}\\%%~nxI (del /S ${MED_BIN_BASE}\\%%~nxI & mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) else mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI)
+        COMMAND for %%I in ( ${DCM_BIN_BASE}\\bin\\${CONFIG_MODE}\\*.dll ) do (if EXIST ${MED_BIN_BASE}\\%%~nxI (del /S ${MED_BIN_BASE}\\%%~nxI & mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) else mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI)
+        COMMAND for %%I in ( ${TTK_BIN_BASE}\\bin\\*.dll )                 do (if EXIST ${MED_BIN_BASE}\\%%~nxI (del /S ${MED_BIN_BASE}\\%%~nxI & mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) else mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI)
+        COMMAND for %%I in ( ${QT5_BIN_BASE}\\bin\\*.dll )                 do (if EXIST ${MED_BIN_BASE}\\%%~nxI (del /S ${MED_BIN_BASE}\\%%~nxI & mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) else mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) 
+        COMMAND for %%I in ( ${PYNCPP_BIN_BASE}\\bin\\*.dll ) do (if EXIST ${MED_BIN_BASE}\\%%~nxI (del /S ${MED_BIN_BASE}\\%%~nxI & mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI) else mklink /H ${MED_BIN_BASE}\\%%~nxI %%~fI)
+)
 endif()
 
 
 
 endif() #NOT USE_SYSTEM_ep
+
+set(${ep}_ROOT ${medInria_BINARY_DIR} PARENT_SCOPE)
 
 endfunction()

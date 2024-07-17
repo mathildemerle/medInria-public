@@ -12,6 +12,7 @@
 =========================================================================*/
 
 #include "vtkDataMesh4DWriter.h"
+#include "vtkDataMeshHelper.h"
 
 #include <medAbstractData.h>
 #include <medAbstractDataFactory.h>
@@ -66,20 +67,21 @@ bool vtkDataMesh4DWriter::write(const QString& path)
 
     for(vtkMetaDataSet* dataSet : sequence->GetMetaDataSetList())
     {
+        DataMeshHelper::prepareMetaDataForAsciiReadOrWrite(dataSet, true);
         addMetaDataAsFieldData(dataSet);
     }
 
     vtkDataManager* manager = vtkDataManager::New();
     manager->AddMetaDataSet (sequence);
 
-    this->writer->SetFileName(path.toLatin1().constData());
+    this->writer->SetFileName(path.toUtf8().constData());
     this->writer->SetInput (manager);
-    // this->writer->SetFileTypeToBinary();
     this->writer->Update();
 
     for(vtkMetaDataSet* dataSet : sequence->GetMetaDataSetList())
     {
         clearMetaDataFieldData(dataSet);
+        DataMeshHelper::prepareMetaDataForAsciiReadOrWrite(dataSet, false);
     }
 
     manager->Delete();

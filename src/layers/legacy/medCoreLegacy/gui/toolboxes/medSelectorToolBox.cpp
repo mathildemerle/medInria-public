@@ -24,7 +24,6 @@ public:
     medAbstractSelectableToolBox *currentToolBox;
     QHash<QString, medAbstractSelectableToolBox*> toolBoxes;
     QVBoxLayout *mainLayout;
-
     medAbstractData *inputData;
 };
 
@@ -95,7 +94,11 @@ void medSelectorToolBox::changeCurrentToolBox(int index)
 {
     // Get current toolbox identifier from combobox
     QString identifier = d->chooseComboBox->itemData(index).toString();
-    this->changeCurrentToolBox(identifier);
+
+    if (!d->currentToolBox || identifier != d->currentToolBox->identifier())
+    {
+        this->changeCurrentToolBox(identifier);
+    }
 }
 
 void medSelectorToolBox::changeCurrentToolBox(const QString &identifier)
@@ -134,8 +137,12 @@ void medSelectorToolBox::changeCurrentToolBox(const QString &identifier)
         d->currentToolBox->header()->hide();
 
         dtkPlugin *plugin = d->currentToolBox->plugin();
-        this->setAboutPluginButton(plugin);
-        this->setAboutPluginVisibility(true);
+
+        if (plugin)
+        {
+            this->setAboutPluginButton(plugin);
+            this->setAboutPluginVisibility(true);
+        }
 
         d->currentToolBox->show();
         d->mainLayout->addWidget(d->currentToolBox);

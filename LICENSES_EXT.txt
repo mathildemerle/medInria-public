@@ -1,0 +1,90 @@
+This application uses some external libraries that we would like to thanks.
+
+###################################
+External projects used in medInria:
+
+* DCMTK
+sources: https://github.com/DCMTK/dcmtk
+license: https://github.com/DCMTK/dcmtk/blob/master/COPYRIGHT
+
+* dtk
+sources: https://gitlab.inria.fr/dtk/dtk
+license: https://gitlab.inria.fr/dtk/dtk/-/blob/develop/LICENSE.md
+
+* ITK
+sources: https://github.com/InsightSoftwareConsortium/ITK
+license: https://github.com/InsightSoftwareConsortium/ITK/blob/master/LICENSE
+
+* LCC-LogDemons
+sources: https://github.com/Inria-Asclepios/LCC-LogDemons
+license: https://github.com/Inria-Asclepios/LCC-LogDemons/blob/master/License.txt
+
+* pyncpp
+sources: https://github.com/LIRYC-IHU/pyncpp
+license: https://github.com/LIRYC-IHU/pyncpp/blob/working/LICENSE-BSD-3-Clause.txt
+
+* QtDCM
+sources: https://github.com/medInria/qtdcm
+license: https://github.com/medInria/qtdcm/blob/master/LICENSE
+
+* RPI
+sources: https://github.com/Inria-Asclepios/RPI
+license: https://github.com/Inria-Asclepios/RPI/blob/master/README.txt
+
+* TTK
+sources: https://github.com/Inria-Asclepios/TTK-Public
+license: https://github.com/Inria-Asclepios/TTK-Public/blob/master/LICENSE.txt
+
+* VTK
+sources: https://github.com/Kitware/VTK
+license: https://github.com/Kitware/VTK/blob/master/Copyright.txt
+
+###################################
+External projects added by MUSICardio:
+
+* asio
+sources: https://github.com/chriskohlhoff/asio
+license: https://www.boost.org/LICENSE_1_0.txt
+
+* eigen
+sources: https://gitlab.com/libeigen/eigen
+license: https://gitlab.com/libeigen/eigen/-/blob/master/COPYING.MPL2
+
+* FFmpeg
+This software uses libraries from the FFmpeg project under the LGPLv2.1:
+sources: https://github.com/FFmpeg/FFmpeg
+license: https://github.com/FFmpeg/FFmpeg/blob/master/COPYING.LGPLv2.1
+
+* jsoncons
+sources: https://github.com/danielaparker/jsoncons
+license: https://github.com/danielaparker/jsoncons/blob/master/LICENSE
+
+* mmg
+sources: https://github.com/MmgTools/mmg
+license: https://github.com/MmgTools/mmg/blob/master/LICENSE
+
+* openssl
+This product includes software developed by the OpenSSL Project
+for use in the OpenSSL Toolkit (http://www.openssl.org/):
+sources: https://github.com/openssl/openssl
+license: https://github.com/openssl/openssl/blob/master/LICENSE.txt
+
+* quazip
+sources: https://github.com/stachenov/quazip
+license: https://github.com/stachenov/quazip/blob/master/COPYING
+
+* qwt
+sources: https://github.com/Inria-Asclepios/qwt
+license: https://github.com/Inria-Asclepios/qwt/blob/master/qwt/COPYING
+
+* tetgen
+sources: https://github.com/ufz/tetgen
+license: https://github.com/ufz/tetgen/blob/master/LICENSE
+
+* websocketpp
+sources: https://github.com/zaphoyd/websocketpp
+license: https://github.com/zaphoyd/websocketpp/blob/master/COPYING
+
+* zlib
+sources: https://github.com/madler/zlib
+license: https://github.com/madler/zlib/blob/master/README

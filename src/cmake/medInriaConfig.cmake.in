@@ -50,4 +50,6 @@ find_library(medVtkDataMeshBase_LIBRARY NAMES medVtkDataMeshBase PATHS @medVtkDa
 set_target_properties(medVtkDataMeshBase PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "@medVtkDataMeshBase_INCLUDE_DIRS@" IMPORTED_LOCATION ${medVtkDataMeshBase_LIBRARY})
 
 set(medInria_CMAKE_DIR @medInria_CMAKE_DIR@)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${medInria_CMAKE_DIR}")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+  ${medInria_CMAKE_DIR}
+  )
