@@ -12,6 +12,7 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   QT5_DIR: "/usr/local/opt/qt@5/lib/cmake/Qt5"
+  OpenMP_ROOT: "/usr/local/Cellar/libomp/17.0.6"
 
 jobs:
   build:
@@ -21,17 +22,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install Homebrew
-      run: |
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        brew update
-
     - name: Install dependencies
       run: |
-        brew install cmake
         brew install qt@5
         brew install boost
-        brew install swig
+        brew install libomp
+        brew info libomp
         pip3 install dmgbuild
 
     - name: Set up Git
@@ -39,7 +35,7 @@ jobs:
         git config --global url."https://${{ secrets.MUSICARDIOTOKEN }}@github.com/".insteadOf "https://github.com/"
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DQt5_DIR=${{env.QT5_DIR}}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DQt5_DIR=${{env.QT5_DIR}} -DOpenMP_ROOT=${{env.OpenMP_ROOT}}
 
     - name: Build
       # Build your program with the given configuration
