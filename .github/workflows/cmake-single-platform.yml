@@ -45,6 +45,51 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --parallel
 
+    - name: Package
+      run: |
+        cd ${{github.workspace}}/build
+        cpack -C ${{env.BUILD_TYPE}}
+
+    - name: Prepare DMG and update design
+      run: |
+        cd ${{github.workspace}}/build
+        dmg=$(ls *.dmg)
+        echo "The current package to adapt: $dmg"
+
+        if [ -n "$dmg" ]; then
+          # Attach to read-write format and retrieve mount path
+          path=$(hdiutil attach -owners on $dmg -shadow | grep -i 'Volumes' | cut -f 3)
+          echo "The current path: $path"
+
+          # Navigate to correct directory
+          cd "$path/MUSICardio.app/Contents/"
+
+          pathPluginsLegacy="${{github.workspace}}/build/medInria-build/bin/plugins_legacy"
+
+          # Change library paths for plugins
+          for f in PlugIns/*.dylib; do
+            install_name_tool -change $pathPluginsLegacy/libAAMeshInteractorPlugin.dylib  @executable_path/../PlugIns/libAAMeshInteractorPlugin.dylib $f
+            install_name_tool -change $pathPluginsLegacy/libAAAMeshUtilityPlugin.dylib    @executable_path/../PlugIns/libAAAMeshUtilityPlugin.dylib $f
+            install_name_tool -change $pathPluginsLegacy/libAAAmedPipelinePlugin.dylib    @executable_path/../PlugIns/libAAAmedPipelinePlugin.dylib $f
+            install_name_tool -change $pathPluginsLegacy/libmscPipelinesPlugin.dylib      @executable_path/../PlugIns/libmscPipelinesPlugin.dylib $f
+            install_name_tool -change $pathPluginsLegacy/libAAAEPMapPlugin.dylib          @executable_path/../PlugIns/libAAAEPMapPlugin.dylib $f
+            install_name_tool -change $pathPluginsLegacy/libAAMFSSimulationPlugin.dylib   @executable_path/../PlugIns/libAAMFSSimulationPlugin.dylib $f
+            install_name_tool -change $pathPluginsLegacy/libFEMForwardProblemPlugin.dylib @executable_path/../PlugIns/libFEMForwardProblemPlugin.dylib $f
+          done
+
+          # Go back to original path
+          cd "${{github.workspace}}/build"
+
+          # Update dmg design
+          echo "### Now we are going to update the dmg design"
+          volumeName=$(basename "$path")
+          dmgbuild -s ../packaging/apple/settings.json "$volumeName" MUSICardio.dmg
+
+          echo "End of the processes"
+        else
+          echo "A problem happened in MSC compilation, no dmg is built"
+        fi
+
     # - name: Push to private repository
     #   run: |
     #     git clone https://github.com/username/private-repo.git
