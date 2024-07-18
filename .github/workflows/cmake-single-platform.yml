@@ -88,13 +88,14 @@ jobs:
           echo "End of the processes"
         else
           echo "A problem happened in MSC compilation, no dmg is built"
-        fi
+        fi       
 
-    # - name: Push to private repository
-    #   run: |
-    #     git clone https://github.com/username/private-repo.git
-    #     cd private-repo
-    #     cp ../build/path/to/your/binary .
-    #     git add .
-    #     git commit -m "Add new binary"
-    #     git push https://${{ secrets.MYTOKEN }}@github.com/username/private-repo.git
+    - name: Transfer binary to external repository
+      run: |
+        git lfs install
+        git clone https://${{ secrets.MSC_TOKEN }}@github.com/Inria-Asclepios/msc_binaries.git
+        cd msc_binaries
+        cp ../build/MUSICardio.dmg .
+        git add MUSICardio.dmg
+        git commit -m "Add new DMG file"
+        git push https://${{ secrets.MSC_TOKEN }}@github.com/Inria-Asclepios/msc_binaries.git
