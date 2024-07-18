@@ -21,6 +21,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.MUSICARDIOTOKEN }}
 
     - name: Install dependencies
       run: |
@@ -31,10 +33,6 @@ jobs:
         # brew info libomp        
         pip3 install dmgbuild
 
-    - name: Set up Git
-      run: |
-        git config --global url."https://${{ secrets.MUSICARDIOTOKEN }}@github.com/".insteadOf "https://github.com/"
-
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DQt5_DIR=${{env.QT5_DIR}} -DOpenMP_ROOT=${{env.OpenMP_ROOT}}
 
@@ -42,3 +40,11 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
+    # - name: Push to private repository
+    #   run: |
+    #     git clone https://github.com/username/private-repo.git
+    #     cd private-repo
+    #     cp ../build/path/to/your/binary .
+    #     git add .
+    #     git commit -m "Add new binary"
+    #     git push https://${{ secrets.MYTOKEN }}@github.com/username/private-repo.git
