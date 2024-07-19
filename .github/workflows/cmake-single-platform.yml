@@ -1,6 +1,6 @@
 # This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
-name: CMake on macOS
+name: MUSICardio on macOS
 
 on:
   push:
@@ -41,10 +41,21 @@ jobs:
         pip3 install dmgbuild
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DUSE_GITHUB_SSH:BOOL=TRUE -DQt5_DIR=$QT5_DIR -DOpenMP_ROOT=$OpenMP_ROOT
-
+      run: |
+        cmake -B ${{github.workspace}}/build \
+          -DUSE_GITHUB_SSH:BOOL=TRUE \
+          -DmedInria_BUILD_TYPE:STRING=$BUILD_TYPE \
+          -Dmusic-plugins_BUILD_TYPE:STRING=$BUILD_TYPE \
+          -DEP_CHECKBOX_CUSTOM_DIRS:BOOL=ON \
+          -DEP_CHECKBOX_ON_TOP_LEVEL:BOOL=OFF \
+          -DEP_CHECKBOX_SIDE_BY_SIDE:BOOL=OFF \
+          -DQt5_DIR=$QT5_DIR \
+          -DOpenMP_ROOT=$OpenMP_ROOT \
+          -DUSE_FFmpeg=ON \
+          -DEXPIRATION_TIME:STRING=12 \
+          -DUSE_RealTimeWorkspace=OFF
+          
     - name: Build
-      # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config $BUILD_TYPE --parallel
 
     - name: Package
