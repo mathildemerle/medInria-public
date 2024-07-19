@@ -57,7 +57,7 @@ jobs:
           
     - name: Build
       run: | 
-        CORES_TO_USE=$(($(nproc) - 1)) # Limit the number of used core otherwise the compilation crashes sometimes
+        CORES_TO_USE=$(($(sysctl -n hw.ncpu) - 1)) # Limit the number of used core otherwise the compilation crashes sometimes
         echo "Using $CORES_TO_USE cores for the build"
         cmake --build ${{github.workspace}}/build --config $BUILD_TYPE --parallel $CORES_TO_USE
 
