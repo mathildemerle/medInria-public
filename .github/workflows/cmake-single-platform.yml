@@ -111,7 +111,11 @@ jobs:
       
     - name: Transfer binary to external repository
       run: |
-        git clone https://$MSC_TOKEN:@github.com/Inria-Asclepios/msc_binaries.git
+        if [ -z "$MSC_TOKEN" ]; then
+          echo "MSC_TOKEN is not set"
+          exit 1
+        fi
+        git clone https://$MSC_TOKEN@github.com/Inria-Asclepios/msc_binaries.git
         cd msc_binaries
         cp ../build/MUSICardio.dmg .
         git lfs track "*.dmg"
