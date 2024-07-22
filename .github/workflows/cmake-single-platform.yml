@@ -13,7 +13,7 @@ env:
   QT5_DIR: "/usr/local/opt/qt@5/lib/cmake/Qt5"
   OpenMP_ROOT: "/usr/local/Cellar/libomp/18.1.8"
   MSC_SSH_PLUGINS: ${{ secrets.MSC_SSH_PLUGINS }}
-  MSC_TOKEN: ${{ secrets.MUSICARDIOTOKEN }}
+  MSC_TOKEN: ${{ secrets.MSC_TOKEN }}
 
 jobs:
   build:
