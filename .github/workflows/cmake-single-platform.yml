@@ -13,6 +13,7 @@ on:
         description: 'Expiration time in month'
         required: true
         default: '12'
+        type: string
   schedule:
     - cron: '0 0 * * 1'  # Each monday at 0h00, MIN HOUR DAY_IN_MONTH MONTH WEEK_DAY
 
@@ -60,7 +61,7 @@ jobs:
           -DQt5_DIR=$QT5_DIR \
           -DOpenMP_ROOT=$OpenMP_ROOT \
           -DUSE_FFmpeg=ON \
-          -DEXPIRATION_TIME:STRING=${{inputs.EXPIRATION_TIME}} \
+          -DEXPIRATION_TIME:STRING=${{inputs.EXPIRATION_TIME}}  \
           -DUSE_RealTimeWorkspace=OFF
           
     - name: Build
