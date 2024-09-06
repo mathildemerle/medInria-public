@@ -64,7 +64,7 @@ jobs:
           -DQt5_DIR=$QT5_DIR \
           -DOpenMP_ROOT=$OpenMP_ROOT \
           -DUSE_FFmpeg=ON \
-          -DEXPIRATION_TIME:STRING=${{inputs.EXPIRATION_TIME}}  \
+          -DEXPIRATION_TIME:STRING=$EXPIRATION_TIME \
           -DUSE_RealTimeWorkspace=OFF
           
     - name: Build
