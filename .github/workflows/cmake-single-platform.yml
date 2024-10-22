@@ -46,7 +46,7 @@ jobs:
         brew install qt@5
         brew install boost
         # brew info swig
-        # brew info libomp        
+        brew info libomp        
         pip3 install dmgbuild
 
     - name: Set default EXPIRATION_TIME if not provided (with non manual workflow)
