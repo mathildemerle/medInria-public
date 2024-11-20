@@ -117,9 +117,6 @@ jobs:
         else
           echo "A problem happened in MSC compilation, no dmg is built"
         fi       
-
-    - name: Install Git LFS
-      run: git lfs install
       
     - name: Transfer binary to external repository
       run: |
@@ -127,13 +124,6 @@ jobs:
           echo "MSC_TOKEN is not set"
           exit 1
         fi
-        # git clone https://$MSC_TOKEN@github.com/Inria-Asclepios/msc_binaries.git
-        # cd msc_binaries
-        # cp ../build/MUSICardio.dmg .
-        # git lfs track "*.dmg"
-        # git add .gitattributes MUSICardio.dmg
-        # git commit -m "Add new DMG file"
-        # git push
 
         OWNER="Inria-Asclepios"
         REPO="msc_binaries"
@@ -143,16 +133,22 @@ jobs:
         # Get the release and asset (binary) ID
         RELEASE_INFO=$(curl -s -H "Authorization: Bearer $MSC_TOKEN" \
                             "https://api.github.com/repos/$OWNER/$REPO/releases/latest")
+        echo "RELEASE_INFO: $RELEASE_INFO"
         RELEASE_ID=$(echo $RELEASE_INFO | jq -r '.id')
         ASSET_ID=$(echo $RELEASE_INFO | jq -r --arg NAME "$ASSET_NAME" '.assets[] | select(.name == $NAME) | .id')
+
+        if [ "$RELEASE_ID" == "null" ] || [ -z "$RELEASE_ID" ]; then
+          echo "No published release found. Please create a release first."
+          exit 1
+        fi
         
         # Remove old asset if exist
-        if [ ! -z "$ASSET_ID" ]; then
+        if [ "$ASSET_ID" == "null" ] || [ -z "$ASSET_ID" ]; then
+          echo "No existing asset named $ASSET_NAME found in the release."
+        else
           curl -X DELETE -H "Authorization: Bearer $MSC_TOKEN" \
                "https://api.github.com/repos/$OWNER/$REPO/releases/assets/$ASSET_ID"
           echo "Asset $ASSET_NAME deleted successfully."
-        else
-          echo "No existing asset named $ASSET_NAME found."
         fi
         
         # Upload new binary
