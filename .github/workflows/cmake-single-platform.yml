@@ -14,8 +14,8 @@ on:
         required: true
         default: '12'
         type: string
-  schedule:
-    - cron: '0 0 * * 1'  # Each monday at 0h00, MIN HOUR DAY_IN_MONTH MONTH WEEK_DAY
+  #schedule:
+  #  - cron: '0 0 * * 1'  # Each monday at 0h00, MIN HOUR DAY_IN_MONTH MONTH WEEK_DAY
 
 env:
   BUILD_TYPE: Release
@@ -127,10 +127,39 @@ jobs:
           echo "MSC_TOKEN is not set"
           exit 1
         fi
-        git clone https://$MSC_TOKEN@github.com/Inria-Asclepios/msc_binaries.git
-        cd msc_binaries
-        cp ../build/MUSICardio.dmg .
-        git lfs track "*.dmg"
-        git add .gitattributes MUSICardio.dmg
-        git commit -m "Add new DMG file"
-        git push
+        # git clone https://$MSC_TOKEN@github.com/Inria-Asclepios/msc_binaries.git
+        # cd msc_binaries
+        # cp ../build/MUSICardio.dmg .
+        # git lfs track "*.dmg"
+        # git add .gitattributes MUSICardio.dmg
+        # git commit -m "Add new DMG file"
+        # git push
+
+        OWNER="Inria-Asclepios"
+        REPO="msc_binaries"
+        ASSET_NAME="MUSICardio.dmg"
+        NEW_BINARY_PATH="MUSICardio.dmg"
+        
+        # Get the release and asset (binary) ID
+        RELEASE_INFO=$(curl -s -H "Authorization: Bearer $MSC_TOKEN" \
+                            "https://api.github.com/repos/$OWNER/$REPO/releases/latest")
+        RELEASE_ID=$(echo $RELEASE_INFO | jq -r '.id')
+        ASSET_ID=$(echo $RELEASE_INFO | jq -r --arg NAME "$ASSET_NAME" '.assets[] | select(.name == $NAME) | .id')
+        
+        # Remove old asset if exist
+        if [ ! -z "$ASSET_ID" ]; then
+          curl -X DELETE -H "Authorization: Bearer $MSC_TOKEN" \
+               "https://api.github.com/repos/$OWNER/$REPO/releases/assets/$ASSET_ID"
+          echo "Asset $ASSET_NAME deleted successfully."
+        else
+          echo "No existing asset named $ASSET_NAME found."
+        fi
+        
+        # Upload new binary
+        curl -X POST -H "Authorization: Bearer $MSC_TOKEN" \
+             -H "Content-Type: application/octet-stream" \
+             --data-binary @"$NEW_BINARY_PATH" \
+             "https://uploads.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID/assets?name=$ASSET_NAME"
+        
+        echo "New binary uploaded successfully."
+          
