@@ -120,6 +120,8 @@ jobs:
       
     - name: Transfer binary to external repository
       run: |
+        cd "${{github.workspace}}/build"
+        
         if [ -z "$MSC_TOKEN" ]; then
           echo "MSC_TOKEN is not set"
           exit 1
@@ -133,12 +135,11 @@ jobs:
         # Get the release and asset (binary) ID
         RELEASE_INFO=$(curl -s -H "Authorization: Bearer $MSC_TOKEN" \
                             "https://api.github.com/repos/$OWNER/$REPO/releases/latest")
-        echo "RELEASE_INFO: $RELEASE_INFO"
         RELEASE_ID=$(echo $RELEASE_INFO | jq -r '.id')
         ASSET_ID=$(echo $RELEASE_INFO | jq -r --arg NAME "$ASSET_NAME" '.assets[] | select(.name == $NAME) | .id')
 
         if [ "$RELEASE_ID" == "null" ] || [ -z "$RELEASE_ID" ]; then
-          echo "No published release found. Please create a release first."
+          echo "Error: no published release found."
           exit 1
         fi
         
@@ -149,6 +150,12 @@ jobs:
           curl -X DELETE -H "Authorization: Bearer $MSC_TOKEN" \
                "https://api.github.com/repos/$OWNER/$REPO/releases/assets/$ASSET_ID"
           echo "Asset $ASSET_NAME deleted successfully."
+        fi
+
+        # Check if the binary file exists
+        if [ ! -f "$NEW_BINARY_PATH" ]; then
+          echo "Error: file $NEW_BINARY_PATH not found."
+          exit 1
         fi
         
         # Upload new binary
