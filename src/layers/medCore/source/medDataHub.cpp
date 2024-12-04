@@ -1271,7 +1271,7 @@ medAbstractData * medDataHub::loadDataFromPathAsIndex(medDataIndex index, QUuid 
     {
         medAbstractData * pDataRes = m_IndexToData[index];
         emit dataLoaded(index);
-        medDataManager::instance()->medDataHubRelay(index, uuid);
+        medDataManager::instance().medDataHubRelay(index, uuid);
         return pDataRes;
     }
     QString path = indexToFileSysPath(index.asString());
@@ -1287,7 +1287,7 @@ medAbstractData * medDataHub::loadDataFromPathAsIndex(medDataIndex index, QUuid 
         getVirtualRepresentation()->addDataFromFile(path, pDataRes);
         emit dataLoaded(index);
 
-        medDataManager::instance()->medDataHubRelay(index, uuid);
+        medDataManager::instance().medDataHubRelay(index, uuid);
         notif->update(notifLevel::success, -1, QString("Success"));
 
     }

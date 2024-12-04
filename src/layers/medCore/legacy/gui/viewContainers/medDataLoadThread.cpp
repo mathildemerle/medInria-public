@@ -29,7 +29,7 @@ medDataLoadThread::~medDataLoadThread()
 
 void medDataLoadThread::process()
 {
-    m_pAbsData = medDataManager::instance()->retrieveData(m_index);
+    m_pAbsData = medDataManager::instance().retrieveData(m_index);
     if (m_pAbsData)
     {
         emit dataReady(m_pAbsData);

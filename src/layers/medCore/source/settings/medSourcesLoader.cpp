@@ -184,7 +184,7 @@ medAbstractSource * medSourcesLoader::getSource(QString const &instanceId)
 
 medAbstractSource * medSourcesLoader::getDefaultWorkingSource()
 {
-    return &(*m_instancesMap.value(medSettingsManager::instance()->value("Sources", "Default", "").toString()));
+    return &(*m_instancesMap.value(medSettingsManager::instance().value("Sources", "Default", "").toString()));
 }
 
 
@@ -203,7 +203,7 @@ bool medSourcesLoader::setDefaultWorkingSource(QString const &instanceId)
         if (bWritable && (bLocal || (!bLocal && bCached && bOnline)))
         {
             m_defaultSource = &(*source);
-            medSettingsManager::instance()->setValue("Sources", "Default", instanceId);
+            medSettingsManager::instance().setValue("Sources", "Default", instanceId);
             emit defaultWorkingSource(m_defaultSource);
         }
         else
@@ -229,7 +229,7 @@ bool medSourcesLoader::setPath(QString path)
     {
         if (QFile::exists(path + '/' + MED_DATASOURCES_FILENAME))
         {
-            medSettingsManager::instance()->setValue("Sources", "Conf dir", path);
+            medSettingsManager::instance().setValue("Sources", "Conf dir", path);
         }
         else
         {
@@ -244,7 +244,7 @@ bool medSourcesLoader::setPath(QString path)
     }
     else if (QFile::exists(path))
     {
-        medSettingsManager::instance()->setValue("Sources", "Conf dir", path);
+        medSettingsManager::instance().setValue("Sources", "Conf dir", path);
     }
     else
     {
@@ -290,7 +290,7 @@ medSourcesLoader::medSourcesLoader(QObject *parent)
     m_CnxParametersFile = MED_DATASOURCES_FILENAME;
     m_CnxParametersPath = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + "/" + QCoreApplication::organizationName() + "/" + QCoreApplication::applicationName();
 
-    auto cnxParametersSaved = medSettingsManager::instance()->value("Sources", "Conf dir", ".").toString();
+    auto cnxParametersSaved = medSettingsManager::instance().value("Sources", "Conf dir", ".").toString();
     
     QFileInfo info(cnxParametersSaved); 
     if (info.isFile())
@@ -428,7 +428,7 @@ bool medSourcesLoader::loadFromDisk()
 
     if (bRes)
     {
-        setDefaultWorkingSource(medSettingsManager::instance()->value("Sources", "Default", 0).toString());
+        setDefaultWorkingSource(medSettingsManager::instance().value("Sources", "Default", 0).toString());
     }
 
     return bRes;
