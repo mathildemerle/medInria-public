@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
         parser.process(application);
 
 
-    medSettingsManager &mnger = medSettingsManager::instance();
+    medSettingsManager &manager = medSettingsManager::instance();
 
     QStringList posargs;
     for (int i=1;i<application.arguments().size();++i)
@@ -142,29 +142,27 @@ int main(int argc, char *argv[])
         if (arg.startsWith("--"))
         {
             int center = parser.value("center").toInt();
-            medSettingsManager *mnger = medSettingsManager::instance();
-            mnger->setValue("database", "center", center, false);
+            manager.setValue("database", "center", center, false);
         }
 
         const bool remoteDb = parser.isSet("remotedb");
         if (remoteDb)
         {
-            medSettingsManager *mnger = medSettingsManager::instance();
-            mnger->setValue("database", "remotedb", remoteDb, false);
+            manager.setValue("database", "remotedb", remoteDb, false);
             if (parser.isSet("host"))
             {
                 QString hostname = parser.value("host");
-                mnger->setValue("database", "hostname", hostname, false);
+                manager.setValue("database", "hostname", hostname, false);
             }
             if (parser.isSet("port"))
             {
                 int port = parser.value("port").toInt();
-                mnger->setValue("database", "port", port, false);
+                manager.setValue("database", "port", port, false);
             }
             if (parser.isSet("db_prefix_path"))
             {
                 QString db_prefix_path = parser.value("db_prefix_path");
-                mnger->setValue("database", "db_prefix_path", db_prefix_path, false);
+                manager.setValue("database", "db_prefix_path", db_prefix_path, false);
             }
         }
         const bool DirectView = parser.isSet("view");
@@ -204,8 +202,8 @@ int main(int argc, char *argv[])
 
         medSourcesLoader::instance(&application);     
 
-        medPluginManager::instance()->setVerboseLoading(true);
-        medPluginManager::instance()->initialize();
+        medPluginManager::instance().setVerboseLoading(true);
+        medPluginManager::instance().initialize();
         auto sourceHandler = medSourceHandler::instance(&application);
         auto model = medDataHub::instance(&application);
         auto virtualRepresentation = new medVirtualRepresentation(&application);
@@ -224,8 +222,8 @@ int main(int argc, char *argv[])
         medApplicationContext::instance()->setDataHub(model);
         medApplicationContext::instance()->setNotifSys(notifSys);
         medApplicationContext::instance()->setSourceHandler(sourceHandler);
-        medApplicationContext::instance()->setPluginManager(medPluginManager::instance());
-        medApplicationContext::instance()->setDataManager(medDataManager::instance());
+        medApplicationContext::instance()->setPluginManager(&medPluginManager::instance());
+        medApplicationContext::instance()->setDataManager(&medDataManager::instance());
 
         notifSys->setOperatingSystemNotification(true);
         notifSys->setOperatingSystemNotification(true);
@@ -296,7 +294,7 @@ int main(int argc, char *argv[])
             QGLFormat::setDefaultFormat(format);
         }
 
-        if (medPluginManager::instance()->plugins().isEmpty())
+        if (medPluginManager::instance().plugins().isEmpty())
         {
             QMessageBox::warning(
                 mainwindow, QObject::tr("No plugin loaded"),
@@ -318,7 +316,8 @@ int main(int argc, char *argv[])
         //  Start main loop.
         const int status = application.exec();
 
-        medPluginManager::instance()->uninitialize();
+        medPluginManager::instance().uninitialize();
 
         return status;
+    }
 }

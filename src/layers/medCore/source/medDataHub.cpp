@@ -1257,7 +1257,7 @@ QList<medAbstractData*> medDataHub::loadDataFromPathAsIndex(medDataIndex index, 
             {
                 dataResList << m_IndexToData[volumeIndex];
                 emit dataLoaded(volumeIndex);
-                medDataManager::instance()->medDataHubRelay(volumeIndex, uuid);
+                medDataManager::instance().medDataHubRelay(index, uuid);
                 return dataResList;
             }
             else //we iterate on detected volumes
@@ -1273,7 +1273,7 @@ QList<medAbstractData*> medDataHub::loadDataFromPathAsIndex(medDataIndex index, 
                 emit dataLoaded(volumeIndex);
 
                 dataResList << data;
-                medDataManager::instance()->medDataHubRelay(volumeIndex, uuid);
+                medDataManager::instance().medDataHubRelay(volumeIndex, uuid);
             }
         }
     }
