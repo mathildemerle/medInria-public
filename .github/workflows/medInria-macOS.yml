@@ -31,7 +31,7 @@ jobs:
         # brew info cmake
         brew install qt@5
         # brew info swig
-        brew install git-lfs
+        # brew info git-lfs
 
     - name: Configure CMake
       run: |
