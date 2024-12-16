@@ -31,7 +31,6 @@ jobs:
         # brew info cmake
         brew install qt@5
         # brew info swig
-        brew info libomp
         brew install git-lfs
 
     - name: Configure CMake
