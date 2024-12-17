@@ -13,7 +13,7 @@ on:
 
 env:
   BUILD_TYPE: Release
-  QT5_DIR: "/usr/local/opt/qt@5/lib/cmake/Qt5" # Qt 13
+  QT5_DIR: "" #"/usr/local/opt/qt@5/lib/cmake/Qt5" for Qt 13
 
 jobs:
   build:
@@ -30,7 +30,9 @@ jobs:
       run: |
         # brew info cmake
         brew install qt@5
-        brew --prefix qt@5
+        QT5_PREFIX=$(brew --prefix qt@5)
+        export QT5_DIR="$QT5_PREFIX/lib/cmake/Qt5"
+        echo "QT5_DIR is set to $QT5_DIR"
         # brew info swig
         # brew info git-lfs
 
