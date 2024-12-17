@@ -13,7 +13,7 @@ on:
 
 env:
   BUILD_TYPE: Release
-  QT5_DIR: "/opt/homebrew/opt/qt@5/lib/cmake/Qt5" #"/usr/local/opt/qt@5/lib/cmake/Qt5" for Qt 13
+  #QT5_DIR: "/opt/homebrew/opt/qt@5/lib/cmake/Qt5" for Qt 14 #"/usr/local/opt/qt@5/lib/cmake/Qt5" for Qt 13 for instance
 
 jobs:
   build:
@@ -29,9 +29,7 @@ jobs:
     - name: Install dependencies
       run: |
         brew install qt@5
-        QT5_PREFIX=$(brew --prefix qt@5)
-        echo $QT5_PREFIX
-        ls -l $(brew --prefix qt@5)/lib/cmake
+        echo "QT5_DIR=$(brew --prefix qt@5)/lib/cmake/Qt5" >> $GITHUB_ENV
         # brew info cmake
         # brew info swig
         # brew info git-lfs
