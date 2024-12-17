@@ -42,7 +42,8 @@ jobs:
           -DEP_CHECKBOX_ON_TOP_LEVEL:BOOL=OFF \
           -DEP_CHECKBOX_SIDE_BY_SIDE:BOOL=OFF \
           -DQt5_DIR=$QT5_DIR \
-          -DUSE_FFmpeg=OFF
+          -DUSE_FFmpeg=OFF \
+          -DCMAKE_OSX_ARCHITECTURES="x86_64"
           
     - name: Build
       run: | 
