@@ -31,9 +31,9 @@ jobs:
         # brew info cmake
         brew install qt@5
         QT5_PREFIX=$(brew --prefix qt@5)
+        ls -l $QT5_DIR
         export QT5_DIR="$QT5_PREFIX/lib/cmake/Qt5"
         echo "QT5_DIR is set to $QT5_DIR"
-        ls -l $QT5_DIR
         # brew info swig
         # brew info git-lfs
 
