@@ -55,9 +55,18 @@ jobs:
         cd ${{github.workspace}}/build
         cpack -C $BUILD_TYPE
 
+    - name: Find .dmg file
+      run: |
+        FILE=$(find ${{github.workspace}}/build -name "*.dmg" -print -quit)
+        if [ -z "$FILE" ]; then
+          echo "No .dmg file found in build directory."
+          exit 1
+        fi
+        echo "FILE=$FILE" >> $GITHUB_ENV
+        
     - name: Upload asset to GitHub Release
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: build/medInria.dmg
+        file: ${{ env.FILE }}
         tag: medInria-weekly
