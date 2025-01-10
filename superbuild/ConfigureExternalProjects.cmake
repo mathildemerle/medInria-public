@@ -97,6 +97,8 @@ else()
   endif()
 endif()
 
+message(STATUS "EP_PATH_BASE is set to: ${EP_PATH_BASE}")
+
 function(epComputPath ep)
   if(DEFINED EP_PATH_BUILD)
     set(build_path "${EP_PATH_BUILD}/${ep}" PARENT_SCOPE)
