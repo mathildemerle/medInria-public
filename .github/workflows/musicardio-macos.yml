@@ -1,0 +1,161 @@
+# This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
+name: MUSICardio on macOS
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+    inputs:
+      EXPIRATION_TIME:
+        description: 'Expiration time in month'
+        required: true
+        default: '12'
+        type: string
+  #schedule:
+  #  - cron: '0 0 * * 1'  # Each monday at 0h00, MIN HOUR DAY_IN_MONTH MONTH WEEK_DAY
+
+env:
+  BUILD_TYPE: Release
+  QT5_DIR: "/usr/local/opt/qt@5/lib/cmake/Qt5"
+  OpenMP_ROOT: "/usr/local/Cellar/libomp/19.1.0"
+  MSC_SSH_PLUGINS: ${{ secrets.MSC_SSH_PLUGINS }}
+  MSC_TOKEN: ${{ secrets.MSC_TOKEN }}
+
+jobs:
+  build:
+    # https://docs.github.com/en/actions/using-jobs/choosing-the-runner-for-a-job#standard-github-hosted-runners-for-public-repositories
+    runs-on: macos-12
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "$MSC_SSH_PLUGINS" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+    - name: Install dependencies
+      run: |
+        brew install qt@5
+        brew install boost
+        brew info libomp        
+        pip3 install dmgbuild
+        # brew info cmake
+        # brew info swig
+        
+    - name: Set default EXPIRATION_TIME if not provided (with non manual workflow)
+      run: echo "EXPIRATION_TIME=${{ inputs.EXPIRATION_TIME || '12' }}" >> $GITHUB_ENV
+
+    - name: Configure CMake
+      run: |
+        cmake -B ${{github.workspace}}/build \
+          -DUSE_GITHUB_SSH:BOOL=TRUE \
+          -DmedInria_BUILD_TYPE:STRING=$BUILD_TYPE \
+          -Dmusic-plugins_BUILD_TYPE:STRING=$BUILD_TYPE \
+          -DEP_CHECKBOX_CUSTOM_DIRS:BOOL=ON \
+          -DEP_CHECKBOX_ON_TOP_LEVEL:BOOL=OFF \
+          -DEP_CHECKBOX_SIDE_BY_SIDE:BOOL=OFF \
+          -DQt5_DIR=$QT5_DIR \
+          -DOpenMP_ROOT=$OpenMP_ROOT \
+          -DUSE_FFmpeg=ON \
+          -DEXPIRATION_TIME:STRING=$EXPIRATION_TIME \
+          -DUSE_RealTimeWorkspace=OFF
+          
+    - name: Build
+      run: | 
+        CORES_TO_USE=$(($(sysctl -n hw.ncpu) - 1)) # Limit the number of used core otherwise the compilation crashes sometimes
+        echo "Using $CORES_TO_USE cores for the build"
+        cmake --build ${{github.workspace}}/build --config $BUILD_TYPE --parallel $CORES_TO_USE
+
+    - name: Package
+      run: |
+        cd ${{github.workspace}}/build
+        cpack -C $BUILD_TYPE
+
+    - name: Prepare DMG and update design
+      run: |
+        cd ${{github.workspace}}/build
+        dmg=$(ls *.dmg)
+        echo "The current package to adapt: $dmg"
+
+        if [ -n "$dmg" ]; then
+          # Attach to read-write format and retrieve mount path
+          path=$(hdiutil attach -owners on $dmg -shadow | grep -i 'Volumes' | cut -f 3)
+          echo "The current path: $path"
+
+          # Navigate to correct directory
+          cd "$path/MUSICardio.app/Contents/"
+
+          pathPluginsLegacy="${{github.workspace}}/build/medInria-build/bin/plugins_legacy"
+
+          # Change library paths for plugins
+          for f in PlugIns/*.dylib; do
+            install_name_tool -change $pathPluginsLegacy/libAAMeshInteractorPlugin.dylib  @executable_path/../PlugIns/libAAMeshInteractorPlugin.dylib $f
+            install_name_tool -change $pathPluginsLegacy/libAAAMeshUtilityPlugin.dylib    @executable_path/../PlugIns/libAAAMeshUtilityPlugin.dylib $f
+            install_name_tool -change $pathPluginsLegacy/libAAAmedPipelinePlugin.dylib    @executable_path/../PlugIns/libAAAmedPipelinePlugin.dylib $f
+            install_name_tool -change $pathPluginsLegacy/libmscPipelinesPlugin.dylib      @executable_path/../PlugIns/libmscPipelinesPlugin.dylib $f
+            install_name_tool -change $pathPluginsLegacy/libAAAEPMapPlugin.dylib          @executable_path/../PlugIns/libAAAEPMapPlugin.dylib $f
+            install_name_tool -change $pathPluginsLegacy/libAAMFSSimulationPlugin.dylib   @executable_path/../PlugIns/libAAMFSSimulationPlugin.dylib $f
+            install_name_tool -change $pathPluginsLegacy/libFEMForwardProblemPlugin.dylib @executable_path/../PlugIns/libFEMForwardProblemPlugin.dylib $f
+          done
+
+          # Go back to original path
+          cd "${{github.workspace}}/build"
+
+          # Update dmg design
+          echo "### Now we are going to update the dmg design"
+          volumeName=$(basename "$path")
+          dmgbuild -s ../packaging/apple/settings.json "$volumeName" MUSICardio.dmg
+
+          echo "End of the processes"
+        else
+          echo "A problem happened in MSC compilation, no dmg is built"
+        fi       
+      
+    - name: Transfer binary to external repository
+      run: |
+        if [ -z "$MSC_TOKEN" ]; then
+          echo "MSC_TOKEN is not set"
+          exit 1
+        fi
+
+        OWNER="Inria-Asclepios"
+        REPO="msc_binaries"
+        ASSET_NAME="MUSICardio.dmg"
+        NEW_BINARY_PATH="MUSICardio.dmg"
+        
+        # Get the release and asset (binary) ID
+        RELEASE_INFO=$(curl -s -H "Authorization: Bearer $MSC_TOKEN" \
+                            "https://api.github.com/repos/$OWNER/$REPO/releases/latest")
+        echo "RELEASE_INFO: $RELEASE_INFO"
+        RELEASE_ID=$(echo $RELEASE_INFO | jq -r '.id')
+        ASSET_ID=$(echo $RELEASE_INFO | jq -r --arg NAME "$ASSET_NAME" '.assets[] | select(.name == $NAME) | .id')
+
+        if [ "$RELEASE_ID" == "null" ] || [ -z "$RELEASE_ID" ]; then
+          echo "No published release found. Please create a release first."
+          exit 1
+        fi
+        
+        # Remove old asset if exist
+        if [ "$ASSET_ID" == "null" ] || [ -z "$ASSET_ID" ]; then
+          echo "No existing asset named $ASSET_NAME found in the release."
+        else
+          curl -X DELETE -H "Authorization: Bearer $MSC_TOKEN" \
+               "https://api.github.com/repos/$OWNER/$REPO/releases/assets/$ASSET_ID"
+          echo "Asset $ASSET_NAME deleted successfully."
+        fi
+        
+        # Upload new binary
+        curl -X POST -H "Authorization: Bearer $MSC_TOKEN" \
+             -H "Content-Type: application/octet-stream" \
+             --data-binary @"$NEW_BINARY_PATH" \
+             "https://uploads.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID/assets?name=$ASSET_NAME"
+        
+        echo "New binary uploaded successfully."
+          
