@@ -4,9 +4,9 @@ name: MUSICardio on macOS
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "4.1" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "4.1" ]
   workflow_dispatch:
     inputs:
       EXPIRATION_TIME:
@@ -20,7 +20,6 @@ on:
 env:
   BUILD_TYPE: Release
   QT5_DIR: "/usr/local/opt/qt@5/lib/cmake/Qt5"
-  OpenMP_ROOT: "/usr/local/Cellar/libomp/19.1.6"
   MSC_SSH_PLUGINS: ${{ secrets.MSC_SSH_PLUGINS }}
   MSC_TOKEN: ${{ secrets.MSC_TOKEN }}
 
@@ -32,6 +31,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+          ref: 4.1
 
     - name: Set up SSH
       run: |
@@ -44,11 +45,12 @@ jobs:
       run: |
         brew install qt@5
         brew install boost
-        brew install libomp        
+        brew install swig
+        brew install libomp
+        echo "OpenMP_ROOT=$(brew --prefix libomp)" >> $GITHUB_ENV
         pip3 install dmgbuild
         # brew info cmake
-        # brew info swig
-        
+
     - name: Set default EXPIRATION_TIME if not provided (with non manual workflow)
       run: echo "EXPIRATION_TIME=${{ inputs.EXPIRATION_TIME || '12' }}" >> $GITHUB_ENV
 
@@ -116,46 +118,17 @@ jobs:
           echo "End of the processes"
         else
           echo "A problem happened in MSC compilation, no dmg is built"
-        fi       
+        fi
       
-    - name: Transfer binary to external repository
-      run: |
-        if [ -z "$MSC_TOKEN" ]; then
-          echo "MSC_TOKEN is not set"
-          exit 1
-        fi
-
-        OWNER="Inria-Asclepios"
-        REPO="msc_binaries"
-        ASSET_NAME="MUSICardio.dmg"
-        NEW_BINARY_PATH="MUSICardio.dmg"
-        
-        # Get the release and asset (binary) ID
-        RELEASE_INFO=$(curl -s -H "Authorization: Bearer $MSC_TOKEN" \
-                            "https://api.github.com/repos/$OWNER/$REPO/releases/latest")
-        echo "RELEASE_INFO: $RELEASE_INFO"
-        RELEASE_ID=$(echo $RELEASE_INFO | jq -r '.id')
-        ASSET_ID=$(echo $RELEASE_INFO | jq -r --arg NAME "$ASSET_NAME" '.assets[] | select(.name == $NAME) | .id')
-
-        if [ "$RELEASE_ID" == "null" ] || [ -z "$RELEASE_ID" ]; then
-          echo "No published release found. Please create a release first."
-          exit 1
-        fi
-        
-        # Remove old asset if exist
-        if [ "$ASSET_ID" == "null" ] || [ -z "$ASSET_ID" ]; then
-          echo "No existing asset named $ASSET_NAME found in the release."
-        else
-          curl -X DELETE -H "Authorization: Bearer $MSC_TOKEN" \
-               "https://api.github.com/repos/$OWNER/$REPO/releases/assets/$ASSET_ID"
-          echo "Asset $ASSET_NAME deleted successfully."
-        fi
-        
-        # Upload new binary
-        curl -X POST -H "Authorization: Bearer $MSC_TOKEN" \
-             -H "Content-Type: application/octet-stream" \
-             --data-binary @"$NEW_BINARY_PATH" \
-             "https://uploads.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID/assets?name=$ASSET_NAME"
-        
-        echo "New binary uploaded successfully."
-          
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_name: Inria-Asclepios/msc_binaries
+        # A personal access token for the GitHub repository in which the release will be created and edited.
+        # It is recommended to create the access token with the following scopes: `repo, user, admin:repo_hook`.
+        repo_token: ${{ secrets.MSC_TOKEN }}
+        file: ${{github.workspace}}/build/MUSICardio.dmg
+        asset_name: MUSICardio.dmg
+        tag: latest
+        overwrite: true
+        body: "MUSICardio binaries"
