@@ -117,15 +117,13 @@ else()
   set(${ep}_cxx_flags ${ep_common_cxx_flags})
   set(${ep}_shared_linker_flags ${ep_common_shared_linker_flags})
   
-  # Add PIC flag if Static build on UNIX with amd64 arch
+  # Add PIC flag if Static build on UNIX
   if (UNIX)
-    if (NOT BUILD_SHARED_LIBS_${ep} AND 
-        "${CMAKE_SYSTEM_PROCESSOR}" MATCHES 64)
-        
+    if (NOT BUILD_SHARED_LIBS_${ep})
       set(${ep}_c_flags "${${ep}_c_flags} -fPIC")
       set(${ep}_cxx_flags "${${ep}_cxx_flags} -fPIC")
     endif()
-  endif()  
+  endif()
 
   if (APPLE)
     if (BUILD_SHARED_LIBS_${ep})
