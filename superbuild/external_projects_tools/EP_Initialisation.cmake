@@ -25,7 +25,7 @@ if (NOT ep_Initialisation_USE_SYSTEM)
 endif()
 
 if (NOT ep_Initialisation_BUILD_SHARED_LIBS)
-    set(ep_Initialisation_BUILD_SHARED_LIBS ON)
+    set(ep_Initialisation_BUILD_SHARED_LIBS OFF)
 endif()
 
 if (NOT ep_Initialisation_REQUIRED_FOR_PLUGINS)
@@ -58,7 +58,7 @@ if (USE_SYSTEM_${ep})
             #  provide path of project needeed for Asclepios and visages plugins
             file(APPEND ${${PROJECT_NAME}_CONFIG_FILE}
                 "find_package(${ep_Initialisation_PACKAGE_NAME} REQUIRED
-                    PATHS \"${${ep_Initialisation_PACKAGE_NAME}_DIR}\"
+                    PATHS \"${${ep_Initialisation_PACKAGE_NAME}_ROOT}\"
                     )\n"
                 )
         endif()
@@ -108,6 +108,9 @@ else()
     )
   mark_as_advanced(BUILD_SHARED_LIBS_${ep})
   
+  if (NOT ep_Initialisation_BUILD_SHARED_LIBS)
+    set(BUILD_SHARED_LIBS_${ep} OFF CACHE BOOL "Build shared libs for ${ep}" FORCE)
+  endif()
   
 ## #############################################################################
 ## Set compilation flags
