@@ -79,6 +79,8 @@ if (WIN32 AND ${CMAKE_GENERATOR} STREQUAL "Visual Studio 16 2019")
     ep_GeneratePatchCommand(${ep} ${ep}_PATCH_COMMAND ITK_Win.patch)
 elseif(APPLE)
     ep_GeneratePatchCommand(${ep} ${ep}_PATCH_COMMAND ITK_Mac.patch)
+elseif(UNIX AND NOT APPLE)
+    ep_GeneratePatchCommand(${ep} ${ep}_PATCH_COMMAND ITK_Ubuntu.patch)
 endif()
 
 ## #############################################################################

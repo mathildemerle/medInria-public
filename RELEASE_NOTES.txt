@@ -27,6 +27,7 @@ medInria 4.0:
     * Allow to use data with different size or spacing in LCCLogDemons and DiffeomorphicDemons.
     * Manual Registration: enhance landmark numbers for better user understanding.
     * Fix Histogram Analysis width problem displaying multi-results.
+- BUGFIX 4.0.2: compilation on Ubuntu 24.
 
 medInria 3.3:
 - Fix mirrored DICOM images problem
