@@ -40,7 +40,7 @@ if (NOT USE_SYSTEM_${ep})
 
 
 set(git_url ${GITHUB_PREFIX}InsightSoftwareConsortium/ITK.git)
-set(git_tag v5.2.1)
+set(git_tag v5.4.5)
 
 
 ## #############################################################################
@@ -75,13 +75,7 @@ set(cmake_args
 ## Check if patch has to be applied
 ## #############################################################################
   
-if (WIN32 AND ${CMAKE_GENERATOR} STREQUAL "Visual Studio 16 2019")
-    ep_GeneratePatchCommand(${ep} ${ep}_PATCH_COMMAND ITK_Win.patch)
-elseif(APPLE)
-    ep_GeneratePatchCommand(${ep} ${ep}_PATCH_COMMAND ITK_Mac.patch)
-elseif(UNIX AND NOT APPLE)
-    ep_GeneratePatchCommand(${ep} ${ep}_PATCH_COMMAND ITK_Ubuntu.patch)
-endif()
+# ep_GeneratePatchCommand(${ep} ${ep}_PATCH_COMMAND ITK.patch)
 
 ## #############################################################################
 ## Add external-project
