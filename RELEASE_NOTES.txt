@@ -30,6 +30,7 @@ medInria 4.0:
 - BUGFIX 4.0.2:
     * Compilation on Ubuntu 24.
     * Switch to ITK v5.4.5.
+    * Fix import of DICOMs without .dcm extension.
 
 medInria 3.3:
 - Fix mirrored DICOM images problem
