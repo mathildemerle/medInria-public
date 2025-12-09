@@ -17,12 +17,10 @@
 #include <medSettingsManager.h>
 #include <medWorkspaceFactory.h>
 
-<<<<<<< HEAD
 #include <QtGlobal>
-=======
+
 #define VAL(str) #str
 #define TOSTRING(str) VAL(str)
->>>>>>> f05491a24 ([Custom] configure setting file to customize medInria 4)
 
 class medHomepageAreaPrivate
 {
@@ -39,12 +37,8 @@ medHomepageArea::medHomepageArea ( QWidget * parent ) : QWidget ( parent ), d ( 
     d->descriptionWidget = new QWidget(this);
     d->descriptionWidget->setProperty("pos", QPoint(10, this->height()/7));
 
-<<<<<<< HEAD
     QHBoxLayout *descriptionLayout = new QHBoxLayout(d->descriptionWidget);
     descriptionLayout->setContentsMargins(0, 0, 0, 0);
-=======
-    QVBoxLayout *descriptionLayout = new QVBoxLayout(d->descriptionWidget);
->>>>>>> f05491a24 ([Custom] configure setting file to customize medInria 4)
 
     // Themes
     QVariant themeChosen = medSettingsManager::instance()->value("startup","theme");
@@ -68,15 +62,10 @@ medHomepageArea::medHomepageArea ( QWidget * parent ) : QWidget ( parent ), d ( 
     QPixmap medLogo(qssLogoName);
     medLogo = medLogo.scaled(356, 102, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     d->applicationLabel = new QLabel(this);
-<<<<<<< HEAD
     QPixmap applicationLogo = getApplicationLogoPixmap();
     d->applicationLabel->setPixmap(applicationLogo);
     descriptionLayout->addWidget(d->applicationLabel);
     descriptionLayout->setSpacing(13);
-=======
-    d->applicationLabel->setPixmap(medLogo);
-    descriptionLayout->addWidget(d->applicationLabel);
->>>>>>> f05491a24 ([Custom] configure setting file to customize medInria 4)
 
     d->textEdit = new QTextEdit(this);
     QFile descriptionFile(QString(TOSTRING(DESCRIPTION_HOMEPAGE)));
@@ -86,16 +75,8 @@ medHomepageArea::medHomepageArea ( QWidget * parent ) : QWidget ( parent ), d ( 
     d->textEdit->setHtml(descriptionStream.readAll());
     d->textEdit->setReadOnly(true);
     d->textEdit->setFocusPolicy(Qt::NoFocus);
-<<<<<<< HEAD
-    d->textEdit->setMinimumWidth(520);
-    d->textEdit->setMinimumHeight(150);
-    d->textEdit->setMaximumHeight(150);
-    d->textEdit->setStyleSheet("QTextEdit { padding: 5px; }");
-    d->textEdit->setAlignment(Qt::AlignLeft);
-=======
     d->textEdit->setMaximumHeight(70);
     d->textEdit->setStyleSheet("background : transparent;");
->>>>>>> f05491a24 ([Custom] configure setting file to customize medInria 4)
     descriptionLayout->addWidget(d->textEdit);
 
     // Setup the navigation widget with buttons to access workspaces
@@ -291,113 +272,7 @@ void medHomepageArea::onShowBrowser()
 {
     emit showBrowser();
 }
-<<<<<<< HEAD
  
-=======
-
-void medHomepageArea::onShowAbout()
-{
-    QFile file(TOSTRING(ABOUT_FILE));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QString text = file.readAll();
-
-    QMessageBox msgBox;
-    msgBox.setText(text);
-    msgBox.exec();
-}
-
-/**
- * @brief Search the "Show Details..." button and click it to expand the text
- * 
- * @param msgBox 
- */
-void medHomepageArea::expandDetailedText(QMessageBox *msgBox)
-{
-    foreach (auto *button, msgBox->buttons())
-    {
-        if (msgBox->buttonRole(button) == QMessageBox::ActionRole)
-        {
-            button->click();
-            break;
-        }
-    }
-}
-
-void medHomepageArea::onShowAuthors()
-{
-    QFile file(":authors.txt");
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QString text = file.readAll();
-
-    std::string str = TOSTRING(ADDITIONAL_AUTHORS_LIST);
-    str.erase(std::remove(str.begin(),str.end(),'\"'),str.end());
-    QString additionalAuthors = QString::fromStdString(str);
-    if (!additionalAuthors.isEmpty())
-    {   
-        additionalAuthors.replace(QString(","), QString("\n"));
-        text += "\n *** " + QString(TOSTRING(APPLICATION_NAME)) + " ***\n";
-        text += additionalAuthors;
-    }
-
-    QMessageBox msgBox;
-    msgBox.setText("List of the application authors:            ");
-    msgBox.setDetailedText(text);
-    expandDetailedText(&msgBox);
-    msgBox.exec();
-}
-
-void medHomepageArea::onShowReleaseNotes()
-{
-    QFile file(TOSTRING(RELEASE_NOTES));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QString text = file.readAll();
-
-    QMessageBox msgBox;
-    msgBox.setText("Here is the release notes with the history of the application:            ");
-    msgBox.setDetailedText(text);
-    expandDetailedText(&msgBox);
-    msgBox.exec();
-}
-
-void medHomepageArea::onShowLicense()
-{
-    QFile file(TOSTRING(LICENSE_FILE));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QString text = file.readAll();
-
-    QMessageBox msgBox;
-    msgBox.setText("Here is the application license:                           ");
-    msgBox.setDetailedText(text);
-    expandDetailedText(&msgBox);
-    msgBox.exec();
-}
-
-void medHomepageArea::onShowExtLicenses()
-{
-    QFile file(TOSTRING(LICENSE_EXTERNAL_FILE));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QString text = file.readAll();
-
-    QMessageBox msgBox;
-    msgBox.setText("Here are the external library licenses:                           ");
-    msgBox.setDetailedText(text);
-    expandDetailedText(&msgBox);
-    msgBox.exec();
-}
-
-void medHomepageArea::onShowDatabase()
-{
-    medDatabaseSettingsWidget dialog(this);
-    dialog.exec();
-}
-
-void medHomepageArea::onShowAreaSettings()
-{
-    medStartupSettingsWidget dialog(this);
-    dialog.exec();
-}
-
->>>>>>> f05491a24 ([Custom] configure setting file to customize medInria 4)
 void medHomepageArea::onShowWorkspace(QString workspace)
 {
     emit showWorkspace(workspace);
@@ -412,7 +287,6 @@ QPixmap medHomepageArea::getApplicationLogoPixmap()
     QPixmap applicationLogo;
     int themeIndex = medSettingsManager::instance()->value("startup","theme").toInt();
 
-<<<<<<< HEAD
     switch (themeIndex)
     {
     case 0:
@@ -425,30 +299,4 @@ QPixmap medHomepageArea::getApplicationLogoPixmap()
         break;
     }
     return applicationLogo;
-=======
-void medHomepageArea::openLogDirectory()
-{
-    QString path = QFileInfo(dtkLogPath(qApp)).path();
-    QDesktopServices::openUrl(QUrl::fromLocalFile(path));
-}
-
-void medHomepageArea::onShowPluginLogs()
-{
-    medPluginWidget dialog(this);
-    dialog.exec();
-}
-
-void medHomepageArea::onShowHelp()
-{   
-    // DOCUMENTATION_URL needs to be passed as a string in medInria.cmake 
-    //to avoid losing path after '/'
-    std::string str = TOSTRING(DOCUMENTATION_URL);
-    str.erase(std::remove(str.begin(),str.end(),'\"'),str.end());
-    QDesktopServices::openUrl(QUrl(QString::fromStdString(str)));
-}
-
-void medHomepageArea::onShowComposer()
-{
-    emit showComposer();
->>>>>>> f05491a24 ([Custom] configure setting file to customize medInria 4)
 }
