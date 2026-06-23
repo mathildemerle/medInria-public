@@ -13,7 +13,7 @@
 
 set(PYTHON_VERSION_MAJOR 3  CACHE STRING "Python major version")
 set(PYTHON_VERSION_MINOR 12 CACHE STRING "Python minor version")
-set(PYTHON_VERSION_PATCH 3  CACHE STRING "Python patch version")
+set(PYTHON_VERSION_PATCH 13 CACHE STRING "Python patch version")
 
 function(pyncpp_project)
 
@@ -29,8 +29,8 @@ function(pyncpp_project)
 
         epComputPath(${ep})
 
-        set(git_url ${GITHUB_PREFIX}LIRYC-IHU/pyncpp.git)
-        set(git_tag working)
+        set(git_url ${GITHUB_PREFIX}mathildemerle/pyncpp.git)
+        set(git_tag mac)
 
         set(cmake_args
             ${ep_common_cache_args}
@@ -79,13 +79,22 @@ function(pyncpp_project)
                 COMMENT "Installing Python dependencies on Windows"
                 WORKING_DIRECTORY ${BINARY_DIR}
             )
+        elseif(APPLE)
+            set(PYTHON_EXE "${BINARY_DIR}/Frameworks/Python.framework/Versions/${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/bin/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
+
+            ExternalProject_Add_Step(${ep} install_dependencies_mac
+                COMMAND ${PYTHON_EXE} -m pip install numpy vtk SimpleITK scipy
+                DEPENDEES install
+                COMMENT "Installing Python dependencies on macOS"
+                WORKING_DIRECTORY ${BINARY_DIR}
+            )
         else()
             set(PYTHON_EXE "${BINARY_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/bin/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 
-            ExternalProject_Add_Step(${ep} install_dependencies_unix
+            ExternalProject_Add_Step(${ep} install_dependencies_linux
                 COMMAND ${PYTHON_EXE} -m pip install numpy vtk SimpleITK scipy
                 DEPENDEES install
-                COMMENT "Installing Python dependencies on Unix"
+                COMMENT "Installing Python dependencies on Linux"
                 WORKING_DIRECTORY ${BINARY_DIR}
             )
         endif()

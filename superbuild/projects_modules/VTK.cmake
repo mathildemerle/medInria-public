@@ -78,6 +78,7 @@ set(cmake_args
   -DVTK_MODULE_ENABLE_VTK_GUISupportQt=YES
   -DVTK_MODULE_ENABLE_VTK_RenderingQt=YES
   -DVTK_MODULE_ENABLE_VTK_IOOggTheora:BOOL=YES
+  -DCMAKE_POLICY_DEFAULT_CMP0177=OLD
   )
 
 set(cmake_cache_args
@@ -127,16 +128,20 @@ if(${USE_FFmpeg})
 endif()
 
 if(USE_Python)
-    if(UNIX)
+    if(UNIX AND NOT APPLE)
         set(python_version    "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
         set(python_root       "${pyncpp_ROOT}/lib/python${python_version}")
-        if(APPLE)
-            set(python_executable "${pyncpp_ROOT}/lib/python${python_version}/bin/python${python_version}")
-        else()
-            set(python_executable "${pyncpp_ROOT}/lib/python${python_version}/bin/python${python_version}_bin")
-        endif()
+        set(python_executable "${pyncpp_ROOT}/lib/python${python_version}/bin/python${python_version}_bin")
         set(python_include    "${pyncpp_ROOT}/lib/python${python_version}/include/python${python_version}")
         set(python_library    "${pyncpp_ROOT}/lib/python${python_version}/lib/libpython${python_version}${CMAKE_SHARED_LIBRARY_SUFFIX}")
+    elseif (APPLE)
+        set(python_version    "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
+        set(python_root       "${pyncpp_ROOT}/Frameworks/Python.framework")
+        set(version_dir       "${python_root}/Versions/${python_version}")
+        set(python_executable "${version_dir}/bin/python${python_version}")
+        set(python_include    "${version_dir}/include/python${python_version}")
+        #set(python_include    "${version_dir}/Headers")
+        set(python_library    "${version_dir}/Python")   
     else()
         set(python_version    "${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR}")
         set(python_root       "${pyncpp_ROOT}/python${python_version}")
@@ -151,6 +156,19 @@ if(USE_Python)
         -DPython3_LIBRARY:PATH=${python_library}
         -DPython3_ROOT_DIR:PATH=${python_root}
         )
+
+    if (APPLE)
+        set(_rpath_list ${pyncpp_ROOT}/Frameworks)
+        list(APPEND cmake_args
+        -DVTK_WHEEL_BUILD:BOOL=OFF
+        -DCMAKE_BUILD_RPATH:STRING=${_rpath_list}
+        -DCMAKE_INSTALL_RPATH:STRING=${_rpath_list}
+        -DCMAKE_MACOSX_RPATH:BOOL=ON
+        -DPython3_FIND_FRAMEWORK=NEVER
+        -DPython3_VERSION:STRING=${python_version}
+        -DPython3_FIND_VERSION:STRING=${python_version}
+        )
+    endif()
 endif()
 
 ## #############################################################################
