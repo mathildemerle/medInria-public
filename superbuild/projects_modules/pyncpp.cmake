@@ -11,9 +11,9 @@
 #
 ################################################################################
 
-set(PYTHON_VERSION_MAJOR 3 CACHE STRING "Python major version")
-set(PYTHON_VERSION_MINOR 10 CACHE STRING "Python minor version")
-set(PYTHON_VERSION_PATCH 10 CACHE STRING "Python patch version")
+set(PYTHON_VERSION_MAJOR 3  CACHE STRING "Python major version")
+set(PYTHON_VERSION_MINOR 12 CACHE STRING "Python minor version")
+set(PYTHON_VERSION_PATCH 14 CACHE STRING "Python patch version")
 
 function(pyncpp_project)
 
