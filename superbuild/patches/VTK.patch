@@ -1,3 +1,24 @@
+From 5f73a32a0d0872b67e3dd87938966914459e0ab9 Mon Sep 17 00:00:00 2001
+From: Mathilde Merle <mathilde.merle@ihu-liryc.fr>
+Date: Thu, 3 Sep 2026 11:18:10 +0200
+Subject: [PATCH] VTK
+
+---
+ CMake/VTKGenerateExportHeader.cmake           |  6 +++++-
+ IO/Movie/module.cmake                         |  1 +
+ IO/Movie/vtkOggTheoraWriter.cxx               |  4 +++-
+ Rendering/Qt/vtkQtLabelRenderStrategy.cxx     |  1 +
+ Rendering/Qt/vtkQtStringToImage.cxx           |  1 +
+ Wrapping/PythonCore/PyVTKMethodDescriptor.cxx |  2 +-
+ Wrapping/PythonCore/PyVTKNamespace.cxx        |  2 +-
+ Wrapping/PythonCore/PyVTKReference.cxx        | 10 +++++-----
+ Wrapping/PythonCore/PyVTKTemplate.cxx         |  2 +-
+ Wrapping/PythonCore/vtkPythonOverload.cxx     |  2 +-
+ Wrapping/Tools/vtkWrapPythonClass.c           |  2 +-
+ Wrapping/Tools/vtkWrapPythonEnum.c            |  2 +-
+ Wrapping/Tools/vtkWrapPythonType.c            |  2 +-
+ 13 files changed, 23 insertions(+), 14 deletions(-)
+
 diff --git a/CMake/VTKGenerateExportHeader.cmake b/CMake/VTKGenerateExportHeader.cmake
 index 9a7a76386e..f71969ae54 100644
 --- a/CMake/VTKGenerateExportHeader.cmake
@@ -100,9 +121,18 @@ index 71ee2a3516..1c5f85c3d4 100644
    nullptr,                               // tp_setattr
    nullptr,                               // tp_compare
 diff --git a/Wrapping/PythonCore/PyVTKReference.cxx b/Wrapping/PythonCore/PyVTKReference.cxx
-index 943ac71080..6f3e0130a8 100644
+index 943ac71080..67be3a10b0 100644
 --- a/Wrapping/PythonCore/PyVTKReference.cxx
 +++ b/Wrapping/PythonCore/PyVTKReference.cxx
+@@ -928,7 +928,7 @@ static PyObject *PyVTKReference_GetAttr(PyObject *self, PyObject *attr)
+   }
+ #else
+   int firstchar = '\0';
+-  if (PyUnicode_Check(attr) && PyUnicode_GetSize(attr) > 0)
++  if (PyUnicode_Check(attr) && PyUnicode_GetLength(attr) > 0)
+   {
+     firstchar = PyUnicode_AS_UNICODE(attr)[0];
+   }
 @@ -1010,7 +1010,7 @@ PyTypeObject PyVTKReference_Type = {
    sizeof(PyVTKReference),                // tp_basicsize
    0,                                     // tp_itemsize
@@ -152,6 +182,19 @@ index be200985b3..ebc236ad5f 100644
    nullptr,                               // tp_getattr
    nullptr,                               // tp_setattr
    nullptr,                               // tp_compare
+diff --git a/Wrapping/PythonCore/vtkPythonOverload.cxx b/Wrapping/PythonCore/vtkPythonOverload.cxx
+index 34287eec67..10305f4b58 100644
+--- a/Wrapping/PythonCore/vtkPythonOverload.cxx
++++ b/Wrapping/PythonCore/vtkPythonOverload.cxx
+@@ -434,7 +434,7 @@ int vtkPythonOverload::CheckArg(
+ 
+     case 'c':
+       // penalize chars, they must be converted from strings
+-      if (PyUnicode_Check(arg) && PyUnicode_GetSize(arg) == 1)
++      if (PyUnicode_Check(arg) && PyUnicode_GetLength(arg) == 1)
+       {
+         penalty = VTK_PYTHON_NEEDS_CONVERSION;
+       }
 diff --git a/Wrapping/Tools/vtkWrapPythonClass.c b/Wrapping/Tools/vtkWrapPythonClass.c
 index 989101b2ee..9a8b465acd 100644
 --- a/Wrapping/Tools/vtkWrapPythonClass.c
@@ -191,3 +234,6 @@ index 744cb1b9d3..f6361bcb26 100644
      "  nullptr, // tp_getattr\n"
      "  nullptr, // tp_setattr\n"
      "  nullptr, // tp_compare\n"
+-- 
+2.43.0
+

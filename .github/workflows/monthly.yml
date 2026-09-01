@@ -1,0 +1,45 @@
+# This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
+name: Monthly builds
+
+on:
+  schedule:
+    - cron: '0 3 2 * *'  # Each second day of each month at 3h00, MIN HOUR DAY_IN_MONTH MONTH WEEK_DAY
+
+  workflow_dispatch:
+    inputs:
+      BRANCH:
+        description: 'Branch to build'
+        required: false
+        default: 'master'
+        type: string
+      RELEASE:
+        description: 'Github release tag to send to'
+        required: false
+        default: 'V5.0.1beta'
+        type: string
+
+jobs:
+  build-linux:
+    uses: ./.github/workflows/medinria-linux.yml
+    with:
+      BRANCH:  ${{ inputs.BRANCH || 'master' }}
+      RELEASE: ${{ inputs.BRANCH || 'V5.0.1beta' }}
+
+  build-linux-realtime:
+    uses: ./.github/workflows/medinria-linux.yml
+    with:
+      BRANCH:  ${{ inputs.BRANCH || 'master' }}
+      RELEASE: ${{ inputs.BRANCH || 'V5.0.1beta' }}
+
+  build-macos:
+    uses: ./.github/workflows/medinria-macos.yml
+    with:
+      BRANCH:  ${{ inputs.BRANCH || 'master' }}
+      RELEASE: ${{ inputs.BRANCH || 'V5.0.1beta' }}
+
+  build-windows:
+    uses: ./.github/workflows/medinria-windows.yml
+    with:
+      BRANCH:  ${{ inputs.BRANCH || 'master' }}
+      RELEASE: ${{ inputs.BRANCH || 'V5.0.1beta' }}

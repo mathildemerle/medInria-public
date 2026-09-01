@@ -1,0 +1,39 @@
+# This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
+name: Weekly builds
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'  # Each monday at 2h00, MIN HOUR DAY_IN_MONTH MONTH WEEK_DAY
+
+  workflow_dispatch:
+    inputs:
+      BRANCH:
+        description: 'Branch to build'
+        required: false
+        default: 'medInria4.0.x'
+        type: string
+      RELEASE:
+        description: 'Github release tag to send to'
+        required: false
+        default: 'V4.0.2'
+        type: string
+
+jobs:
+  build-linux:
+    uses: ./.github/workflows/medinria-linux.yml
+    with:
+      BRANCH: ${{ inputs.BRANCH || 'medInria4.0.x' }}
+      RELEASE: ${{ inputs.BRANCH || 'V4.0.2' }}
+
+  build-macos:
+    uses: ./.github/workflows/medinria-macos.yml
+    with:
+      BRANCH: ${{ inputs.BRANCH || 'medInria4.0.x' }}
+      RELEASE: ${{ inputs.BRANCH || 'V4.0.2' }}
+
+  build-windows:
+    uses: ./.github/workflows/medinria-windows.yml
+    with:
+      BRANCH: ${{ inputs.BRANCH || 'medInria4.0.x' }}
+      RELEASE: ${{ inputs.BRANCH || 'V4.0.2' }}

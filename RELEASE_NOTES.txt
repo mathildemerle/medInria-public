@@ -31,6 +31,9 @@ medInria 4.0:
     * Compilation on Ubuntu 24.
     * Switch to ITK v5.4.5.
     * Fix import of DICOMs without .dcm extension.
+- CHANGES FOR CI/CD 4.0.3:
+    * Switch to Github Action for continuous integration.
+    * Switch to Python 3.12.14.
 
 medInria 3.3:
 - Fix mirrored DICOM images problem
