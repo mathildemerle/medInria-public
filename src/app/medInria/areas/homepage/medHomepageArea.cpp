@@ -176,6 +176,15 @@ medHomepageArea::medHomepageArea ( QWidget * parent ) : QWidget ( parent ), d ( 
     aboutLicenseTextEdit->setFocusPolicy ( Qt::NoFocus );
     license.close();
 
+    QTextEdit * aboutLicensesExtTextEdit = new QTextEdit(this);
+    QFile licensesExt ( ":LICENSES_EXT.txt" );
+    licensesExt.open ( QIODevice::ReadOnly | QIODevice::Text );
+    QTextStream licensesExtContent(&licensesExt);
+    licensesExtContent.setCodec("UTF-8");
+    aboutLicensesExtTextEdit->setText ( licensesExtContent.readAll() );
+    aboutLicensesExtTextEdit->setFocusPolicy ( Qt::NoFocus );
+    licensesExt.close();
+
     QTextEdit * releaseNotesTextEdit = new QTextEdit(this);
     QFile releaseNotes ( ":RELEASE_NOTES.txt" );
     releaseNotes.open ( QIODevice::ReadOnly | QIODevice::Text );
@@ -200,6 +209,7 @@ medHomepageArea::medHomepageArea ( QWidget * parent ) : QWidget ( parent ), d ( 
     d->aboutTabWidget->addTab ( aboutAuthorTextBrowser, tr("Authors") );
     d->aboutTabWidget->addTab ( releaseNotesTextEdit, tr("Release Notes") );
     d->aboutTabWidget->addTab ( aboutLicenseTextEdit, tr("License") );
+    d->aboutTabWidget->addTab ( aboutLicensesExtTextEdit, tr("External Licenses") );
 
     aboutLayout->addWidget ( medInriaLabel2 );
     aboutLayout->addWidget ( d->aboutTabWidget );

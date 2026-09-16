@@ -1,8 +1,14 @@
 medInria 6.0
 - Based on medInria 4.x, aims to fuse updates on the core and some functionalities from medInria 5.x-beta progressively.
 - Switch to Github Action for continuous integration.
+- Compatibility with CMake 4.
+- Enhance DMG packaging for recent macOS (15->26 at least) for signed binaries.
 - Switch to Python 3.12.14.
-- Remove Composer
+- Switch to LCC-LogDemons version 1.3.
+- Remove Composer workspace.
+- Add ZLIB as external project.
+- Removes FFMPEG to only keep OGV video export which is natively used by VTK.
+- Add a License_ext file for external project licenses.
 
 medInria 5.0-beta
 - - Replace old system of database with new system of data sources:
