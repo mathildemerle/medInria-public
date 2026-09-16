@@ -2,6 +2,7 @@ medInria 6.0
 - Based on medInria 4.x, aims to fuse updates on the core and some functionalities from medInria 5.x-beta progressively.
 - Switch to Github Action for continuous integration.
 - Switch to Python 3.12.14.
+- Remove Composer
 
 medInria 5.0-beta
 - - Replace old system of database with new system of data sources:
