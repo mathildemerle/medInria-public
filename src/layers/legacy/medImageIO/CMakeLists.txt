@@ -22,11 +22,7 @@ set(TARGET_NAME medImageIO)
 
 find_package(ITK REQUIRED COMPONENTS ITKVtkGlue ITKIOImageBase ITKIOMeta ITKZLIB)
 include(${ITK_USE_FILE})
-
 #WARNING USE VTK through ITKVtkGlue and medLog
-
-find_package(DCMTK REQUIRED NO_MODULE)
-
 
 ## #############################################################################
 ## List Sources
@@ -95,7 +91,6 @@ target_link_libraries(${TARGET_NAME}
   ITKVTK
   vtkIOImage
   ${ITKIOPhilipsREC_LIBRARIES}
-  ${DCMTK_LIBRARIES}
   )
 
 ## #############################################################################

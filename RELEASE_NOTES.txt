@@ -10,6 +10,7 @@ medInria 6.0
 - Add ZLIB as external project.
 - Removes FFMPEG to only keep OGV video export which is natively used by VTK.
 - Add a License_ext file for external project licenses.
+- DICOM reader has been updated to be more robust.
 
 FOR INFO medInria 5.0-beta
 - - Replace old system of database with new system of data sources:
