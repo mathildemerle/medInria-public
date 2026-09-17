@@ -41,7 +41,7 @@ if (NOT USE_SYSTEM_${ep})
 ## #############################################################################
 
 set(git_url ${GITHUB_PREFIX}Kitware/VTK.git)
-set(git_tag v8.1.2)
+set(git_tag v9.0.3)
 
 ## #############################################################################
 ## Add specific cmake arguments for configuration step of the project
@@ -86,6 +86,13 @@ if(NOT USE_SYSTEM_ZLIB AND APPLE)
     )
 endif()
 
+if (APPLE) # Error on recent macs with VTK 9.0.3
+    list(APPEND cmake_args
+        -DVTK_USE_SYSTEM_HDF5:BOOL=OFF
+        -DVTKGroup_hdf5:BOOL=OFF
+    )
+endif()
+
 if(USE_OSPRay)
     list(APPEND cmake_args
         -Dospray_DIR=${ospray_DIR}
@@ -113,12 +120,11 @@ if(USE_Python)
     endif()
     list(APPEND cmake_args
         -DVTK_WRAP_PYTHON:BOOL=ON
-        -DModule_vtkPython:BOOL=ON
-        -DModule_vtkWrappingTools:BOOL=ON
-        -DVTK_PYTHON_VERSION:STRING=${python_version}
-        -DPYTHON_EXECUTABLE:PATH=${python_executable}
-        -DPYTHON_INCLUDE_DIR:PATH=${python_include}
-        -DPYTHON_LIBRARY:PATH=${python_library}
+        -DPython3_EXECUTABLE:PATH=${python_executable}
+        -DPython3_INCLUDE_DIR:PATH=${python_include}
+        -DPython3_LIBRARY:PATH=${python_library}
+        -DPython3_ROOT_DIR:PATH=${python_root}
+        -DVTK_PYTHON_VERSION:STRING=3
         )
 endif()
 
