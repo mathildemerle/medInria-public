@@ -69,6 +69,7 @@ set(cmake_args
   -DModule_vtkRenderingOSPRay:BOOL=${USE_OSPRay}
   -DVTK_QT_VERSION=5
   -DVTK_USE_OGGTHEORA_ENCODER:BOOL=ON # OGV Export
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
   )
   
 set(cmake_cache_args

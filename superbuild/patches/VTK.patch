@@ -1,10 +1,11 @@
-From 5f73a32a0d0872b67e3dd87938966914459e0ab9 Mon Sep 17 00:00:00 2001
+From 1f3d92618338ba8eb4aae503cc1c59b024e704af Mon Sep 17 00:00:00 2001
 From: Mathilde Merle <mathilde.merle@ihu-liryc.fr>
-Date: Thu, 3 Sep 2026 11:18:10 +0200
+Date: Wed, 16 Sep 2026 16:53:15 +0200
 Subject: [PATCH] VTK
 
 ---
  CMake/VTKGenerateExportHeader.cmake           |  6 +++++-
+ CMakeLists.txt                                |  2 +-
  IO/Movie/module.cmake                         |  1 +
  IO/Movie/vtkOggTheoraWriter.cxx               |  4 +++-
  Rendering/Qt/vtkQtLabelRenderStrategy.cxx     |  1 +
@@ -17,7 +18,7 @@ Subject: [PATCH] VTK
  Wrapping/Tools/vtkWrapPythonClass.c           |  2 +-
  Wrapping/Tools/vtkWrapPythonEnum.c            |  2 +-
  Wrapping/Tools/vtkWrapPythonType.c            |  2 +-
- 13 files changed, 23 insertions(+), 14 deletions(-)
+ 14 files changed, 24 insertions(+), 15 deletions(-)
 
 diff --git a/CMake/VTKGenerateExportHeader.cmake b/CMake/VTKGenerateExportHeader.cmake
 index 9a7a76386e..f71969ae54 100644
@@ -37,6 +38,16 @@ index 9a7a76386e..f71969ae54 100644
      # gcc on mac just reports: "gcc (GCC) 3.3 20030304 ..." without the
      # patch level, handle this here:
      if(NOT _gcc_version)
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 3286001d0b..ac9fbeef91 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
++cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
+ 
+ # Set a consistent MACOSX_RPATH default across all CMake versions.
+ # When CMake 2.8.12 is required, change this default to 1.
 diff --git a/IO/Movie/module.cmake b/IO/Movie/module.cmake
 index fd6d096384..071b4a20a2 100644
 --- a/IO/Movie/module.cmake
