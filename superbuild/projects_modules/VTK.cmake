@@ -60,15 +60,14 @@ set(cmake_args
   -DCMAKE_SHARED_LINKER_FLAGS=${${ep}_shared_linker_flags}  
   -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>  
   -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS_${ep}}
-  -DBUILD_TESTING=OFF
-  -DBUILD_DOCUMENTATION=OFF
-  -DBUILD_EXAMPLES=OFF
+  -DVTK_BUILD_TESTING=OFF
+  -DVTK_BUILD_DOCUMENTATION=OFF
+  -DVTK_BUILD_EXAMPLES=OFF
   -DVTK_RENDERING_BACKEND=OpenGL2
-  -DVTK_Group_Qt=ON
-  -DModule_vtkGUISupportQtOpenGL=ON
-  -DModule_vtkRenderingOSPRay:BOOL=${USE_OSPRay}
   -DVTK_QT_VERSION=5
-  -DVTK_USE_OGGTHEORA_ENCODER:BOOL=ON # OGV Export
+  -DVTK_MODULE_ENABLE_VTK_GUISupportQt=YES
+  -DVTK_MODULE_ENABLE_VTK_RenderingQt=YES
+  -DVTK_MODULE_ENABLE_VTK_IOOggTheora:BOOL=YES
   -DCMAKE_POLICY_VERSION_MINIMUM=3.5
   )
   
@@ -88,13 +87,13 @@ endif()
 
 if (APPLE) # Error on recent macs with VTK 9.0.3
     list(APPEND cmake_args
-        -DVTK_USE_SYSTEM_HDF5:BOOL=OFF
-        -DVTKGroup_hdf5:BOOL=OFF
+        -DVTK_MODULE_ENABLE_VTK_hdf5=NO
     )
 endif()
 
 if(USE_OSPRay)
     list(APPEND cmake_args
+        -DVTK_MODULE_ENABLE_VTK_RenderingOSPRay=YES
         -Dospray_DIR=${ospray_DIR}
         -DOSPRAY_INSTALL_DIR=${OSPRAY_INSTALL_DIR}
     )
@@ -124,7 +123,7 @@ if(USE_Python)
         -DPython3_INCLUDE_DIR:PATH=${python_include}
         -DPython3_LIBRARY:PATH=${python_library}
         -DPython3_ROOT_DIR:PATH=${python_root}
-        -DVTK_PYTHON_VERSION:STRING=3
+        -DVTK_PYTHON_VERSION:STRING=${PYTHON_VERSION_MAJOR}
         )
 endif()
 
