@@ -1,13 +1,83 @@
-From e6f4571bb36fb9a2adc424d67d8d53f4b042dea1 Mon Sep 17 00:00:00 2001
+From cf1d5248341c49b42a60149f4a6db52dce0fdae5 Mon Sep 17 00:00:00 2001
 From: Mathilde Merle <mathilde.merle@ihu-liryc.fr>
-Date: Thu, 17 Sep 2026 15:27:43 +0200
+Date: Mon, 21 Sep 2026 11:46:27 +0200
 Subject: [PATCH] VTK
 
 ---
- ThirdParty/png/vtkpng/pngpriv.h         | 14 ++------------
- Utilities/octree/octree/octree_node.txx |  2 +-
- 2 files changed, 3 insertions(+), 13 deletions(-)
+ Common/Core/vtkDataArrayPrivate.txx             |  2 ++
+ Common/Core/vtkGenericDataArrayLookupHelper.h   |  2 ++
+ Common/DataModel/vtkPiecewiseFunction.cxx       |  2 ++
+ Filters/HyperTree/vtkHyperTreeGridThreshold.cxx |  2 ++
+ Rendering/Core/vtkColorTransferFunction.cxx     |  2 ++
+ ThirdParty/png/vtkpng/pngpriv.h                 | 14 ++------------
+ Utilities/octree/octree/octree_node.txx         |  2 +-
+ 7 files changed, 13 insertions(+), 13 deletions(-)
 
+diff --git a/Common/Core/vtkDataArrayPrivate.txx b/Common/Core/vtkDataArrayPrivate.txx
+index d83899bfb8..400abb6ccf 100644
+--- a/Common/Core/vtkDataArrayPrivate.txx
++++ b/Common/Core/vtkDataArrayPrivate.txx
+@@ -26,6 +26,8 @@
+ #include <cassert> // for assert()
+ #include <vector>
+ 
++#include <limits>
++
+ namespace vtkDataArrayPrivate
+ {
+ #if (defined(_MSC_VER) && (_MSC_VER < 2000)) ||                                                    \
+diff --git a/Common/Core/vtkGenericDataArrayLookupHelper.h b/Common/Core/vtkGenericDataArrayLookupHelper.h
+index f278e27c0f..4997230545 100644
+--- a/Common/Core/vtkGenericDataArrayLookupHelper.h
++++ b/Common/Core/vtkGenericDataArrayLookupHelper.h
+@@ -28,6 +28,8 @@
+ #include <unordered_map>
+ #include <vector>
+ 
++#include <limits>
++
+ namespace detail
+ {
+ template <typename T, bool>
+diff --git a/Common/DataModel/vtkPiecewiseFunction.cxx b/Common/DataModel/vtkPiecewiseFunction.cxx
+index c75935fd19..546e9f378d 100644
+--- a/Common/DataModel/vtkPiecewiseFunction.cxx
++++ b/Common/DataModel/vtkPiecewiseFunction.cxx
+@@ -25,6 +25,8 @@
+ #include <set>
+ #include <vector>
+ 
++#include <limits>
++
+ vtkStandardNewMacro(vtkPiecewiseFunction);
+ 
+ // The Node structure
+diff --git a/Filters/HyperTree/vtkHyperTreeGridThreshold.cxx b/Filters/HyperTree/vtkHyperTreeGridThreshold.cxx
+index 9944db69e4..c9869a3706 100644
+--- a/Filters/HyperTree/vtkHyperTreeGridThreshold.cxx
++++ b/Filters/HyperTree/vtkHyperTreeGridThreshold.cxx
+@@ -29,6 +29,8 @@
+ 
+ #include <cmath>
+ 
++#include <limits>
++
+ vtkStandardNewMacro(vtkHyperTreeGridThreshold);
+ 
+ //-----------------------------------------------------------------------------
+diff --git a/Rendering/Core/vtkColorTransferFunction.cxx b/Rendering/Core/vtkColorTransferFunction.cxx
+index 40504e5398..d2b8c04ca2 100644
+--- a/Rendering/Core/vtkColorTransferFunction.cxx
++++ b/Rendering/Core/vtkColorTransferFunction.cxx
+@@ -24,6 +24,8 @@
+ #include <set>
+ #include <vector>
+ 
++#include <limits>
++
+ vtkStandardNewMacro(vtkColorTransferFunction);
+ 
+ #define MY_MAX(x, y) ((x) > (y) ? (x) : (y))
 diff --git a/ThirdParty/png/vtkpng/pngpriv.h b/ThirdParty/png/vtkpng/pngpriv.h
 index aecf625c8b..6470104da6 100644
 --- a/ThirdParty/png/vtkpng/pngpriv.h
@@ -47,5 +117,5 @@ index 15772f0651..39bef401d5 100644
  
  /**\brief Return a reference to a child node.
 -- 
-2.50.1 (Apple Git-155)
+2.43.0
 
