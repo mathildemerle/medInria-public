@@ -47,6 +47,10 @@ jobs:
       with:
           ref: ${{ inputs.BRANCH }}
 
+    - name: Save in environment variable in case of automatic runs
+      run: |
+        echo "RELEASE=${{ inputs.RELEASE || 'V6.0.0' }}" >> $GITHUB_ENV
+
     # Dependencies, already on the runner: CMake 3, git, Visual Studio Enterprise, 7zip
 
     # https://github.com/marketplace/actions/download-and-install-boost
@@ -100,5 +104,5 @@ jobs:
       with:
         file: D:\b\${{env.BINARY_NAME}}
         asset_name: ${{env.BINARY_NAME}}
-        tag: ${{ inputs.RELEASE }}
+        tag: ${{env.RELEASE}}
         overwrite: true

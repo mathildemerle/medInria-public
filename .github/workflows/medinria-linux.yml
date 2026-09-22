@@ -46,7 +46,10 @@ jobs:
       with:
           ref: ${{ inputs.BRANCH }}
 
-    # TODO swig?
+    - name: Save in environment variable in case of automatic runs
+      run: |
+        echo "RELEASE=${{ inputs.RELEASE || 'V6.0.0' }}" >> $GITHUB_ENV
+
     - name: Install dependencies
       run: |
         sudo snap install cmake --classic
@@ -88,7 +91,7 @@ jobs:
     - name: Get binary name
       run: |
         cd ${{github.workspace}}/build
-        binary=$(ls *.zip | head -n 1)
+        binary=$(ls *.AppImage | head -n 1)
         echo "BINARY_NAME=$binary" >> $GITHUB_ENV
         echo "The current package: $binary"
 
@@ -97,5 +100,5 @@ jobs:
       with:
         file: ${{github.workspace}}/build/${{env.BINARY_NAME}}
         asset_name: ${{env.BINARY_NAME}}
-        tag: ${{ inputs.RELEASE }}
+        tag: ${{env.RELEASE}}
         overwrite: true

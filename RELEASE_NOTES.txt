@@ -3,12 +3,13 @@ medInria 6.0
 - Switch to Github Action for continuous integration.
 - Compatibility with CMake 4.
 - On Linux now we generate AppImages, instead of ZIP packages for Ubuntu and Fedora.
-- Enhance DMG packaging for recent macOS (15->26 at least) for signed binaries.
+- macOS DMGs are signed with self-signed certificate.
+- Enhance DMG packaging for recent macOS (15/26 at least) for signed binaries.
 - Switch to VTK 9.0.3, Python 3.12.14, LCC-LogDemons version 1.3, RPI V2.0.0, DCMTK to 3.6.9, QtDCM to 'DCMTK-3.6.9' branch, TTK to 'ITK5.4rc04+VTK9' branch.
 - Remove Composer workspace.
 - Add ZLIB as external project.
 - Removes FFMPEG to only keep OGV video export which is natively used by VTK.
-- Add a License_ext file for external project licenses.
+- Add a LICENSES_EXT file for external project licenses.
 - DICOM reader has been updated to be more robust.
 
 FOR INFO medInria 5.0-beta
