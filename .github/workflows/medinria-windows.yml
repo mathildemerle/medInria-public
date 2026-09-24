@@ -48,6 +48,7 @@ jobs:
           ref: ${{ inputs.BRANCH }}
 
     - name: Save in environment variable in case of automatic runs
+      shell: bash
       run: |
         echo "RELEASE=${{ inputs.RELEASE || 'V6.0.0' }}" >> $GITHUB_ENV
 
